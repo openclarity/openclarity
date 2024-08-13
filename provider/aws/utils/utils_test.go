@@ -21,7 +21,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 
-	"github.com/openclarity/vmclarity/core/to"
+	"github.com/openclarity/openclarity/core/to"
 )
 
 func Test_getInstanceState(t *testing.T) {

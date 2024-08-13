@@ -23,15 +23,15 @@ import (
 	"github.com/go-viper/mapstructure/v2"
 	"github.com/spf13/viper"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/testenv"
-	"github.com/openclarity/vmclarity/testenv/aws"
-	azureenv "github.com/openclarity/vmclarity/testenv/azure"
-	k8senv "github.com/openclarity/vmclarity/testenv/kubernetes"
-	"github.com/openclarity/vmclarity/testenv/kubernetes/helm"
-	k8senvtypes "github.com/openclarity/vmclarity/testenv/kubernetes/types"
-	"github.com/openclarity/vmclarity/testenv/types"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/core/to"
+	"github.com/openclarity/openclarity/testenv"
+	"github.com/openclarity/openclarity/testenv/aws"
+	azureenv "github.com/openclarity/openclarity/testenv/azure"
+	k8senv "github.com/openclarity/openclarity/testenv/kubernetes"
+	"github.com/openclarity/openclarity/testenv/kubernetes/helm"
+	k8senvtypes "github.com/openclarity/openclarity/testenv/kubernetes/types"
+	"github.com/openclarity/openclarity/testenv/types"
 )
 
 const (

@@ -19,8 +19,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/to"
+	"github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/core/to"
 )
 
 func Test_isEmptyOperationTime(t *testing.T) {

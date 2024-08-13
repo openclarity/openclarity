@@ -20,7 +20,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/openclarity/vmclarity/scanner/families/infofinder/types"
+	"github.com/openclarity/openclarity/scanner/families/infofinder/types"
 )
 
 var testScanner = &Scanner{}

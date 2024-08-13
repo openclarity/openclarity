@@ -25,7 +25,7 @@ import (
 	. "github.com/onsi/gomega"
 	gtypes "github.com/onsi/gomega/types"
 
-	"github.com/openclarity/vmclarity/workflow/types"
+	"github.com/openclarity/openclarity/workflow/types"
 )
 
 const (

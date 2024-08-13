@@ -27,13 +27,13 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=bind,source=.,target=/build,ro \
     GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=0 \
     go build -ldflags="-s -w -extldflags -static" \
-    -o /bin/vmclarity-scanner ./main.go
+    -o /bin/openclarity-scanner ./main.go
 
 FROM alpine:3.20@sha256:0a4eaa0eecf5f8c050e5bba433f58c052be7587ee8af3e8b3910ef9ab5fbe9f5
 
-COPY --from=builder /bin/vmclarity-scanner /bin/vmclarity-scanner
+COPY --from=builder /bin/openclarity-scanner /bin/openclarity-scanner
 COPY --from=builder /artifacts/assets/queries /queries
 
 USER 65534
 
-ENTRYPOINT ["/bin/vmclarity-scanner"]
+ENTRYPOINT ["/bin/openclarity-scanner"]

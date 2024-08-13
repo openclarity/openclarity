@@ -26,9 +26,9 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/network/armnetwork/v5"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resources/armresources"
 
-	"github.com/openclarity/vmclarity/installation"
-	"github.com/openclarity/vmclarity/testenv/utils"
-	dockerhelper "github.com/openclarity/vmclarity/testenv/utils/docker"
+	"github.com/openclarity/openclarity/installation"
+	"github.com/openclarity/openclarity/testenv/utils"
+	dockerhelper "github.com/openclarity/openclarity/testenv/utils/docker"
 )
 
 func checkAzureEnvVars() error {

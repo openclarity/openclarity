@@ -19,7 +19,7 @@ import (
 	"context"
 	"io"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/openclarity/api/types"
 )
 
 type DiscovererFactory func() (Discoverer, error)

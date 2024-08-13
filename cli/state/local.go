@@ -18,9 +18,9 @@ package state
 import (
 	"context"
 
-	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/scanner"
-	"github.com/openclarity/vmclarity/scanner/families"
+	"github.com/openclarity/openclarity/core/log"
+	"github.com/openclarity/openclarity/scanner"
+	"github.com/openclarity/openclarity/scanner/families"
 )
 
 type LocalState struct{}

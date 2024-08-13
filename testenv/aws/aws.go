@@ -29,10 +29,10 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 
-	"github.com/openclarity/vmclarity/testenv/aws/asset"
-	"github.com/openclarity/vmclarity/testenv/types"
-	"github.com/openclarity/vmclarity/testenv/utils"
-	"github.com/openclarity/vmclarity/testenv/utils/docker"
+	"github.com/openclarity/openclarity/testenv/aws/asset"
+	"github.com/openclarity/openclarity/testenv/types"
+	"github.com/openclarity/openclarity/testenv/utils"
+	"github.com/openclarity/openclarity/testenv/utils/docker"
 )
 
 type ContextKeyType string

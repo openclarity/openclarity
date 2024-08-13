@@ -20,10 +20,10 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/openclarity/vmclarity/containerruntimediscovery/server/containerd"
-	"github.com/openclarity/vmclarity/containerruntimediscovery/server/docker"
-	"github.com/openclarity/vmclarity/containerruntimediscovery/types"
-	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/openclarity/containerruntimediscovery/server/containerd"
+	"github.com/openclarity/openclarity/containerruntimediscovery/server/docker"
+	"github.com/openclarity/openclarity/containerruntimediscovery/types"
+	"github.com/openclarity/openclarity/core/log"
 )
 
 var discovererFactories = map[string]types.DiscovererFactory{

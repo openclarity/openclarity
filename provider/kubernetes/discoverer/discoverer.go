@@ -24,7 +24,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/openclarity/vmclarity/provider"
+	"github.com/openclarity/openclarity/provider"
 )
 
 var _ provider.Discoverer = &Discoverer{}

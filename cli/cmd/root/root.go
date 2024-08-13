@@ -24,11 +24,11 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	"github.com/openclarity/vmclarity/cli/cmd/asset"
-	"github.com/openclarity/vmclarity/cli/cmd/logutil"
-	"github.com/openclarity/vmclarity/cli/cmd/scan"
-	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/core/version"
+	"github.com/openclarity/openclarity/cli/cmd/asset"
+	"github.com/openclarity/openclarity/cli/cmd/logutil"
+	"github.com/openclarity/openclarity/cli/cmd/scan"
+	"github.com/openclarity/openclarity/core/log"
+	"github.com/openclarity/openclarity/core/version"
 )
 
 // RootCmd represents the base command when called without any subcommands.

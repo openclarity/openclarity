@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/openclarity/vmclarity/scanner/common"
+	"github.com/openclarity/openclarity/scanner/common"
 )
 
 type FamilyType string

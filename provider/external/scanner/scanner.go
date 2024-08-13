@@ -20,9 +20,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/openclarity/vmclarity/provider"
-	"github.com/openclarity/vmclarity/provider/external/utils"
-	provider_service "github.com/openclarity/vmclarity/provider/external/utils/proto"
+	"github.com/openclarity/openclarity/provider"
+	"github.com/openclarity/openclarity/provider/external/utils"
+	provider_service "github.com/openclarity/openclarity/provider/external/utils/proto"
 )
 
 var _ provider.Scanner = &Scanner{}

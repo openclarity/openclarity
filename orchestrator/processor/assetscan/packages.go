@@ -21,8 +21,8 @@ import (
 	"fmt"
 	"time"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/to"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/core/to"
 )
 
 type packageExtractorFn func(assetScan apitypes.AssetScan) []apitypes.Package

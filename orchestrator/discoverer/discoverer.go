@@ -23,10 +23,10 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	apiclient "github.com/openclarity/vmclarity/api/client"
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/provider"
+	apiclient "github.com/openclarity/openclarity/api/client"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/core/to"
+	"github.com/openclarity/openclarity/provider"
 )
 
 const (

@@ -27,8 +27,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	server "github.com/openclarity/vmclarity/containerruntimediscovery/server"
-	"github.com/openclarity/vmclarity/core/log"
+	server "github.com/openclarity/openclarity/containerruntimediscovery/server"
+	"github.com/openclarity/openclarity/core/log"
 )
 
 var (

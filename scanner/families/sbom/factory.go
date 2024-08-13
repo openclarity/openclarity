@@ -16,12 +16,12 @@
 package sbom
 
 import (
-	"github.com/openclarity/vmclarity/scanner/families/sbom/cdx_gomod"
-	"github.com/openclarity/vmclarity/scanner/families/sbom/syft"
-	"github.com/openclarity/vmclarity/scanner/families/sbom/trivy"
-	"github.com/openclarity/vmclarity/scanner/families/sbom/types"
-	"github.com/openclarity/vmclarity/scanner/families/sbom/windows"
-	"github.com/openclarity/vmclarity/scanner/internal/scan_manager"
+	"github.com/openclarity/openclarity/scanner/families/sbom/cdx_gomod"
+	"github.com/openclarity/openclarity/scanner/families/sbom/syft"
+	"github.com/openclarity/openclarity/scanner/families/sbom/trivy"
+	"github.com/openclarity/openclarity/scanner/families/sbom/types"
+	"github.com/openclarity/openclarity/scanner/families/sbom/windows"
+	"github.com/openclarity/openclarity/scanner/internal/scan_manager"
 )
 
 // Factory receives parent config that contains shared fields to enable override.

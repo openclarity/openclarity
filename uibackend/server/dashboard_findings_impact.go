@@ -25,10 +25,10 @@ import (
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/scanner/findingkey"
-	"github.com/openclarity/vmclarity/uibackend/types"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/core/to"
+	"github.com/openclarity/openclarity/scanner/findingkey"
+	"github.com/openclarity/openclarity/uibackend/types"
 )
 
 const (

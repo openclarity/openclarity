@@ -13,11 +13,11 @@ secrets.
 
 | Name | Email | Url |
 | ---- | ------ | --- |
-| VMClarity Maintainers |  | <https://github.com/openclarity/vmclarity> |
+| OpenClarity Maintainers |  | <https://github.com/openclarity/openclarity> |
 
 ## Source Code
 
-* <https://github.com/openclarity/vmclarity>
+* <https://github.com/openclarity/openclarity>
 
 ## Requirements
 

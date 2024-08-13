@@ -1,4 +1,4 @@
-module github.com/openclarity/vmclarity/e2e/testdata
+module github.com/openclarity/openclarity/e2e/testdata
 
 go 1.22.4
 

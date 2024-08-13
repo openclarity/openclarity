@@ -22,7 +22,7 @@ import (
 
 	"github.com/go-viper/mapstructure/v2"
 
-	"github.com/openclarity/vmclarity/utils/fsutils/lsblk/internal"
+	"github.com/openclarity/openclarity/utils/fsutils/lsblk/internal"
 )
 
 func parsePairsFormat(b *bytes.Buffer) ([]BlockDevice, error) {

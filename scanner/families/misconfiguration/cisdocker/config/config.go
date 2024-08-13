@@ -18,7 +18,7 @@ package config
 import (
 	"time"
 
-	"github.com/openclarity/vmclarity/scanner/common"
+	"github.com/openclarity/openclarity/scanner/common"
 )
 
 type Config struct {

@@ -25,9 +25,9 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	discoverytypes "github.com/openclarity/vmclarity/containerruntimediscovery/types"
-	"github.com/openclarity/vmclarity/core/log"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	discoverytypes "github.com/openclarity/openclarity/containerruntimediscovery/types"
+	"github.com/openclarity/openclarity/core/log"
 )
 
 // nolint:cyclop,gocognit

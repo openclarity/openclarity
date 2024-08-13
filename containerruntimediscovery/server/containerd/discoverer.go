@@ -36,10 +36,10 @@ import (
 	"github.com/containerd/platforms"
 	"github.com/containers/image/v5/docker/reference"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/containerruntimediscovery/types"
-	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/core/to"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/containerruntimediscovery/types"
+	"github.com/openclarity/openclarity/core/log"
+	"github.com/openclarity/openclarity/core/to"
 )
 
 const (

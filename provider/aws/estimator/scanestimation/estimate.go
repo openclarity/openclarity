@@ -24,11 +24,11 @@ import (
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 	"github.com/aws/aws-sdk-go-v2/service/pricing"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/provider/common"
-	scannercommon "github.com/openclarity/vmclarity/scanner/common"
-	familiestypes "github.com/openclarity/vmclarity/scanner/families"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/core/to"
+	"github.com/openclarity/openclarity/provider/common"
+	scannercommon "github.com/openclarity/openclarity/scanner/common"
+	familiestypes "github.com/openclarity/openclarity/scanner/families"
 )
 
 type MarketOption string

@@ -21,16 +21,16 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/openclarity/vmclarity/scanner"
-	"github.com/openclarity/vmclarity/scanner/families"
-	exploits "github.com/openclarity/vmclarity/scanner/families/exploits/types"
-	infofinder "github.com/openclarity/vmclarity/scanner/families/infofinder/types"
-	malware "github.com/openclarity/vmclarity/scanner/families/malware/types"
-	plugins "github.com/openclarity/vmclarity/scanner/families/plugins/types"
-	rootkits "github.com/openclarity/vmclarity/scanner/families/rootkits/types"
-	sbom "github.com/openclarity/vmclarity/scanner/families/sbom/types"
-	secrets "github.com/openclarity/vmclarity/scanner/families/secrets/types"
-	vulnerabilities "github.com/openclarity/vmclarity/scanner/families/vulnerabilities/types"
+	"github.com/openclarity/openclarity/scanner"
+	"github.com/openclarity/openclarity/scanner/families"
+	exploits "github.com/openclarity/openclarity/scanner/families/exploits/types"
+	infofinder "github.com/openclarity/openclarity/scanner/families/infofinder/types"
+	malware "github.com/openclarity/openclarity/scanner/families/malware/types"
+	plugins "github.com/openclarity/openclarity/scanner/families/plugins/types"
+	rootkits "github.com/openclarity/openclarity/scanner/families/rootkits/types"
+	sbom "github.com/openclarity/openclarity/scanner/families/sbom/types"
+	secrets "github.com/openclarity/openclarity/scanner/families/secrets/types"
+	vulnerabilities "github.com/openclarity/openclarity/scanner/families/vulnerabilities/types"
 )
 
 type DefaultPresenter struct {

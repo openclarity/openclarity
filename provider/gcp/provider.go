@@ -21,10 +21,10 @@ import (
 
 	compute "cloud.google.com/go/compute/apiv1"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/provider/gcp/discoverer"
-	"github.com/openclarity/vmclarity/provider/gcp/estimator"
-	"github.com/openclarity/vmclarity/provider/gcp/scanner"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/provider/gcp/discoverer"
+	"github.com/openclarity/openclarity/provider/gcp/estimator"
+	"github.com/openclarity/openclarity/provider/gcp/scanner"
 )
 
 type Provider struct {

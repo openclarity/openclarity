@@ -24,8 +24,8 @@ import (
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
 
-	apiserver "github.com/openclarity/vmclarity/api/server/internal/server"
-	"github.com/openclarity/vmclarity/api/types"
+	apiserver "github.com/openclarity/openclarity/api/server/internal/server"
+	"github.com/openclarity/openclarity/api/types"
 )
 
 // nolint:wrapcheck

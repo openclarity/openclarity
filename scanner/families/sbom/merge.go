@@ -21,9 +21,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/openclarity/vmclarity/scanner/common"
-	"github.com/openclarity/vmclarity/scanner/families/sbom/types"
-	"github.com/openclarity/vmclarity/scanner/utils/converter"
+	"github.com/openclarity/openclarity/scanner/common"
+	"github.com/openclarity/openclarity/scanner/families/sbom/types"
+	"github.com/openclarity/openclarity/scanner/utils/converter"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/google/uuid"

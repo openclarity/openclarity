@@ -16,7 +16,7 @@
 package types
 
 import (
-	"github.com/openclarity/vmclarity/scanner/families"
+	"github.com/openclarity/openclarity/scanner/families"
 )
 
 type Result struct {

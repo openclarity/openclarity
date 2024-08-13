@@ -39,7 +39,7 @@ group "vmclarity-scanner-plugins" {
 
 target "_common" {
 	labels = {
-		"org.opencontainers.image.url" = "https://github.com/openclarity/vmclarity"
+		"org.opencontainers.image.url" = "https://github.com/openclarity/openclarity"
 		"org.opencontainers.image.licenses" = "Apache-2.0"
 	}
 	output = ["type=image"]

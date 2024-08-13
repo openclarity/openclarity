@@ -24,12 +24,12 @@ import (
 	"github.com/onsi/gomega"
 	"github.com/sirupsen/logrus"
 
-	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/scanner"
-	scannercommon "github.com/openclarity/vmclarity/scanner/common"
-	"github.com/openclarity/vmclarity/scanner/families"
-	"github.com/openclarity/vmclarity/scanner/families/plugins/runner/config"
-	plugintypes "github.com/openclarity/vmclarity/scanner/families/plugins/types"
+	"github.com/openclarity/openclarity/core/log"
+	"github.com/openclarity/openclarity/scanner"
+	scannercommon "github.com/openclarity/openclarity/scanner/common"
+	"github.com/openclarity/openclarity/scanner/families"
+	"github.com/openclarity/openclarity/scanner/families/plugins/runner/config"
+	plugintypes "github.com/openclarity/openclarity/scanner/families/plugins/types"
 )
 
 const scannerPluginName = "kics"

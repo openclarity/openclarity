@@ -20,7 +20,7 @@ import (
 
 	. "github.com/onsi/gomega"
 
-	envtypes "github.com/openclarity/vmclarity/testenv/types"
+	envtypes "github.com/openclarity/openclarity/testenv/types"
 )
 
 func TestChartWithContainerImages(t *testing.T) {

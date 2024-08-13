@@ -23,15 +23,15 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/types"
 
-	"github.com/openclarity/vmclarity/testenv"
-	awsenv "github.com/openclarity/vmclarity/testenv/aws"
-	azureenv "github.com/openclarity/vmclarity/testenv/azure"
-	dockerenv "github.com/openclarity/vmclarity/testenv/docker"
-	gcpenv "github.com/openclarity/vmclarity/testenv/gcp"
-	k8senv "github.com/openclarity/vmclarity/testenv/kubernetes"
-	"github.com/openclarity/vmclarity/testenv/kubernetes/helm"
-	k8senvtypes "github.com/openclarity/vmclarity/testenv/kubernetes/types"
-	testenvtypes "github.com/openclarity/vmclarity/testenv/types"
+	"github.com/openclarity/openclarity/testenv"
+	awsenv "github.com/openclarity/openclarity/testenv/aws"
+	azureenv "github.com/openclarity/openclarity/testenv/azure"
+	dockerenv "github.com/openclarity/openclarity/testenv/docker"
+	gcpenv "github.com/openclarity/openclarity/testenv/gcp"
+	k8senv "github.com/openclarity/openclarity/testenv/kubernetes"
+	"github.com/openclarity/openclarity/testenv/kubernetes/helm"
+	k8senvtypes "github.com/openclarity/openclarity/testenv/kubernetes/types"
+	testenvtypes "github.com/openclarity/openclarity/testenv/types"
 )
 
 func TestConfig(t *testing.T) {

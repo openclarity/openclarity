@@ -20,18 +20,18 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/scanner/common"
-	"github.com/openclarity/vmclarity/scanner/families"
-	exploittypes "github.com/openclarity/vmclarity/scanner/families/exploits/types"
-	infofindertypes "github.com/openclarity/vmclarity/scanner/families/infofinder/types"
-	malwaretypes "github.com/openclarity/vmclarity/scanner/families/malware/types"
-	misconfigurationtypes "github.com/openclarity/vmclarity/scanner/families/misconfiguration/types"
-	plugintypes "github.com/openclarity/vmclarity/scanner/families/plugins/types"
-	rootkittypes "github.com/openclarity/vmclarity/scanner/families/rootkits/types"
-	sbomtypes "github.com/openclarity/vmclarity/scanner/families/sbom/types"
-	secrettypes "github.com/openclarity/vmclarity/scanner/families/secrets/types"
-	vulnerabilitytypes "github.com/openclarity/vmclarity/scanner/families/vulnerabilities/types"
+	"github.com/openclarity/openclarity/core/to"
+	"github.com/openclarity/openclarity/scanner/common"
+	"github.com/openclarity/openclarity/scanner/families"
+	exploittypes "github.com/openclarity/openclarity/scanner/families/exploits/types"
+	infofindertypes "github.com/openclarity/openclarity/scanner/families/infofinder/types"
+	malwaretypes "github.com/openclarity/openclarity/scanner/families/malware/types"
+	misconfigurationtypes "github.com/openclarity/openclarity/scanner/families/misconfiguration/types"
+	plugintypes "github.com/openclarity/openclarity/scanner/families/plugins/types"
+	rootkittypes "github.com/openclarity/openclarity/scanner/families/rootkits/types"
+	sbomtypes "github.com/openclarity/openclarity/scanner/families/sbom/types"
+	secrettypes "github.com/openclarity/openclarity/scanner/families/secrets/types"
+	vulnerabilitytypes "github.com/openclarity/openclarity/scanner/families/vulnerabilities/types"
 )
 
 type ConfigOption func(*Config)

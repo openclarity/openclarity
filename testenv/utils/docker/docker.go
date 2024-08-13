@@ -27,8 +27,8 @@ import (
 
 	"github.com/docker/compose/v2/pkg/api"
 
-	envtypes "github.com/openclarity/vmclarity/testenv/types"
-	"github.com/openclarity/vmclarity/testenv/utils"
+	envtypes "github.com/openclarity/openclarity/testenv/types"
+	"github.com/openclarity/openclarity/testenv/utils"
 )
 
 const (

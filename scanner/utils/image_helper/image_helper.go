@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/openclarity/vmclarity/api/types"
+	"github.com/openclarity/openclarity/api/types"
 
 	"github.com/containers/image/v5/docker/reference"
 	log "github.com/sirupsen/logrus"

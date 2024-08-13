@@ -25,7 +25,7 @@ import (
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
 
-	"github.com/openclarity/vmclarity/installation"
+	"github.com/openclarity/openclarity/installation"
 )
 
 func LoadPathOrEmbedded(path string) (*chart.Chart, error) {

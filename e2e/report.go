@@ -23,10 +23,10 @@ import (
 	"github.com/onsi/ginkgo/v2/formatter"
 	"github.com/onsi/gomega"
 
-	apiclient "github.com/openclarity/vmclarity/api/client"
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/testenv/types"
+	apiclient "github.com/openclarity/openclarity/api/client"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/core/to"
+	"github.com/openclarity/openclarity/testenv/types"
 )
 
 type APIObject struct {

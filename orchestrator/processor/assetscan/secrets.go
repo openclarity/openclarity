@@ -19,7 +19,7 @@ import (
 	"context"
 	"fmt"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/openclarity/api/types"
 )
 
 // nolint:cyclop

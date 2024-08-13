@@ -23,10 +23,10 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/compute/armcompute/v5"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/network/armnetwork/v5"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/provider/azure/discoverer"
-	"github.com/openclarity/vmclarity/provider/azure/estimator"
-	"github.com/openclarity/vmclarity/provider/azure/scanner"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/provider/azure/discoverer"
+	"github.com/openclarity/openclarity/provider/azure/estimator"
+	"github.com/openclarity/openclarity/provider/azure/scanner"
 )
 
 type Provider struct {

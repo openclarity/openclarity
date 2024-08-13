@@ -23,10 +23,10 @@ import (
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 
-	"github.com/openclarity/vmclarity/api/server/common"
-	dbtypes "github.com/openclarity/vmclarity/api/server/database/types"
-	"github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/to"
+	"github.com/openclarity/openclarity/api/server/common"
+	dbtypes "github.com/openclarity/openclarity/api/server/database/types"
+	"github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/core/to"
 )
 
 func (s *ServerImpl) GetAssetScanEstimations(ctx echo.Context, params types.GetAssetScanEstimationsParams) error {

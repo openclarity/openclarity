@@ -24,10 +24,10 @@ import (
 
 	"github.com/sourcegraph/conc/pool"
 
-	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/scanner/common"
-	"github.com/openclarity/vmclarity/scanner/families"
-	familiesutils "github.com/openclarity/vmclarity/scanner/families/utils"
+	"github.com/openclarity/openclarity/core/log"
+	"github.com/openclarity/openclarity/scanner/common"
+	"github.com/openclarity/openclarity/scanner/families"
+	familiesutils "github.com/openclarity/openclarity/scanner/families/utils"
 )
 
 type InputScanResult[T any] struct {

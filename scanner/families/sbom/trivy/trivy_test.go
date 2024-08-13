@@ -19,7 +19,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/openclarity/vmclarity/scanner/utils/image_helper"
+	"github.com/openclarity/openclarity/scanner/utils/image_helper"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )

@@ -1,4 +1,4 @@
-module github.com/openclarity/vmclarity/testenv
+module github.com/openclarity/openclarity/testenv
 
 go 1.22.4
 
@@ -23,8 +23,8 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-viper/mapstructure/v2 v2.0.0
 	github.com/onsi/gomega v1.33.1
-	github.com/openclarity/vmclarity/core v0.7.2
-	github.com/openclarity/vmclarity/installation v0.7.2
+	github.com/openclarity/openclarity/core v0.7.2
+	github.com/openclarity/openclarity/installation v0.7.2
 	github.com/opencontainers/go-digest v1.0.0
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
@@ -185,7 +185,7 @@ require (
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f // indirect
-	github.com/openclarity/vmclarity/utils v0.7.2 // indirect
+	github.com/openclarity/openclarity/utils v0.7.2 // indirect
 	github.com/opencontainers/image-spec v1.1.0 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
@@ -275,13 +275,13 @@ require (
 )
 
 replace (
-	github.com/openclarity/vmclarity/api/client => ../api/client
-	github.com/openclarity/vmclarity/api/types => ../api/types
-	github.com/openclarity/vmclarity/containerruntimediscovery/client => ../containerruntimediscovery/client
-	github.com/openclarity/vmclarity/containerruntimediscovery/types => ../containerruntimediscovery/types
-	github.com/openclarity/vmclarity/core => ../core
-	github.com/openclarity/vmclarity/installation => ../installation
-	github.com/openclarity/vmclarity/utils => ../utils
+	github.com/openclarity/openclarity/api/client => ../api/client
+	github.com/openclarity/openclarity/api/types => ../api/types
+	github.com/openclarity/openclarity/containerruntimediscovery/client => ../containerruntimediscovery/client
+	github.com/openclarity/openclarity/containerruntimediscovery/types => ../containerruntimediscovery/types
+	github.com/openclarity/openclarity/core => ../core
+	github.com/openclarity/openclarity/installation => ../installation
+	github.com/openclarity/openclarity/utils => ../utils
 )
 
 // NOTE(chrisgacsal): remove this when the following PR is merged and new helm version is released:

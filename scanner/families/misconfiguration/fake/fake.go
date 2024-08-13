@@ -18,9 +18,9 @@ package fake
 import (
 	"context"
 
-	"github.com/openclarity/vmclarity/scanner/common"
-	"github.com/openclarity/vmclarity/scanner/families"
-	"github.com/openclarity/vmclarity/scanner/families/misconfiguration/types"
+	"github.com/openclarity/openclarity/scanner/common"
+	"github.com/openclarity/openclarity/scanner/families"
+	"github.com/openclarity/openclarity/scanner/families/misconfiguration/types"
 )
 
 const ScannerName = "fake"

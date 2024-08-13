@@ -69,7 +69,7 @@ trim = true
 footer = ""
 # postprocessors
 postprocessors = [
-   { pattern = '<REPO>', replace = "https://github.com/openclarity/vmclarity" }, # replace repository URL
+   { pattern = '<REPO>', replace = "https://github.com/openclarity/openclarity" }, # replace repository URL
 ]
 
 [git]

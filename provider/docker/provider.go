@@ -21,11 +21,11 @@ import (
 
 	"github.com/docker/docker/client"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/provider"
-	"github.com/openclarity/vmclarity/provider/docker/discoverer"
-	"github.com/openclarity/vmclarity/provider/docker/estimator"
-	"github.com/openclarity/vmclarity/provider/docker/scanner"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/provider"
+	"github.com/openclarity/openclarity/provider/docker/discoverer"
+	"github.com/openclarity/openclarity/provider/docker/estimator"
+	"github.com/openclarity/openclarity/provider/docker/scanner"
 )
 
 var _ provider.Provider = &Provider{}

@@ -21,8 +21,8 @@ import (
 
 	"github.com/heimdalr/dag"
 
-	"github.com/openclarity/vmclarity/workflow/internal/dispatcher"
-	"github.com/openclarity/vmclarity/workflow/types"
+	"github.com/openclarity/openclarity/workflow/internal/dispatcher"
+	"github.com/openclarity/openclarity/workflow/types"
 )
 
 type Workflow[S any, R types.Runnable[S]] struct {

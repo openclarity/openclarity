@@ -19,8 +19,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/openclarity/vmclarity/api/client"
-	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/openclarity/api/client"
+	"github.com/openclarity/openclarity/core/log"
 )
 
 const (

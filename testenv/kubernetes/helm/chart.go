@@ -23,7 +23,7 @@ import (
 	"github.com/ghodss/yaml"
 	"helm.sh/helm/v3/pkg/chartutil"
 
-	envtypes "github.com/openclarity/vmclarity/testenv/types"
+	envtypes "github.com/openclarity/openclarity/testenv/types"
 )
 
 type (

@@ -16,7 +16,7 @@
 package presenter
 
 import (
-	"github.com/openclarity/vmclarity/scanner"
+	"github.com/openclarity/openclarity/scanner"
 )
 
 type FilePresenter struct {

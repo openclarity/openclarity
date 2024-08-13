@@ -18,7 +18,7 @@ package types
 import (
 	"errors"
 
-	"github.com/openclarity/vmclarity/api/types"
+	"github.com/openclarity/openclarity/api/types"
 )
 
 const (

@@ -22,13 +22,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/openclarity/vmclarity/scanner"
-	"github.com/openclarity/vmclarity/scanner/families"
+	"github.com/openclarity/openclarity/scanner"
+	"github.com/openclarity/openclarity/scanner/families"
 
-	apiclient "github.com/openclarity/vmclarity/api/client"
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/core/to"
+	apiclient "github.com/openclarity/openclarity/api/client"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/core/log"
+	"github.com/openclarity/openclarity/core/to"
 )
 
 const (

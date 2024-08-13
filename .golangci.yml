@@ -3,7 +3,7 @@ run:
 
 linters-settings:
   goimports:
-    local-prefixes: github.com/openclarity/vmclarity
+    local-prefixes: github.com/openclarity/openclarity
   errorlint:
     # Check whether fmt.Errorf uses the %w verb for formatting errors. See the readme for caveats
     errorf: true
@@ -78,7 +78,7 @@ linters:
     - varnamelen # Allow short var names
     - ireturn # Allow returning with interfaces
     - exhaustruct # Allow structures with uninitialized fields
-    - gci # imports still has gci lint errors after run `gci write --skip-generated -s standard -s default -s "prefix(github.com/openclarity/vmclarity)"`
+    - gci # imports still has gci lint errors after run `gci write --skip-generated -s standard -s default -s "prefix(github.com/openclarity/openclarity)"`
     - depguard # NOTE(chrisgacsal): need discussion before enabling it
     - tagalign # NOTE(chrisgacsal): does not seem to provide much value
     - protogetter # FIXME(chrisgacsal): needs code changes to enable

@@ -21,7 +21,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/openclarity/api/types"
 )
 
 func Test_getZonesLastPart(t *testing.T) {

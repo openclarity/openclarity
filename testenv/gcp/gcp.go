@@ -29,10 +29,10 @@ import (
 	"google.golang.org/api/deploymentmanager/v2"
 	"google.golang.org/api/iam/v1"
 
-	"github.com/openclarity/vmclarity/testenv/gcp/asset"
-	"github.com/openclarity/vmclarity/testenv/types"
-	"github.com/openclarity/vmclarity/testenv/utils"
-	"github.com/openclarity/vmclarity/testenv/utils/docker"
+	"github.com/openclarity/openclarity/testenv/gcp/asset"
+	"github.com/openclarity/openclarity/testenv/types"
+	"github.com/openclarity/openclarity/testenv/utils"
+	"github.com/openclarity/openclarity/testenv/utils/docker"
 )
 
 type ContextKeyType string

@@ -34,11 +34,11 @@ import (
 	"github.com/docker/docker/pkg/archive"
 	"gopkg.in/yaml.v3"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/provider"
-	"github.com/openclarity/vmclarity/scanner"
-	scannercommon "github.com/openclarity/vmclarity/scanner/common"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/core/log"
+	"github.com/openclarity/openclarity/provider"
+	"github.com/openclarity/openclarity/scanner"
+	scannercommon "github.com/openclarity/openclarity/scanner/common"
 )
 
 // mountPointPath defines the location in the container where assets will be mounted.

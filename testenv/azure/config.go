@@ -16,7 +16,7 @@
 package azure
 
 import (
-	envtypes "github.com/openclarity/vmclarity/testenv/types"
+	envtypes "github.com/openclarity/openclarity/testenv/types"
 )
 
 const (

@@ -1,4 +1,4 @@
-module github.com/openclarity/vmclarity/scanner
+module github.com/openclarity/openclarity/scanner
 
 go 1.22.4
 
@@ -22,12 +22,12 @@ require (
 	github.com/jinzhu/copier v0.4.0
 	github.com/onsi/gomega v1.33.1
 	github.com/openclarity/grype-server/api v0.0.0-20240619144520-b9ba72524a9c
-	github.com/openclarity/vmclarity/api/types v0.7.2
-	github.com/openclarity/vmclarity/core v0.7.2
-	github.com/openclarity/vmclarity/plugins/runner v0.7.2
-	github.com/openclarity/vmclarity/plugins/sdk-go v0.7.2
-	github.com/openclarity/vmclarity/utils v0.7.2
-	github.com/openclarity/vmclarity/workflow v0.7.2
+	github.com/openclarity/openclarity/api/types v0.7.2
+	github.com/openclarity/openclarity/core v0.7.2
+	github.com/openclarity/openclarity/plugins/runner v0.7.2
+	github.com/openclarity/openclarity/plugins/sdk-go v0.7.2
+	github.com/openclarity/openclarity/utils v0.7.2
+	github.com/openclarity/openclarity/workflow v0.7.2
 	github.com/openclarity/yara-rule-server v0.3.0
 	github.com/package-url/packageurl-go v0.1.3
 	github.com/rs/zerolog v1.33.0
@@ -488,10 +488,10 @@ replace helm.sh/helm/v3 => github.com/zregvart/helm/v3 v3.0.0-20240708093153-604
 replace github.com/mholt/archiver/v3 v3.5.1 => github.com/anchore/archiver/v3 v3.5.2
 
 replace (
-	github.com/openclarity/vmclarity/api/types => ../api/types
-	github.com/openclarity/vmclarity/core => ../core
-	github.com/openclarity/vmclarity/plugins/runner => ../plugins/runner
-	github.com/openclarity/vmclarity/plugins/sdk-go => ../plugins/sdk-go
-	github.com/openclarity/vmclarity/utils => ../utils
-	github.com/openclarity/vmclarity/workflow => ../workflow
+	github.com/openclarity/openclarity/api/types => ../api/types
+	github.com/openclarity/openclarity/core => ../core
+	github.com/openclarity/openclarity/plugins/runner => ../plugins/runner
+	github.com/openclarity/openclarity/plugins/sdk-go => ../plugins/sdk-go
+	github.com/openclarity/openclarity/utils => ../utils
+	github.com/openclarity/openclarity/workflow => ../workflow
 )

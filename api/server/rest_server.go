@@ -24,10 +24,10 @@ import (
 	echomiddleware "github.com/labstack/echo/v4/middleware"
 	middleware "github.com/oapi-codegen/echo-middleware"
 
-	"github.com/openclarity/vmclarity/api/server/common"
-	dbtypes "github.com/openclarity/vmclarity/api/server/database/types"
-	apiserver "github.com/openclarity/vmclarity/api/server/internal/server"
-	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/openclarity/api/server/common"
+	dbtypes "github.com/openclarity/openclarity/api/server/database/types"
+	apiserver "github.com/openclarity/openclarity/api/server/internal/server"
+	"github.com/openclarity/openclarity/core/log"
 )
 
 const (

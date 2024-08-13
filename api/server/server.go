@@ -23,9 +23,9 @@ import (
 
 	"github.com/Portshift/go-utils/healthz"
 
-	"github.com/openclarity/vmclarity/api/server/database"
-	dbtypes "github.com/openclarity/vmclarity/api/server/database/types"
-	"github.com/openclarity/vmclarity/core/log"
+	"github.com/openclarity/openclarity/api/server/database"
+	dbtypes "github.com/openclarity/openclarity/api/server/database/types"
+	"github.com/openclarity/openclarity/core/log"
 )
 
 func createDatabaseConfig(config *Config) dbtypes.DBConfig {

@@ -18,7 +18,7 @@ package scanconfig
 import (
 	"time"
 
-	"github.com/openclarity/vmclarity/api/client"
+	"github.com/openclarity/openclarity/api/client"
 )
 
 const (

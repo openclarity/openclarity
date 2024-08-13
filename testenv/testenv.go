@@ -18,12 +18,12 @@ package testenv
 import (
 	"fmt"
 
-	"github.com/openclarity/vmclarity/testenv/aws"
-	"github.com/openclarity/vmclarity/testenv/azure"
-	"github.com/openclarity/vmclarity/testenv/docker"
-	"github.com/openclarity/vmclarity/testenv/gcp"
-	"github.com/openclarity/vmclarity/testenv/kubernetes"
-	"github.com/openclarity/vmclarity/testenv/types"
+	"github.com/openclarity/openclarity/testenv/aws"
+	"github.com/openclarity/openclarity/testenv/azure"
+	"github.com/openclarity/openclarity/testenv/docker"
+	"github.com/openclarity/openclarity/testenv/gcp"
+	"github.com/openclarity/openclarity/testenv/kubernetes"
+	"github.com/openclarity/openclarity/testenv/types"
 )
 
 // New returns an object implementing the types.Environment interface from Config.

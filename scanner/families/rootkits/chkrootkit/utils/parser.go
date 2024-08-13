@@ -23,9 +23,9 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/scanner/families/rootkits/types"
-	"github.com/openclarity/vmclarity/scanner/utils"
+	"github.com/openclarity/openclarity/core/to"
+	"github.com/openclarity/openclarity/scanner/families/rootkits/types"
+	"github.com/openclarity/openclarity/scanner/utils"
 )
 
 // nolint:nonamedreturns

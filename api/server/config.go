@@ -21,7 +21,7 @@ import (
 
 	"github.com/go-viper/mapstructure/v2"
 
-	dbtypes "github.com/openclarity/vmclarity/api/server/database/types"
+	dbtypes "github.com/openclarity/openclarity/api/server/database/types"
 
 	"github.com/spf13/viper"
 )

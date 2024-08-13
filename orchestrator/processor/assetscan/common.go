@@ -21,9 +21,9 @@ import (
 	"fmt"
 	"time"
 
-	apiclient "github.com/openclarity/vmclarity/api/client"
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/to"
+	apiclient "github.com/openclarity/openclarity/api/client"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/core/to"
 )
 
 func (asp *AssetScanProcessor) createOrUpdateDBFinding(ctx context.Context, info *apitypes.FindingInfo, assetScanID string, completedTime time.Time) (string, error) {

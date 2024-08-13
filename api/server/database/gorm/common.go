@@ -23,8 +23,8 @@ import (
 	jsonpatch "github.com/evanphx/json-patch"
 	"gorm.io/gorm"
 
-	"github.com/openclarity/vmclarity/api/server/database/types"
-	"github.com/openclarity/vmclarity/core/to"
+	"github.com/openclarity/openclarity/api/server/database/types"
+	"github.com/openclarity/openclarity/core/to"
 )
 
 func getExistingObjByID(db *gorm.DB, schema, objID string, obj interface{}) error {

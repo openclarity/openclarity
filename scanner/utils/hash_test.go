@@ -18,7 +18,7 @@ package utils
 import (
 	"testing"
 
-	"github.com/openclarity/vmclarity/scanner/common"
+	"github.com/openclarity/openclarity/scanner/common"
 )
 
 func TestGenerateHash(t *testing.T) {

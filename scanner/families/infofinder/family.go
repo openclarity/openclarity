@@ -19,11 +19,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/scanner/families"
-	"github.com/openclarity/vmclarity/scanner/families/infofinder/types"
-	familiesutils "github.com/openclarity/vmclarity/scanner/families/utils"
-	"github.com/openclarity/vmclarity/scanner/internal/scan_manager"
+	"github.com/openclarity/openclarity/core/log"
+	"github.com/openclarity/openclarity/scanner/families"
+	"github.com/openclarity/openclarity/scanner/families/infofinder/types"
+	familiesutils "github.com/openclarity/openclarity/scanner/families/utils"
+	"github.com/openclarity/openclarity/scanner/internal/scan_manager"
 )
 
 type InfoFinder struct {

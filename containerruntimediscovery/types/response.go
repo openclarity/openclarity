@@ -16,7 +16,7 @@
 package types
 
 import (
-	apitypes "github.com/openclarity/vmclarity/api/types"
+	apitypes "github.com/openclarity/openclarity/api/types"
 )
 
 type ListImagesResponse struct {

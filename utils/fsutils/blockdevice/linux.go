@@ -22,7 +22,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/openclarity/vmclarity/utils/fsutils/lsblk"
+	"github.com/openclarity/openclarity/utils/fsutils/lsblk"
 )
 
 type BlockDevice = lsblk.BlockDevice

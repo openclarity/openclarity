@@ -24,9 +24,9 @@ import (
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 	"gotest.tools/v3/assert"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/to"
-	scannercommon "github.com/openclarity/vmclarity/scanner/common"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/core/to"
+	scannercommon "github.com/openclarity/openclarity/scanner/common"
 )
 
 type FakePriceFetcher struct{}

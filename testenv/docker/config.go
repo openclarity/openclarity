@@ -18,7 +18,7 @@ package docker
 import (
 	"context"
 
-	envtypes "github.com/openclarity/vmclarity/testenv/types"
+	envtypes "github.com/openclarity/openclarity/testenv/types"
 )
 
 type ContainerImages = envtypes.ContainerImages[string]

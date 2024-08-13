@@ -16,9 +16,9 @@
 package types
 
 import (
-	"github.com/openclarity/vmclarity/scanner/common"
-	cisdockerconfig "github.com/openclarity/vmclarity/scanner/families/misconfiguration/cisdocker/config"
-	lynisconfig "github.com/openclarity/vmclarity/scanner/families/misconfiguration/lynis/config"
+	"github.com/openclarity/openclarity/scanner/common"
+	cisdockerconfig "github.com/openclarity/openclarity/scanner/families/misconfiguration/cisdocker/config"
+	lynisconfig "github.com/openclarity/openclarity/scanner/families/misconfiguration/lynis/config"
 )
 
 type Config struct {

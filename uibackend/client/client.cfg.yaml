@@ -1,7 +1,7 @@
 package: client
 output: internal/client/client.gen.go
 additional-imports:
-  - package: github.com/openclarity/vmclarity/uibackend/types
+  - package: github.com/openclarity/openclarity/uibackend/types
     alias: .
 generate:
   client: true

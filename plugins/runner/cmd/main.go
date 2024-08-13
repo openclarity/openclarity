@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/openclarity/vmclarity/plugins/runner"
+	"github.com/openclarity/openclarity/plugins/runner"
 )
 
 // Test start scanner function.

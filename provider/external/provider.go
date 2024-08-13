@@ -22,12 +22,12 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/provider"
-	"github.com/openclarity/vmclarity/provider/external/discoverer"
-	"github.com/openclarity/vmclarity/provider/external/estimator"
-	"github.com/openclarity/vmclarity/provider/external/scanner"
-	provider_service "github.com/openclarity/vmclarity/provider/external/utils/proto"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/provider"
+	"github.com/openclarity/openclarity/provider/external/discoverer"
+	"github.com/openclarity/openclarity/provider/external/estimator"
+	"github.com/openclarity/openclarity/provider/external/scanner"
+	provider_service "github.com/openclarity/openclarity/provider/external/utils/proto"
 )
 
 var _ provider.Provider = &Provider{}

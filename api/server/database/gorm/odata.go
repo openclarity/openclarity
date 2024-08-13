@@ -22,9 +22,9 @@ import (
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 
-	"github.com/openclarity/vmclarity/api/server/database/odatasql"
-	"github.com/openclarity/vmclarity/api/server/database/odatasql/jsonsql"
-	"github.com/openclarity/vmclarity/core/to"
+	"github.com/openclarity/openclarity/api/server/database/odatasql"
+	"github.com/openclarity/openclarity/api/server/database/odatasql/jsonsql"
+	"github.com/openclarity/openclarity/core/to"
 )
 
 var SQLVariant jsonsql.Variant

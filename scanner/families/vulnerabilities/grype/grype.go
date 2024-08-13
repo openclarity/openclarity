@@ -25,10 +25,10 @@ import (
 	syft_source "github.com/anchore/syft/syft/source"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/openclarity/vmclarity/scanner/families"
-	grypeconfig "github.com/openclarity/vmclarity/scanner/families/vulnerabilities/grype/config"
-	"github.com/openclarity/vmclarity/scanner/families/vulnerabilities/types"
-	"github.com/openclarity/vmclarity/scanner/utils/image_helper"
+	"github.com/openclarity/openclarity/scanner/families"
+	grypeconfig "github.com/openclarity/openclarity/scanner/families/vulnerabilities/grype/config"
+	"github.com/openclarity/openclarity/scanner/families/vulnerabilities/types"
+	"github.com/openclarity/openclarity/scanner/utils/image_helper"
 )
 
 const (

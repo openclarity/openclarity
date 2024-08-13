@@ -26,7 +26,7 @@ import (
 	"github.com/jinzhu/copier"
 	"gotest.tools/assert"
 
-	"github.com/openclarity/vmclarity/scanner/families/vulnerabilities/types"
+	"github.com/openclarity/openclarity/scanner/families/vulnerabilities/types"
 )
 
 func TestCreateResults(t *testing.T) {

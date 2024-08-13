@@ -26,10 +26,10 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/api/iterator"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/provider"
-	"github.com/openclarity/vmclarity/provider/gcp/utils"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/core/to"
+	"github.com/openclarity/openclarity/provider"
+	"github.com/openclarity/openclarity/provider/gcp/utils"
 )
 
 const (

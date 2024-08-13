@@ -22,10 +22,10 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/compute/armcompute/v5"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/provider"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/core/log"
+	"github.com/openclarity/openclarity/core/to"
+	"github.com/openclarity/openclarity/provider"
 )
 
 type Discoverer struct {

@@ -20,14 +20,14 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/core/version"
-	"github.com/openclarity/vmclarity/scanner/common"
-	"github.com/openclarity/vmclarity/scanner/families"
-	"github.com/openclarity/vmclarity/scanner/families/sbom/types"
-	"github.com/openclarity/vmclarity/scanner/internal/scan_manager"
-	"github.com/openclarity/vmclarity/scanner/utils"
-	"github.com/openclarity/vmclarity/scanner/utils/converter"
+	"github.com/openclarity/openclarity/core/log"
+	"github.com/openclarity/openclarity/core/version"
+	"github.com/openclarity/openclarity/scanner/common"
+	"github.com/openclarity/openclarity/scanner/families"
+	"github.com/openclarity/openclarity/scanner/families/sbom/types"
+	"github.com/openclarity/openclarity/scanner/internal/scan_manager"
+	"github.com/openclarity/openclarity/scanner/utils"
+	"github.com/openclarity/openclarity/scanner/utils/converter"
 )
 
 type SBOM struct {

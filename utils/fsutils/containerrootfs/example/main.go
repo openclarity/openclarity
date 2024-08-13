@@ -19,7 +19,7 @@ import (
 	"context"
 	"log"
 
-	"github.com/openclarity/vmclarity/utils/fsutils/containerrootfs"
+	"github.com/openclarity/openclarity/utils/fsutils/containerrootfs"
 )
 
 func main() {

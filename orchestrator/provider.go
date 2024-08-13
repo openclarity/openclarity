@@ -19,14 +19,14 @@ import (
 	"context"
 	"fmt"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/provider"
-	"github.com/openclarity/vmclarity/provider/aws"
-	"github.com/openclarity/vmclarity/provider/azure"
-	"github.com/openclarity/vmclarity/provider/docker"
-	"github.com/openclarity/vmclarity/provider/external"
-	"github.com/openclarity/vmclarity/provider/gcp"
-	"github.com/openclarity/vmclarity/provider/kubernetes"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/provider"
+	"github.com/openclarity/openclarity/provider/aws"
+	"github.com/openclarity/openclarity/provider/azure"
+	"github.com/openclarity/openclarity/provider/docker"
+	"github.com/openclarity/openclarity/provider/external"
+	"github.com/openclarity/openclarity/provider/gcp"
+	"github.com/openclarity/openclarity/provider/kubernetes"
 )
 
 // nolint:wrapcheck

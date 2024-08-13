@@ -16,11 +16,11 @@
 package misconfiguration
 
 import (
-	"github.com/openclarity/vmclarity/scanner/families/misconfiguration/cisdocker"
-	"github.com/openclarity/vmclarity/scanner/families/misconfiguration/fake"
-	"github.com/openclarity/vmclarity/scanner/families/misconfiguration/lynis"
-	"github.com/openclarity/vmclarity/scanner/families/misconfiguration/types"
-	"github.com/openclarity/vmclarity/scanner/internal/scan_manager"
+	"github.com/openclarity/openclarity/scanner/families/misconfiguration/cisdocker"
+	"github.com/openclarity/openclarity/scanner/families/misconfiguration/fake"
+	"github.com/openclarity/openclarity/scanner/families/misconfiguration/lynis"
+	"github.com/openclarity/openclarity/scanner/families/misconfiguration/types"
+	"github.com/openclarity/openclarity/scanner/internal/scan_manager"
 )
 
 var Factory = scan_manager.NewFactory[types.ScannersConfig, []types.Misconfiguration]()

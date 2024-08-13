@@ -21,7 +21,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/pricing/types"
 
-	"github.com/openclarity/vmclarity/core/to"
+	"github.com/openclarity/openclarity/core/to"
 )
 
 func Test_createGetProductsFilters(t *testing.T) {

@@ -34,10 +34,10 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=bind,source=.,target=/build,ro \
     xx-go build ${BUILD_OPTS} -ldflags="-s -w -extldflags -static \
-     -X 'github.com/openclarity/vmclarity/core/version.Version=${VERSION}' \
-     -X 'github.com/openclarity/vmclarity/core/version.CommitHash=${COMMIT_HASH}' \
-     -X 'github.com/openclarity/vmclarity/core/version.BuildTimestamp=${BUILD_TIMESTAMP}'" \
-    -o /bin/vmclarity-cli cmd/main.go
+     -X 'github.com/openclarity/openclarity/core/version.Version=${VERSION}' \
+     -X 'github.com/openclarity/openclarity/core/version.CommitHash=${COMMIT_HASH}' \
+     -X 'github.com/openclarity/openclarity/core/version.BuildTimestamp=${BUILD_TIMESTAMP}'" \
+    -o /bin/openclarity-cli cmd/main.go
 
 FROM ${VMCLARITY_TOOLS_BASE}
 
@@ -48,8 +48,8 @@ RUN apk add --update --no-cache \
     ca-certificates \
     libc6-compat
 
-COPY --from=builder /bin/vmclarity-cli /bin/vmclarity-cli
+COPY --from=builder /bin/openclarity-cli /bin/openclarity-cli
 
-ENTRYPOINT ["/bin/vmclarity-cli"]
+ENTRYPOINT ["/bin/openclarity-cli"]
 
 CMD ["--help"]

@@ -20,9 +20,9 @@ import (
 	"testing"
 	"time"
 
-	apitypes "github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/to"
-	"github.com/openclarity/vmclarity/scanner/families"
+	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/core/to"
+	"github.com/openclarity/openclarity/scanner/families"
 )
 
 func Test_getInputScanStats(t *testing.T) {

@@ -26,7 +26,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/api/googleapi"
 
-	"github.com/openclarity/vmclarity/provider"
+	"github.com/openclarity/openclarity/provider"
 )
 
 func HandleGcpRequestError(err error, actionTmpl string, parts ...interface{}) (bool, error) {

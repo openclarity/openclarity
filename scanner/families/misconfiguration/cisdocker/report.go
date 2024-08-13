@@ -18,9 +18,9 @@ package cisdocker
 import (
 	dockle_types "github.com/Portshift/dockle/pkg/types"
 
-	"github.com/openclarity/vmclarity/scanner/common"
+	"github.com/openclarity/openclarity/scanner/common"
 
-	"github.com/openclarity/vmclarity/scanner/families/misconfiguration/types"
+	"github.com/openclarity/openclarity/scanner/families/misconfiguration/types"
 )
 
 const (

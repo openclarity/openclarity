@@ -28,13 +28,13 @@ import (
 	trivyTypes "github.com/aquasecurity/trivy/pkg/types"
 	trivyFsutils "github.com/aquasecurity/trivy/pkg/utils/fsutils"
 
-	"github.com/openclarity/vmclarity/core/log"
-	"github.com/openclarity/vmclarity/scanner/common"
-	"github.com/openclarity/vmclarity/scanner/families"
-	"github.com/openclarity/vmclarity/scanner/families/sbom/trivy/config"
-	"github.com/openclarity/vmclarity/scanner/families/sbom/types"
-	"github.com/openclarity/vmclarity/scanner/families/utils/trivy"
-	"github.com/openclarity/vmclarity/scanner/utils/image_helper"
+	"github.com/openclarity/openclarity/core/log"
+	"github.com/openclarity/openclarity/scanner/common"
+	"github.com/openclarity/openclarity/scanner/families"
+	"github.com/openclarity/openclarity/scanner/families/sbom/trivy/config"
+	"github.com/openclarity/openclarity/scanner/families/sbom/types"
+	"github.com/openclarity/openclarity/scanner/families/utils/trivy"
+	"github.com/openclarity/openclarity/scanner/utils/image_helper"
 )
 
 const AnalyzerName = "trivy"

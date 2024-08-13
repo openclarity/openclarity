@@ -1,4 +1,4 @@
-module github.com/openclarity/vmclarity/plugins/sdk-go
+module github.com/openclarity/openclarity/plugins/sdk-go
 
 go 1.22.4
 

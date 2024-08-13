@@ -1,8 +1,8 @@
-module github.com/openclarity/vmclarity/plugins/sdk-go/example
+module github.com/openclarity/openclarity/plugins/sdk-go/example
 
 go 1.22.4
 
-require github.com/openclarity/vmclarity/plugins/sdk-go v0.7.2
+require github.com/openclarity/openclarity/plugins/sdk-go v0.7.2
 
 require (
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
@@ -33,4 +33,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/openclarity/vmclarity/plugins/sdk-go => ../
+replace github.com/openclarity/openclarity/plugins/sdk-go => ../

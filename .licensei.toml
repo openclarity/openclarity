@@ -13,26 +13,26 @@ ignored = [
     "github.com/ghodss/yaml", # MIT - https://github.com/ghodss/yaml/blob/master/LICENSE
     "github.com/russross/blackfriday/v2", # Simplified BSD License - https://github.com/russross/blackfriday/blob/master/LICENSE.txt
     "github.com/invopop/yaml", # MIT - https://github.com/invopop/yaml/blob/main/LICENSE
-    "github.com/openclarity/vmclarity/api", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
-    "github.com/openclarity/vmclarity/api/types", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
-    "github.com/openclarity/vmclarity/api/client", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
-    "github.com/openclarity/vmclarity/cli", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
-    "github.com/openclarity/vmclarity/scanner", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
-    "github.com/openclarity/vmclarity/provider", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
-    "github.com/openclarity/vmclarity/utils", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
-    "github.com/openclarity/vmclarity/core", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
-    "github.com/openclarity/vmclarity/installation", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
-    "github.com/openclarity/vmclarity/testenv", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
-    "github.com/openclarity/vmclarity/uibackend/types", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
-    "github.com/openclarity/vmclarity/uibackend/client", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
-    "github.com/openclarity/vmclarity/uibackend/server", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
-    "github.com/openclarity/vmclarity/containerruntimediscovery/types", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
-    "github.com/openclarity/vmclarity/containerruntimediscovery/client", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
-    "github.com/openclarity/vmclarity/plugins/runner", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
-    "github.com/openclarity/vmclarity/plugins/sdk-go", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
-    "github.com/openclarity/vmclarity/plugins/sdk-go/example", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
-    "github.com/openclarity/vmclarity/plugins/store/kics", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
-    "github.com/openclarity/vmclarity/workflow", # Apache License 2.0 - https://github.com/openclarity/vmclarity/blob/main/LICENSE
+    "github.com/openclarity/openclarity/api", # Apache License 2.0 - https://github.com/openclarity/openclarity/blob/main/LICENSE
+    "github.com/openclarity/openclarity/api/types", # Apache License 2.0 - https://github.com/openclarity/openclarity/blob/main/LICENSE
+    "github.com/openclarity/openclarity/api/client", # Apache License 2.0 - https://github.com/openclarity/openclarity/blob/main/LICENSE
+    "github.com/openclarity/openclarity/cli", # Apache License 2.0 - https://github.com/openclarity/openclarity/blob/main/LICENSE
+    "github.com/openclarity/openclarity/scanner", # Apache License 2.0 - https://github.com/openclarity/openclarity/blob/main/LICENSE
+    "github.com/openclarity/openclarity/provider", # Apache License 2.0 - https://github.com/openclarity/openclarity/blob/main/LICENSE
+    "github.com/openclarity/openclarity/utils", # Apache License 2.0 - https://github.com/openclarity/openclarity/blob/main/LICENSE
+    "github.com/openclarity/openclarity/core", # Apache License 2.0 - https://github.com/openclarity/openclarity/blob/main/LICENSE
+    "github.com/openclarity/openclarity/installation", # Apache License 2.0 - https://github.com/openclarity/openclarity/blob/main/LICENSE
+    "github.com/openclarity/openclarity/testenv", # Apache License 2.0 - https://github.com/openclarity/openclarity/blob/main/LICENSE
+    "github.com/openclarity/openclarity/uibackend/types", # Apache License 2.0 - https://github.com/openclarity/openclarity/blob/main/LICENSE
+    "github.com/openclarity/openclarity/uibackend/client", # Apache License 2.0 - https://github.com/openclarity/openclarity/blob/main/LICENSE
+    "github.com/openclarity/openclarity/uibackend/server", # Apache License 2.0 - https://github.com/openclarity/openclarity/blob/main/LICENSE
+    "github.com/openclarity/openclarity/containerruntimediscovery/types", # Apache License 2.0 - https://github.com/openclarity/openclarity/blob/main/LICENSE
+    "github.com/openclarity/openclarity/containerruntimediscovery/client", # Apache License 2.0 - https://github.com/openclarity/openclarity/blob/main/LICENSE
+    "github.com/openclarity/openclarity/plugins/runner", # Apache License 2.0 - https://github.com/openclarity/openclarity/blob/main/LICENSE
+    "github.com/openclarity/openclarity/plugins/sdk-go", # Apache License 2.0 - https://github.com/openclarity/openclarity/blob/main/LICENSE
+    "github.com/openclarity/openclarity/plugins/sdk-go/example", # Apache License 2.0 - https://github.com/openclarity/openclarity/blob/main/LICENSE
+    "github.com/openclarity/openclarity/plugins/store/kics", # Apache License 2.0 - https://github.com/openclarity/openclarity/blob/main/LICENSE
+    "github.com/openclarity/openclarity/workflow", # Apache License 2.0 - https://github.com/openclarity/openclarity/blob/main/LICENSE
     "github.com/xi2/xz", # Unlicense - Public Domain -  https://github.com/xi2/xz/blob/master/LICENSE"
     "github.com/rcrowley/go-metrics", # Custom License - https://github.com/rcrowley/go-metrics/blob/master/LICENSE"
     "github.com/csaf-poc/csaf_distribution/v3", # MIT - https://github.com/csaf-poc/csaf_distribution/blob/main/LICENSES/MIT.txt

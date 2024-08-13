@@ -22,9 +22,9 @@ import (
 	"fmt"
 	"net/http"
 
-	apiclient "github.com/openclarity/vmclarity/api/client/internal/client"
-	"github.com/openclarity/vmclarity/api/types"
-	"github.com/openclarity/vmclarity/core/to"
+	apiclient "github.com/openclarity/openclarity/api/client/internal/client"
+	"github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/core/to"
 )
 
 type Client struct {
