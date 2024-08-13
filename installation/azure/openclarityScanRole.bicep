@@ -1,16 +1,16 @@
 targetScope = 'resourceGroup'
 
-@description('VMClarity Resource Group Name')
+@description('OpenClarity Resource Group Name')
 param resourceGroupName string
 
-@description('VMClarity Managed Identity Principal ID')
+@description('OpenClarity Managed Identity Principal ID')
 param principalID string
 
-var scanRoleID = guid(resourceGroup().id, 'vmclarity-scanner')
-var scanRoleName = 'VMClarity Scanner for ${resourceGroupName}'
-var scanRoleDescription = 'IAM Role to allow VMClarity to deploy virtual machines that mount and scan snapshots.'
+var scanRoleID = guid(resourceGroup().id, 'openclarity-scanner')
+var scanRoleName = 'OpenClarity Scanner for ${resourceGroupName}'
+var scanRoleDescription = 'IAM Role to allow OpenClarity to deploy virtual machines that mount and scan snapshots.'
 
-resource vmClarityScanRole 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
+resource openClarityScanRole 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
   name: scanRoleID
   properties: {
     roleName: scanRoleName
@@ -47,9 +47,9 @@ resource vmClarityScanRole 'Microsoft.Authorization/roleDefinitions@2022-04-01' 
 }
 
 resource scanRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(resourceGroup().id, 'vmclarity-server', vmClarityScanRole.id)
+  name: guid(resourceGroup().id, 'openclarity-server', openClarityScanRole.id)
   properties: {
-    roleDefinitionId: vmClarityScanRole.id
+    roleDefinitionId: openClarityScanRole.id
     principalId: principalID
     principalType: 'ServicePrincipal'
   }

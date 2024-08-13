@@ -3,7 +3,7 @@
     "view": {
         "kind": "Form",
         "properties": {
-            "title": "VMClarity",
+            "title": "OpenClarity",
             "steps": [
                 {
                     "name": "basics",
@@ -19,11 +19,11 @@
                         {
                             "name": "deploypostfix",
                             "type": "Microsoft.Common.TextBox",
-                            "label": "VMClarity Deploy Postfix",
+                            "label": "OpenClarity Deploy Postfix",
                             "placeholder": "postfix",
-                            "subLabel": "[concat('Resource Group for VMClarity will be named ', concat('vmclarity-', steps('basics').deploypostfix))]",
+                            "subLabel": "[concat('Resource Group for OpenClarity will be named ', concat('openclarity-', steps('basics').deploypostfix))]",
                             "defaultValue": "",
-                            "toolTip": "Specify the postfix to add to 'vmclarity' which will be used as the resource group name to identify this VMClarity installation.",
+                            "toolTip": "Specify the postfix to add to 'openclarity' which will be used as the resource group name to identify this OpenClarity installation.",
                             "constraints": {
                                 "required": true,
                                 "regex": "",
@@ -36,7 +36,7 @@
                         {
                             "name": "adminUsername",
                             "type": "Microsoft.Common.TextBox",
-                            "label": "VMClarity Server SSH Username",
+                            "label": "OpenClarity Server SSH Username",
                             "subLabel": "",
                             "defaultValue": "",
                             "toolTip": "Username for the Virtual Machine.",
@@ -64,12 +64,12 @@
                             "label": {
                                 "authenticationType": "",
                                 "password": "",
-                                "sshPublicKey": "VMClarity Server SSH Public Key"
+                                "sshPublicKey": "OpenClarity Server SSH Public Key"
                             },
                             "toolTip": {
                                 "authenticationType": "",
                                 "password": "",
-                                "sshPublicKey": "SSH Public Key for the VMClarity Server VM."
+                                "sshPublicKey": "SSH Public Key for the OpenClarity Server VM."
                             },
                             "defaultValue": {
                                 "sshPublicKey": "",
@@ -88,8 +88,8 @@
                         {
                             "name": "serverVmSize",
                             "type": "Microsoft.Compute.SizeSelector",
-                            "label": "VMClarity Server VM Size",
-                            "toolTip": "The size of the VMClarity Server VM",
+                            "label": "OpenClarity Server VM Size",
+                            "toolTip": "The size of the OpenClarity Server VM",
                             "recommendedSizes": [
                                 "Standard_D2s_v3"
                             ],
@@ -114,8 +114,8 @@
                         {
                             "name": "scannerVmSize",
                             "type": "Microsoft.Compute.SizeSelector",
-                            "label": "VMClarity Scanner VMs Size",
-                            "toolTip": "The size of the VMClarity Scanner VMs",
+                            "label": "OpenClarity Scanner VMs Size",
+                            "toolTip": "The size of the OpenClarity Scanner VMs",
                             "recommendedSizes": [
                                 "Standard_D2s_v3"
                             ],
@@ -143,7 +143,7 @@
                             "label": "Security Type",
                             "subLabel": "",
                             "defaultValue": "TrustedLaunch",
-                            "toolTip": "Security Type of the VMClarity Server VM.",
+                            "toolTip": "Security Type of the OpenClarity Server VM.",
                             "constraints": {
                                 "required": false,
                                 "allowedValues": [
@@ -173,7 +173,7 @@
                             "label": "Orchestrator Container Image",
                             "subLabel": "",
                             "defaultValue": "ghcr.io/openclarity/openclarity-orchestrator:latest",
-                            "toolTip": "VMClarity Orchestrator Container Image",
+                            "toolTip": "OpenClarity Orchestrator Container Image",
                             "constraints": {
                                 "required": false,
                                 "regex": "",
@@ -189,7 +189,7 @@
                             "label": "APIServer Container Image",
                             "subLabel": "",
                             "defaultValue": "ghcr.io/openclarity/openclarity-api-server:latest",
-                            "toolTip": "VMClarity APIServer Container Image",
+                            "toolTip": "OpenClarity APIServer Container Image",
                             "constraints": {
                                 "required": false,
                                 "regex": "",
@@ -205,7 +205,7 @@
                             "label": "UI Container Image",
                             "subLabel": "",
                             "defaultValue": "ghcr.io/openclarity/openclarity-ui:latest",
-                            "toolTip": "VMClarity UI Container Image",
+                            "toolTip": "OpenClarity UI Container Image",
                             "constraints": {
                                 "required": false,
                                 "regex": "",
@@ -221,7 +221,7 @@
                             "label": "UI Backend Container Image",
                             "subLabel": "",
                             "defaultValue": "ghcr.io/openclarity/openclarity-ui-backend:latest",
-                            "toolTip": "VMClarity UI Backend Container Image",
+                            "toolTip": "OpenClarity UI Backend Container Image",
                             "constraints": {
                                 "required": false,
                                 "regex": "",
@@ -237,7 +237,7 @@
                             "label": "Scanner Container Image",
                             "subLabel": "",
                             "defaultValue": "ghcr.io/openclarity/openclarity-cli:latest",
-                            "toolTip": "VMClarity Scanner Container Image",
+                            "toolTip": "OpenClarity Scanner Container Image",
                             "constraints": {
                                 "required": false,
                                 "regex": "",

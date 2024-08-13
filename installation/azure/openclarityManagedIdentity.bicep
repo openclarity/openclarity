@@ -3,11 +3,11 @@ targetScope = 'resourceGroup'
 @description('Location where to create the resources')
 param location string = resourceGroup().location
 
-var vmClarityIdentityName = 'vmclarity-discoverer-deployer-${uniqueString(resourceGroup().id)}'
+var openClarityIdentityName = 'openclarity-discoverer-deployer-${uniqueString(resourceGroup().id)}'
 
-resource vmClarityServerIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: vmClarityIdentityName
+resource openClarityServerIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: openClarityIdentityName
   location: location
 }
-output vmClarityIdentityId string = vmClarityServerIdentity.id
-output vmClarityIdentityPrincipalId string = vmClarityServerIdentity.properties.principalId
+output openClarityIdentityId string = openClarityServerIdentity.id
+output openClarityIdentityPrincipalId string = openClarityServerIdentity.properties.principalId

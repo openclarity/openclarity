@@ -239,7 +239,7 @@ lint-actions: bin/actionlint ## Lint Github Actions
 
 .PHONY: lint-bicep
 lint-bicep: bin/bicep ## Lint Azure Bicep template(s)
-	@$(BICEP_BIN) lint installation/azure/vmclarity.bicep
+	@$(BICEP_BIN) lint installation/azure/openclarity.bicep
 
 .PHONY: lint-cfn
 lint-cfn: bin/cfn-lint ## Lint AWS CloudFormation template
@@ -396,7 +396,7 @@ gen-plugin-sdk-python: ## Generating Scanner Plugin SDK code for Python
 .PHONY: gen-bicep
 gen-bicep: bin/bicep ## Generating Azure Bicep template(s)
 	$(info Generating Azure Bicep template(s) ...)
-	$(BICEP_BIN) build installation/azure/vmclarity.bicep
+	$(BICEP_BIN) build installation/azure/openclarity.bicep
 
 .PHONY: gen-helm-docs
 gen-helm-docs: bin/helm-docs ## Generating documentation for Helm chart
@@ -475,9 +475,9 @@ $(DIST_DIR)/azure-bicep-$(VERSION).tar.gz: $(DIST_DIR)/azure-bicep-$(VERSION).bu
 $(DIST_DIR)/azure-bicep-$(VERSION).bundle: $(BICEP_FILES) bin/bicep | $(BICEP_DIST_DIR)
 	$(info --- Generate Bicep bundle)
 	cp -vR $(BICEP_DIR)/* $(BICEP_DIST_DIR)/
-	sed -i -E 's@(ghcr\.io\/openclarity\/vmclarity\-(apiserver|cli|orchestrator|ui-backend|ui)):latest@\1:$(VERSION)@' \
-		$(BICEP_DIST_DIR)/*.bicep $(BICEP_DIST_DIR)/vmclarity-UI.json
-	$(BICEP_BIN) build $(BICEP_DIST_DIR)/vmclarity.bicep
+	sed -i -E 's@(ghcr\.io\/openclarity\/openclarity\-(api-server|cli|orchestrator|ui-backend|ui)):latest@\1:$(VERSION)@' \
+		$(BICEP_DIST_DIR)/*.bicep $(BICEP_DIST_DIR)/openclarity-UI.json
+	$(BICEP_BIN) build $(BICEP_DIST_DIR)/openclarity.bicep
 	@touch $@
 
 $(BICEP_DIST_DIR)/LICENSE: $(ROOT_DIR)/LICENSE | $(BICEP_DIST_DIR)

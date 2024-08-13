@@ -1,16 +1,16 @@
 targetScope = 'subscription'
 
-@description('VMClarity Resource Group Name')
+@description('OpenClarity Resource Group Name')
 param resourceGroupName string
 
-@description('VMClarity Managed Identity Principal ID')
+@description('OpenClarity Managed Identity Principal ID')
 param principalID string
 
-var discoverRoleID = guid(subscription().id, resourceGroupName, 'vmclarity-discoverer-snapshotter')
-var discoverRoleName = 'VMClarity Discoverer Snapshotter for ${resourceGroupName}'
-var discoverRoleDescription = 'IAM Role to allow VMClarity to discover and snapshot virtual machines.'
+var discoverRoleID = guid(subscription().id, resourceGroupName, 'openclarity-discoverer-snapshotter')
+var discoverRoleName = 'OpenClarity Discoverer Snapshotter for ${resourceGroupName}'
+var discoverRoleDescription = 'IAM Role to allow OpenClarity to discover and snapshot virtual machines.'
 
-resource vmClarityDiscoverRole 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
+resource openClarityDiscoverRole 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
   name: discoverRoleID
   properties: {
     roleName: discoverRoleName
@@ -38,9 +38,9 @@ resource vmClarityDiscoverRole 'Microsoft.Authorization/roleDefinitions@2022-04-
 }
 
 resource discoverRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(subscription().id, resourceGroupName, 'vmclarity-server', discoverRoleName)
+  name: guid(subscription().id, resourceGroupName, 'openclarity-server', discoverRoleName)
   properties: {
-    roleDefinitionId: vmClarityDiscoverRole.id
+    roleDefinitionId: openClarityDiscoverRole.id
     principalId: principalID
     principalType: 'ServicePrincipal'
   }

@@ -1,11 +1,11 @@
-@description('Username for the VMClarity Server VM')
+@description('Username for the OpenClarity Server VM')
 param adminUsername string
 
-@description('SSH Public Key for the VMClarity Server VM')
+@description('SSH Public Key for the OpenClarity Server VM')
 @secure()
 param adminSSHKey string
 
-@description('The size of the VMClarity Server VM')
+@description('The size of the OpenClarity Server VM')
 param serverVmSize string = 'Standard_D2s_v3'
 
 @description('The size of the Scanner VMs')
@@ -15,7 +15,7 @@ param scannerVmSize string = 'Standard_D2s_v3'
 param location string = resourceGroup().location
 
 @description('Public IP DNS prefix')
-param dnsLabelPrefix string = toLower('vmclarity-server-${uniqueString(resourceGroup().id)}')
+param dnsLabelPrefix string = toLower('openclarity-server-${uniqueString(resourceGroup().id)}')
 
 @description('Security Type of the VMClartiy Server VM')
 @allowed([
@@ -24,25 +24,25 @@ param dnsLabelPrefix string = toLower('vmclarity-server-${uniqueString(resourceG
 ])
 param securityType string = 'TrustedLaunch'
 
-@description('VMClarity Server Identity ID')
-param vmClarityIdentityID string
+@description('OpenClarity Server Identity ID')
+param openClarityIdentityID string
 
-@description('VMClarity Managed Identity Principal ID')
+@description('OpenClarity Managed Identity Principal ID')
 param principalID string
 
-@description ('VMClarity APIServer Container Image')
+@description ('OpenClarity APIServer Container Image')
 param apiserverContainerImage string = 'ghcr.io/openclarity/openclarity-api-server:latest'
 
-@description ('VMClarity Orchestrator Container Image')
+@description ('OpenClarity Orchestrator Container Image')
 param orchestratorContainerImage string = 'ghcr.io/openclarity/openclarity-orchestrator:latest'
 
-@description ('VMClarity UI Container Image')
+@description ('OpenClarity UI Container Image')
 param uiContainerImage string = 'ghcr.io/openclarity/openclarity-ui:latest'
 
-@description ('VMClarity UIBackend Container Image')
+@description ('OpenClarity UIBackend Container Image')
 param uibackendContainerImage string = 'ghcr.io/openclarity/openclarity-ui-backend:latest'
 
-@description ('VMClarity Scanner Container Image')
+@description ('OpenClarity Scanner Container Image')
 param scannerContainerImage string = 'ghcr.io/openclarity/openclarity-cli:latest'
 
 @description ('Trivy Server Container Image')
@@ -107,20 +107,20 @@ var imageReference = {
     version: 'latest'
 }
 
-var vmClarityNetName = 'vmclarity-server-net'
+var openClarityNetName = 'openclarity-server-net'
 var addressPrefix = '10.1.0.0/16'
 
-var vmClarityServerSubnetName = 'vmclarity-server-subnet'
-var vmClarityServerSecurityGroupName = 'vmclarity-server-security-group'
-var vmClarityServerSubnetAddressPrefix = '10.1.0.0/24'
+var openClarityServerSubnetName = 'openclarity-server-subnet'
+var openClarityServerSecurityGroupName = 'openclarity-server-security-group'
+var openClarityServerSubnetAddressPrefix = '10.1.0.0/24'
 
-var vmClarityScannerSubnetName = 'vmclarity-scanner-subnet'
-var vmClarityScannerSecurityGroupName = 'vmclarity-scanner-security-group'
-var vmClarityScannerSubnetAddressPrefix = '10.1.1.0/24'
+var openClarityScannerSubnetName = 'openclarity-scanner-subnet'
+var openClarityScannerSecurityGroupName = 'openclarity-scanner-security-group'
+var openClarityScannerSubnetAddressPrefix = '10.1.1.0/24'
 
-var vmclarityServerVMName = 'vmclarity-server'
-var publicIPAddressName = '${vmclarityServerVMName}-public-ip'
-var networkInterfaceName = '${vmclarityServerVMName}-net-int'
+var openClarityServerVMName = 'openclarity-server'
+var publicIPAddressName = '${openClarityServerVMName}-public-ip'
+var networkInterfaceName = '${openClarityServerVMName}-net-int'
 
 var params = {
   APIServerContainerImage: apiserverContainerImage
@@ -147,19 +147,19 @@ var params = {
   AZURE_SUBSCRIPTION_ID: subscription().subscriptionId
   AZURE_SCANNER_LOCATION: location
   AZURE_SCANNER_RESOURCE_GROUP: resourceGroup().name
-  AZURE_SCANNER_SUBNET_ID: vmClarityNet::vmClarityScannerSubnet.id
+  AZURE_SCANNER_SUBNET_ID: openClarityNet::openClarityScannerSubnet.id
   AZURE_SCANNER_PUBLIC_KEY: base64(adminSSHKey)
   AZURE_SCANNER_VM_SIZE: scannerVmSize
   AZURE_SCANNER_IMAGE_PUBLISHER: imageReference.publisher
   AZURE_SCANNER_IMAGE_OFFER: imageReference.offer
   AZURE_SCANNER_IMAGE_SKU: imageReference.sku
   AZURE_SCANNER_IMAGE_VERSION: imageReference.version
-  AZURE_SCANNER_SECURITY_GROUP: vmClarityScannerSecurityGroup.id
+  AZURE_SCANNER_SECURITY_GROUP: openClarityScannerSecurityGroup.id
   AZURE_SCANNER_STORAGE_ACCOUNT_NAME: storageAccountName
   AZURE_SCANNER_STORAGE_CONTAINER_NAME: snapshotContainerName
 }
 
-var scriptTemplate = loadTextContent('vmclarity-install.sh')
+var scriptTemplate = loadTextContent('openclarity-install.sh')
 
 var renderedScript = reduce(
   items(params),
@@ -187,14 +187,14 @@ var securityProfileJson = {
   securityType: securityType
 }
 
-var vmClarityGuestAttestationName = 'VmClarityServerGuestAttestation'
+var openClarityGuestAttestationName = 'OpenClarityServerGuestAttestation'
 var extensionName = 'GuestAttestation'
 var extensionPublisher = 'Microsoft.Azure.Security.LinuxAttestation'
 var extensionVersion = '1.0'
 var maaTenantName = 'GuestAttestation'
 var maaEndpoint = substring('emptystring', 0, 0)
 
-var vmClarityServerCustomScriptName = 'VmClarityServerCustomScript'
+var openClarityServerCustomScriptName = 'OpenClarityServerCustomScript'
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2024-01-01' = {
   name: networkInterfaceName
@@ -205,7 +205,7 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2024-01-01' = {
         name: 'ipconfig1'
         properties: {
           subnet: {
-            id: vmClarityNet::vmClarityServerSubnet.id
+            id: openClarityNet::openClarityServerSubnet.id
           }
           privateIPAllocationMethod: 'Dynamic'
           publicIPAddress: {
@@ -215,13 +215,13 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2024-01-01' = {
       }
     ]
     networkSecurityGroup: {
-      id: vmClarityServerSecurityGroup.id
+      id: openClarityServerSecurityGroup.id
     }
   }
 }
 
-resource vmClarityServerSecurityGroup 'Microsoft.Network/networkSecurityGroups@2024-01-01' = {
-  name: vmClarityServerSecurityGroupName
+resource openClarityServerSecurityGroup 'Microsoft.Network/networkSecurityGroups@2024-01-01' = {
+  name: openClarityServerSecurityGroupName
   location: location
   properties: {
     securityRules: [
@@ -245,8 +245,8 @@ resource vmClarityServerSecurityGroup 'Microsoft.Network/networkSecurityGroups@2
 // Declare subnets inside of virtualNet so that they don't get deleted when
 // re-applying the template
 // https://github.com/Azure/bicep/issues/4653
-resource vmClarityNet 'Microsoft.Network/virtualNetworks@2024-01-01' = {
-  name: vmClarityNetName
+resource openClarityNet 'Microsoft.Network/virtualNetworks@2024-01-01' = {
+  name: openClarityNetName
   location: location
   properties: {
     addressSpace: {
@@ -256,9 +256,9 @@ resource vmClarityNet 'Microsoft.Network/virtualNetworks@2024-01-01' = {
     }
     subnets:[
       {
-        name: vmClarityServerSubnetName
+        name: openClarityServerSubnetName
         properties: {
-          addressPrefix: vmClarityServerSubnetAddressPrefix
+          addressPrefix: openClarityServerSubnetAddressPrefix
           serviceEndpoints: [
             {
               service: 'Microsoft.Storage'
@@ -269,9 +269,9 @@ resource vmClarityNet 'Microsoft.Network/virtualNetworks@2024-01-01' = {
         }
       }
       {
-        name: vmClarityScannerSubnetName
+        name: openClarityScannerSubnetName
         properties: {
-          addressPrefix: vmClarityScannerSubnetAddressPrefix
+          addressPrefix: openClarityScannerSubnetAddressPrefix
           privateEndpointNetworkPolicies: 'Enabled'
           privateLinkServiceNetworkPolicies: 'Enabled'
         }
@@ -279,12 +279,12 @@ resource vmClarityNet 'Microsoft.Network/virtualNetworks@2024-01-01' = {
     ]
   }
 
-  resource vmClarityServerSubnet 'subnets' existing = {
-    name: vmClarityServerSubnetName
+  resource openClarityServerSubnet 'subnets' existing = {
+    name: openClarityServerSubnetName
   }
 
-  resource vmClarityScannerSubnet 'subnets' existing = {
-    name: vmClarityScannerSubnetName
+  resource openClarityScannerSubnet 'subnets' existing = {
+    name: openClarityScannerSubnetName
   }
 }
 
@@ -304,13 +304,13 @@ resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2024-01-01' = {
   }
 }
 
-resource vmClarityServer 'Microsoft.Compute/virtualMachines@2024-03-01' = {
-  name: vmclarityServerVMName
+resource openClarityServer 'Microsoft.Compute/virtualMachines@2024-03-01' = {
+  name: openClarityServerVMName
   location: location
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities:{
-      '${vmClarityIdentityID}': {}
+      '${openClarityIdentityID}': {}
     }
   }
   properties: {
@@ -334,7 +334,7 @@ resource vmClarityServer 'Microsoft.Compute/virtualMachines@2024-03-01' = {
       ]
     }
     osProfile: {
-      computerName: vmclarityServerVMName
+      computerName: openClarityServerVMName
       adminUsername: adminUsername
       linuxConfiguration: linuxConfiguration
     }
@@ -342,9 +342,9 @@ resource vmClarityServer 'Microsoft.Compute/virtualMachines@2024-03-01' = {
   }
 }
 
-resource vmclarityServerGuestAttestation 'Microsoft.Compute/virtualMachines/extensions@2024-03-01' = if ((securityType == 'TrustedLaunch') && ((securityProfileJson.uefiSettings.secureBootEnabled == true) && (securityProfileJson.uefiSettings.vTpmEnabled == true))) {
-  parent: vmClarityServer
-  name: vmClarityGuestAttestationName
+resource openClarityServerGuestAttestation 'Microsoft.Compute/virtualMachines/extensions@2024-03-01' = if ((securityType == 'TrustedLaunch') && ((securityProfileJson.uefiSettings.secureBootEnabled == true) && (securityProfileJson.uefiSettings.vTpmEnabled == true))) {
+  parent: openClarityServer
+  name: openClarityGuestAttestationName
   location: location
   properties: {
     publisher: extensionPublisher
@@ -363,12 +363,12 @@ resource vmclarityServerGuestAttestation 'Microsoft.Compute/virtualMachines/exte
   }
 }
 
-resource vmclarityServerCustomScript 'Microsoft.Compute/virtualMachines/extensions@2024-03-01' = {
-  parent: vmClarityServer
+resource openClarityServerCustomScript 'Microsoft.Compute/virtualMachines/extensions@2024-03-01' = {
+  parent: openClarityServer
   dependsOn: [
-    vmclarityServerGuestAttestation
+    openClarityServerGuestAttestation
   ]
-  name: vmClarityServerCustomScriptName
+  name: openClarityServerCustomScriptName
   location: location
   properties: {
     publisher: 'Microsoft.Azure.Extensions'
@@ -381,19 +381,19 @@ resource vmclarityServerCustomScript 'Microsoft.Compute/virtualMachines/extensio
   }
 }
 
-resource vmClarityScannerSecurityGroup 'Microsoft.Network/networkSecurityGroups@2024-01-01' = {
-  name: vmClarityScannerSecurityGroupName
+resource openClarityScannerSecurityGroup 'Microsoft.Network/networkSecurityGroups@2024-01-01' = {
+  name: openClarityScannerSecurityGroupName
   location: location
   properties: {
     securityRules: [
       {
-        name: 'SSH-From-VMClarity-Server'
+        name: 'SSH-From-OpenClarity-Server'
         properties: {
           priority: 1000
           protocol: 'Tcp'
           access: 'Allow'
           direction: 'Inbound'
-          sourceAddressPrefix: vmClarityServerSubnetAddressPrefix
+          sourceAddressPrefix: openClarityServerSubnetAddressPrefix
           sourcePortRange: '*'
           destinationAddressPrefix: '*'
           destinationPortRange: '22'
@@ -405,7 +405,7 @@ resource vmClarityScannerSecurityGroup 'Microsoft.Network/networkSecurityGroups@
 
 var storageAccountName = toLower('store${uniqueString(resourceGroup().id)}')
 var storageAccountType = 'Standard_LRS'
-// var subnetRef = '${vmClarityNet.id}/subnets/${vmClarityServerSubnet.name}'
+// var subnetRef = '${openClarityNet.id}/subnets/${openClarityServerSubnet.name}'
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   name: storageAccountName
@@ -420,7 +420,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
       bypass: 'AzureServices'
       virtualNetworkRules: [
         {
-          id: vmClarityNet::vmClarityServerSubnet.id
+          id: openClarityNet::openClarityServerSubnet.id
           action: 'Allow'
         }
       ]
@@ -449,7 +449,7 @@ resource blobContributorRoleDefinition 'Microsoft.Authorization/roleDefinitions@
 
 resource blocContributorRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: storageAccount
-  name: guid(storageAccount.id, vmClarityIdentityID, blobContributorRoleDefinition.id)
+  name: guid(storageAccount.id, openClarityIdentityID, blobContributorRoleDefinition.id)
   properties: {
     roleDefinitionId: blobContributorRoleDefinition.id
     principalId: principalID

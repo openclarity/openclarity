@@ -1,16 +1,16 @@
 targetScope = 'subscription'
 
-@description('Location for the VMClarity resource group')
+@description('Location for the OpenClarity resource group')
 param location string = 'eastus'
 
-@description('Username for the VMClarity Server VM')
+@description('Username for the OpenClarity Server VM')
 param adminUsername string
 
-@description('SSH Public Key for the VMClarity Server VM')
+@description('SSH Public Key for the OpenClarity Server VM')
 @secure()
 param adminSSHKey string
 
-@description('The size of the VMClarity Server VM')
+@description('The size of the OpenClarity Server VM')
 param serverVmSize string = 'Standard_D2s_v3'
 
 @description('The size of the Scanner VMs')
@@ -23,19 +23,19 @@ param scannerVmSize string = 'Standard_D2s_v3'
 ])
 param securityType string = 'TrustedLaunch'
 
-@description ('VMClarity APIServer Container Image')
+@description ('OpenClarity APIServer Container Image')
 param apiserverContainerImage string = 'ghcr.io/openclarity/openclarity-api-server:latest'
 
-@description ('VMClarity Orchestrator Container Image')
+@description ('OpenClarity Orchestrator Container Image')
 param orchestratorContainerImage string = 'ghcr.io/openclarity/openclarity-orchestrator:latest'
 
-@description ('VMClarity UI Container Image')
+@description ('OpenClarity UI Container Image')
 param uiContainerImage string = 'ghcr.io/openclarity/openclarity-ui:latest'
 
-@description ('VMClarity UIBackend Container Image')
+@description ('OpenClarity UIBackend Container Image')
 param uibackendContainerImage string = 'ghcr.io/openclarity/openclarity-ui-backend:latest'
 
-@description ('VMClarity Scanner Container Image')
+@description ('OpenClarity Scanner Container Image')
 param scannerContainerImage string = 'ghcr.io/openclarity/openclarity-cli:latest'
 
 @description ('Trivy Server Container Image')
@@ -93,45 +93,45 @@ param externalDBUsername string = ''
 @secure()
 param externalDBPassword string = ''
 
-@description('VMClarity Deploy Postfix')
+@description('OpenClarity Deploy Postfix')
 param deploypostfix string
 
-var resourceGroupName = 'vmclarity-${deploypostfix}'
+var resourceGroupName = 'openclarity-${deploypostfix}'
 
-resource vmClarityResourceGroup 'Microsoft.Resources/resourceGroups@2024-03-01' = {
+resource openClarityResourceGroup 'Microsoft.Resources/resourceGroups@2024-03-01' = {
   name: resourceGroupName
   location: location
 }
 
-module vmClarityManagedIdentity 'vmclarityManagedIdentity.bicep' = {
-  name: 'vmclarity-managed-identity'
-  scope: vmClarityResourceGroup
+module openClarityManagedIdentity 'openclarityManagedIdentity.bicep' = {
+  name: 'openclarity-managed-identity'
+  scope: openClarityResourceGroup
   params: {
     location: location
   }
 }
 
-module vmClarityScanRole 'vmclarityScanRole.bicep' = {
-  name: 'vmclarity-${deploypostfix}-scan-role'
-  scope: vmClarityResourceGroup
+module openClarityScanRole 'openclarityScanRole.bicep' = {
+  name: 'openclarity-${deploypostfix}-scan-role'
+  scope: openClarityResourceGroup
   params: {
     resourceGroupName: resourceGroupName
-    principalID: vmClarityManagedIdentity.outputs.vmClarityIdentityPrincipalId
+    principalID: openClarityManagedIdentity.outputs.openClarityIdentityPrincipalId
   }
 }
 
-module vmClarityDiscoverRole 'vmclarityDiscoverRole.bicep' = {
-  name: 'vmclarity-${deploypostfix}-discover-role'
+module openClarityDiscoverRole 'openclarityDiscoverRole.bicep' = {
+  name: 'openclarity-${deploypostfix}-discover-role'
   scope: subscription()
   params: {
     resourceGroupName: resourceGroupName
-    principalID: vmClarityManagedIdentity.outputs.vmClarityIdentityPrincipalId
+    principalID: openClarityManagedIdentity.outputs.openClarityIdentityPrincipalId
   }
 }
 
-module vmClarityDeploy 'vmclarityDeployModule.bicep' = {
-  name: 'vmclarity-deploy'
-  scope: vmClarityResourceGroup
+module openClarityDeploy 'openclarityDeployModule.bicep' = {
+  name: 'openclarity-deploy'
+  scope: openClarityResourceGroup
   params: {
     location: location
     adminSSHKey: adminSSHKey
@@ -139,8 +139,8 @@ module vmClarityDeploy 'vmclarityDeployModule.bicep' = {
     serverVmSize: serverVmSize
     scannerVmSize: scannerVmSize
     securityType: securityType
-    vmClarityIdentityID: vmClarityManagedIdentity.outputs.vmClarityIdentityId
-    principalID: vmClarityManagedIdentity.outputs.vmClarityIdentityPrincipalId
+    openClarityIdentityID: openClarityManagedIdentity.outputs.openClarityIdentityId
+    principalID: openClarityManagedIdentity.outputs.openClarityIdentityPrincipalId
     apiserverContainerImage: apiserverContainerImage
     orchestratorContainerImage: orchestratorContainerImage
     uiContainerImage: uiContainerImage
@@ -163,6 +163,6 @@ module vmClarityDeploy 'vmclarityDeployModule.bicep' = {
   }
 }
 
-output adminUsername string = vmClarityDeploy.outputs.adminUsername
-output hostname string = vmClarityDeploy.outputs.hostname
-output sshCommand string = vmClarityDeploy.outputs.sshCommand
+output adminUsername string = openClarityDeploy.outputs.adminUsername
+output hostname string = openClarityDeploy.outputs.hostname
+output sshCommand string = openClarityDeploy.outputs.sshCommand
