@@ -35,7 +35,7 @@ import Findings from "layout/Findings";
 import Assets from "layout/Assets";
 import AssetScans from "layout/AssetScans";
 
-import brandImage from "utils/images/brand.svg";
+import brandImage from "utils/images/brand.png";
 
 import "./app.scss";
 
@@ -152,7 +152,7 @@ const Layout = () => {
     <div id="main-wrapper">
       <FiltersProvider>
         <div className="topbar-container">
-          <img src={brandImage} alt="VMClarity" />
+          <img src={brandImage} alt="OpenClarity" />
           {!!pageTitle && (
             <div className="topbar-page-title">
               <Title medium removeMargin>

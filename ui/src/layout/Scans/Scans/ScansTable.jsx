@@ -182,7 +182,7 @@ const ScansTable = () => {
           message={
             <>
               <div>No scans detected.</div>
-              <div>Start your first scan to see your VM's issues.</div>
+              <div>Start your first scan to see issues.</div>
             </>
           }
           title="New scan configuration"
