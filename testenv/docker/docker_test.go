@@ -57,7 +57,7 @@ func TestProjectFromConfig(t *testing.T) {
 			},
 			ExpectedServiceEnvironment: map[string]map[string]string{
 				"orchestrator": {
-					"VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_CONTAINER_IMAGE": "openclarity/openclarity-cli:latest",
+					"OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_CONTAINER_IMAGE": "openclarity/openclarity-cli:latest",
 				},
 			},
 		},

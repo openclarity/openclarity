@@ -177,29 +177,29 @@ Resources:
                   apt-get -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
                   if [ "${DatabaseToUse}" == "Postgresql" ]; then
-                    # Configure the VMClarity backend to use the local postgres
+                    # Configure the OpenClarity backend to use the local postgres
                     # service
-                    echo "VMCLARITY_APISERVER_DATABASE_DRIVER=POSTGRES" > /etc/vmclarity/apiserver.env
-                    echo "VMCLARITY_APISERVER_DB_NAME=vmclarity" >> /etc/vmclarity/apiserver.env
-                    echo "VMCLARITY_APISERVER_DB_USER=vmclarity" >> /etc/vmclarity/apiserver.env
-                    echo "VMCLARITY_APISERVER_DB_PASS=${PostgresDBPassword}" >> /etc/vmclarity/apiserver.env
-                    echo "VMCLARITY_APISERVER_DB_HOST=postgresql" >> /etc/vmclarity/apiserver.env
-                    echo "VMCLARITY_APISERVER_DB_PORT=5432" >> /etc/vmclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DATABASE_DRIVER=POSTGRES" > /etc/vmclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_NAME=vmclarity" >> /etc/vmclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_USER=vmclarity" >> /etc/vmclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_PASS=${PostgresDBPassword}" >> /etc/vmclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_HOST=postgresql" >> /etc/vmclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_PORT=5432" >> /etc/vmclarity/apiserver.env
                   elif [ "${DatabaseToUse}" == "External Postgresql" ]; then
-                    # Configure the VMClarity backend to use the postgres
+                    # Configure the OpenClarity backend to use the postgres
                     # database configured by the user.
-                    echo "VMCLARITY_APISERVER_DATABASE_DRIVER=POSTGRES" > /etc/vmclarity/apiserver.env
-                    echo "VMCLARITY_APISERVER_DB_NAME=${ExternalDBName}" >> /etc/vmclarity/apiserver.env
-                    echo "VMCLARITY_APISERVER_DB_USER=${ExternalDBUsername}" >> /etc/vmclarity/apiserver.env
-                    echo "VMCLARITY_APISERVER_DB_PASS=${ExternalDBPassword}" >> /etc/vmclarity/apiserver.env
-                    echo "VMCLARITY_APISERVER_DB_HOST=${ExternalDBHost}" >> /etc/vmclarity/apiserver.env
-                    echo "VMCLARITY_APISERVER_DB_PORT=${ExternalDBPort}" >> /etc/vmclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DATABASE_DRIVER=POSTGRES" > /etc/vmclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_NAME=${ExternalDBName}" >> /etc/vmclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_USER=${ExternalDBUsername}" >> /etc/vmclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_PASS=${ExternalDBPassword}" >> /etc/vmclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_HOST=${ExternalDBHost}" >> /etc/vmclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_PORT=${ExternalDBPort}" >> /etc/vmclarity/apiserver.env
                   elif [ "${DatabaseToUse}" == "SQLite" ]; then
-                    # Configure the VMClarity backend to use the SQLite DB
+                    # Configure the OpenClarity backend to use the SQLite DB
                     # driver and configure the storage location so that it
                     # persists.
-                    echo "VMCLARITY_APISERVER_DATABASE_DRIVER=LOCAL" > /etc/vmclarity/apiserver.env
-                    echo "VMCLARITY_APISERVER_LOCAL_DB_PATH=/data/vmclarity.db" >> /etc/vmclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DATABASE_DRIVER=LOCAL" > /etc/vmclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_LOCAL_DB_PATH=/data/vmclarity.db" >> /etc/vmclarity/apiserver.env
                   fi
 
                   # Replace anywhere in the config.env __CONTROLPLANE_HOST__
@@ -505,8 +505,8 @@ Resources:
                 ##
                 ## UIBackend configuration
                 ##
-                # VMClarity API server address
-                VMCLARITY_UIBACKEND_APISERVER_ADDRESS=http://apiserver:8888
+                # OpenClarity API server address
+                OPENCLARITY_UIBACKEND_APISERVER_ADDRESS=http://apiserver:8888
 
 
             "/etc/vmclarity/swagger-config.json":
@@ -514,7 +514,7 @@ Resources:
                 {
                     "urls": [
                         {
-                            "name": "VMClarity API",
+                            "name": "OpenClarity API",
                             "url": "/api/openapi.json"
                         }
                     ]
@@ -527,26 +527,26 @@ Resources:
                     ##
                     ## Orchestrator configuration
                     ##
-                    # VMClarity API server address
-                    VMCLARITY_ORCHESTRATOR_APISERVER_ADDRESS=http://apiserver:8888
+                    # OpenClarity API server address
+                    OPENCLARITY_ORCHESTRATOR_APISERVER_ADDRESS=http://apiserver:8888
                     # Container image for Scanner instance
-                    VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_CONTAINER_IMAGE=${ScannerContainerImage}
+                    OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_CONTAINER_IMAGE=${ScannerContainerImage}
                     # API Server Address for the Scanner to connect to
-                    VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_APISERVER_ADDRESS=http://__CONTROLPLANE_HOST__:8888
+                    OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_APISERVER_ADDRESS=http://__CONTROLPLANE_HOST__:8888
                     # Exploits DB server address
-                    VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_EXPLOITSDB_ADDRESS=http://__CONTROLPLANE_HOST__:1326
+                    OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_EXPLOITSDB_ADDRESS=http://__CONTROLPLANE_HOST__:1326
                     # Trivy server address
-                    VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_TRIVY_SERVER_ADDRESS=http://__CONTROLPLANE_HOST__:9992
+                    OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_TRIVY_SERVER_ADDRESS=http://__CONTROLPLANE_HOST__:9992
                     # Grype server address
-                    VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_GRYPE_SERVER_ADDRESS=__CONTROLPLANE_HOST__:9991
+                    OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_GRYPE_SERVER_ADDRESS=__CONTROLPLANE_HOST__:9991
                     # FreshClam mirror URL
-                    VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_FRESHCLAM_MIRROR=http://__CONTROLPLANE_HOST__:1000/clamav
+                    OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_FRESHCLAM_MIRROR=http://__CONTROLPLANE_HOST__:1000/clamav
                     # Yara rule server address
-                    VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_YARA_RULE_SERVER_ADDRESS=http://__CONTROLPLANE_HOST__:9993
+                    OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_YARA_RULE_SERVER_ADDRESS=http://__CONTROLPLANE_HOST__:9993
                     # Resource cleanup policy
-                    VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_DELETE_POLICY=${AssetScanDeletePolicy}
+                    OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_DELETE_POLICY=${AssetScanDeletePolicy}
                     # Provider to use
-                    VMCLARITY_ORCHESTRATOR_PROVIDER=aws
+                    OPENCLARITY_ORCHESTRATOR_PROVIDER=aws
 
                     ##
                     ## Provider configuration
@@ -554,19 +554,19 @@ Resources:
                     # The AWS region where the provider is deployed
                     AWS_REGION=${AWS::Region}
                     # Region where the Scanner instance needs to be created
-                    VMCLARITY_AWS_SCANNER_REGION=${AWS::Region}
+                    OPENCLARITY_AWS_SCANNER_REGION=${AWS::Region}
                     # SubnetID where the Scanner instance needs to be created
-                    VMCLARITY_AWS_SUBNET_ID=${VmClarityScannerSubnet}
+                    OPENCLARITY_AWS_SUBNET_ID=${VmClarityScannerSubnet}
                     # SecurityGroupId which needs to be attached to the Scanner instance
-                    VMCLARITY_AWS_SECURITY_GROUP_ID=${VmClarityScannerSecurityGroup}
+                    OPENCLARITY_AWS_SECURITY_GROUP_ID=${VmClarityScannerSecurityGroup}
                     # Name of the SSH KeyPair to use for Scanner instance launch
-                    VMCLARITY_AWS_KEYPAIR_NAME=${KeyName}
+                    OPENCLARITY_AWS_KEYPAIR_NAME=${KeyName}
                     # The AMI image used for creating Scanner instance
-                    VMCLARITY_AWS_SCANNER_AMI_ID=${ScannerImageID}
+                    OPENCLARITY_AWS_SCANNER_AMI_ID=${ScannerImageID}
                     # The instance type used for Scanner instance
-                    VMCLARITY_AWS_SCANNER_INSTANCE_TYPE=${ScannerInstanceType}
+                    OPENCLARITY_AWS_SCANNER_INSTANCE_TYPE=${ScannerInstanceType}
                     # Block device name used for attaching Scanner volume to the Scanner instance
-                    #VMCLARITY_AWS_BLOCK_DEVICE_NAME=xvhd
+                    #OPENCLARITY_AWS_BLOCK_DEVICE_NAME=xvhd
                   - ScannerImageID: !FindInMap
                       - AWSRegionArch2AMI
                       - !Ref "AWS::Region"

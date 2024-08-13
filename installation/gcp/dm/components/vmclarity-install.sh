@@ -31,29 +31,29 @@ apt-get update
 apt-get -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 if [ "{DatabaseToUse}" == "Postgresql" ]; then
-  # Configure the VMClarity backend to use the local postgres
+  # Configure the OpenClarity backend to use the local postgres
   # service
-  echo "VMCLARITY_APISERVER_DATABASE_DRIVER=POSTGRES" > /etc/vmclarity/apiserver.env
-  echo "VMCLARITY_APISERVER_DB_NAME=vmclarity" >> /etc/vmclarity/apiserver.env
-  echo "VMCLARITY_APISERVER_DB_USER=vmclarity" >> /etc/vmclarity/apiserver.env
-  echo "VMCLARITY_APISERVER_DB_PASS={PostgresDBPassword}" >> /etc/vmclarity/apiserver.env
-  echo "VMCLARITY_APISERVER_DB_HOST=postgresql" >> /etc/vmclarity/apiserver.env
-  echo "VMCLARITY_APISERVER_DB_PORT=5432" >> /etc/vmclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_DATABASE_DRIVER=POSTGRES" > /etc/vmclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_DB_NAME=vmclarity" >> /etc/vmclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_DB_USER=vmclarity" >> /etc/vmclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_DB_PASS={PostgresDBPassword}" >> /etc/vmclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_DB_HOST=postgresql" >> /etc/vmclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_DB_PORT=5432" >> /etc/vmclarity/apiserver.env
 elif [ "{DatabaseToUse}" == "External Postgresql" ]; then
-  # Configure the VMClarity backend to use the postgres
+  # Configure the OpenClarity backend to use the postgres
   # database configured by the user.
-  echo "VMCLARITY_APISERVER_DATABASE_DRIVER=POSTGRES" > /etc/vmclarity/apiserver.env
-  echo "VMCLARITY_APISERVER_DB_NAME={ExternalDBName}" >> /etc/vmclarity/apiserver.env
-  echo "VMCLARITY_APISERVER_DB_USER={ExternalDBUsername}" >> /etc/vmclarity/apiserver.env
-  echo "VMCLARITY_APISERVER_DB_PASS={ExternalDBPassword}" >> /etc/vmclarity/apiserver.env
-  echo "VMCLARITY_APISERVER_DB_HOST={ExternalDBHost}" >> /etc/vmclarity/apiserver.env
-  echo "VMCLARITY_APISERVER_DB_PORT={ExternalDBPort}" >> /etc/vmclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_DATABASE_DRIVER=POSTGRES" > /etc/vmclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_DB_NAME={ExternalDBName}" >> /etc/vmclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_DB_USER={ExternalDBUsername}" >> /etc/vmclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_DB_PASS={ExternalDBPassword}" >> /etc/vmclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_DB_HOST={ExternalDBHost}" >> /etc/vmclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_DB_PORT={ExternalDBPort}" >> /etc/vmclarity/apiserver.env
 elif [ "{DatabaseToUse}" == "SQLite" ]; then
-  # Configure the VMClarity backend to use the SQLite DB
+  # Configure the OpenClarity backend to use the SQLite DB
   # driver and configure the storage location so that it
   # persists.
-  echo "VMCLARITY_APISERVER_DATABASE_DRIVER=LOCAL" > /etc/vmclarity/apiserver.env
-  echo "VMCLARITY_APISERVER_LOCAL_DB_PATH=/data/vmclarity.db" >> /etc/vmclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_DATABASE_DRIVER=LOCAL" > /etc/vmclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_LOCAL_DB_PATH=/data/vmclarity.db" >> /etc/vmclarity/apiserver.env
 fi
 
 # Replace anywhere in the config.env __CONTROLPLANE_HOST__
@@ -104,23 +104,23 @@ EOF
 chmod 644 /etc/vmclarity/yara-rule-server.yaml
 
 cat << 'EOF' > /etc/vmclarity/orchestrator.env
-VMCLARITY_ORCHESTRATOR_PROVIDER=GCP
+OPENCLARITY_ORCHESTRATOR_PROVIDER=GCP
 
-VMCLARITY_GCP_PROJECT_ID={ProjectID}
-VMCLARITY_GCP_SCANNER_ZONE={ScannerZone}
-VMCLARITY_GCP_SCANNER_SUBNETWORK={ScannerSubnet}
-VMCLARITY_GCP_SCANNER_MACHINE_TYPE={ScannerMachineType}
-VMCLARITY_GCP_SCANNER_SOURCE_IMAGE={ScannerSourceImage}
+OPENCLARITY_GCP_PROJECT_ID={ProjectID}
+OPENCLARITY_GCP_SCANNER_ZONE={ScannerZone}
+OPENCLARITY_GCP_SCANNER_SUBNETWORK={ScannerSubnet}
+OPENCLARITY_GCP_SCANNER_MACHINE_TYPE={ScannerMachineType}
+OPENCLARITY_GCP_SCANNER_SOURCE_IMAGE={ScannerSourceImage}
 
-VMCLARITY_ORCHESTRATOR_APISERVER_ADDRESS=http://apiserver:8888
-VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_CONTAINER_IMAGE={ScannerContainerImage}
-VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_APISERVER_ADDRESS=http://__CONTROLPLANE_HOST__:8888
-VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_EXPLOITSDB_ADDRESS=http://__CONTROLPLANE_HOST__:1326
-VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_TRIVY_SERVER_ADDRESS=http://__CONTROLPLANE_HOST__:9992
-VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_GRYPE_SERVER_ADDRESS=__CONTROLPLANE_HOST__:9991
-VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_YARA_RULE_SERVER_ADDRESS=http://__CONTROLPLANE_HOST__:9993
-VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_DELETE_POLICY={AssetScanDeletePolicy}
-VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_FRESHCLAM_MIRROR=http://__CONTROLPLANE_HOST__:1000/clamav
+OPENCLARITY_ORCHESTRATOR_APISERVER_ADDRESS=http://apiserver:8888
+OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_CONTAINER_IMAGE={ScannerContainerImage}
+OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_APISERVER_ADDRESS=http://__CONTROLPLANE_HOST__:8888
+OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_EXPLOITSDB_ADDRESS=http://__CONTROLPLANE_HOST__:1326
+OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_TRIVY_SERVER_ADDRESS=http://__CONTROLPLANE_HOST__:9992
+OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_GRYPE_SERVER_ADDRESS=__CONTROLPLANE_HOST__:9991
+OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_YARA_RULE_SERVER_ADDRESS=http://__CONTROLPLANE_HOST__:9993
+OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_DELETE_POLICY={AssetScanDeletePolicy}
+OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_FRESHCLAM_MIRROR=http://__CONTROLPLANE_HOST__:1000/clamav
 EOF
 chmod 644 /etc/vmclarity/orchestrator.env
 
@@ -392,7 +392,7 @@ cat << 'EOF' > /etc/vmclarity/swagger-config.json
 {{
     "urls": [
         {{
-            "name": "VMClarity API",
+            "name": "OpenClarity API",
             "url": "/api/openapi.json"
         }}
     ]
@@ -404,8 +404,8 @@ cat << 'EOF' > /etc/vmclarity/uibackend.env
 ##
 ## UIBackend configuration
 ##
-# VMClarity API server address
-VMCLARITY_UIBACKEND_APISERVER_ADDRESS=http://apiserver:8888
+# OpenClarity API server address
+OPENCLARITY_UIBACKEND_APISERVER_ADDRESS=http://apiserver:8888
 EOF
 chmod 644 /etc/vmclarity/uibackend.env
 

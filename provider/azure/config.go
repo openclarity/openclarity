@@ -25,7 +25,7 @@ import (
 )
 
 const (
-	DefaultEnvPrefix = "VMCLARITY_AZURE"
+	DefaultEnvPrefix = "OPENCLARITY_AZURE"
 )
 
 type AzurePublicKey string

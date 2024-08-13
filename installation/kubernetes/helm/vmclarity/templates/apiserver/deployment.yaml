@@ -37,17 +37,17 @@ spec:
           securityContext: {{- omit .Values.apiserver.containerSecurityContext "enabled" | toYaml | nindent 12 }}
           {{- end }}
           env:
-            - name: VMCLARITY_APISERVER_DATABASE_DRIVER
+            - name: OPENCLARITY_APISERVER_DATABASE_DRIVER
               value: POSTGRES
-            - name: VMCLARITY_APISERVER_DB_HOST
+            - name: OPENCLARITY_APISERVER_DB_HOST
               value: {{ include "postgresql.v1.primary.fullname" .Subcharts.postgresql }}
-            - name: VMCLARITY_APISERVER_DB_PORT
+            - name: OPENCLARITY_APISERVER_DB_PORT
               value: "5432"
-            - name: VMCLARITY_APISERVER_DB_NAME
+            - name: OPENCLARITY_APISERVER_DB_NAME
               value: vmclarity
-            - name: VMCLARITY_APISERVER_DB_USER
+            - name: OPENCLARITY_APISERVER_DB_USER
               value: {{ .Values.postgresql.auth.username }}
-            - name: VMCLARITY_APISERVER_DB_PASS
+            - name: OPENCLARITY_APISERVER_DB_PASS
               valueFrom:
                 secretKeyRef:
                   name: {{ include "postgresql.v1.secretName" .Subcharts.postgresql }}

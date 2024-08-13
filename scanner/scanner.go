@@ -192,7 +192,7 @@ type workflowParams struct {
 
 var (
 	familiesTaskMutex    sync.Mutex
-	_, familiesAsyncMode = os.LookupEnv("VMCLARITY_FAMILIES_RUN_ASYNC")
+	_, familiesAsyncMode = os.LookupEnv("OPENCLARITY_FAMILIES_RUN_ASYNC")
 )
 
 // newFamilyTask returns a workflow task that runs a specific family.

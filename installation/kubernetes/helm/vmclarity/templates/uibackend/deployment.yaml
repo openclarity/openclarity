@@ -59,6 +59,6 @@ spec:
             timeoutSeconds: 10
           env:
             # VMClarity API server address
-            - name: VMCLARITY_UIBACKEND_APISERVER_ADDRESS
+            - name: OPENCLARITY_UIBACKEND_APISERVER_ADDRESS
               value: {{ printf "http://%s:%s" (include "vmclarity.apiserver.name" .) "8888" }}
       serviceAccountName: {{ include "vmclarity.uibackend.serviceAccountName" . }}

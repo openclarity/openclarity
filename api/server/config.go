@@ -27,7 +27,7 @@ import (
 )
 
 const (
-	DefaultEnvPrefix          = "VMCLARITY_APISERVER"
+	DefaultEnvPrefix          = "OPENCLARITY_APISERVER"
 	DefaultListenAddress      = "0.0.0.0:8888"
 	DefaultHealthCheckAddress = "0.0.0.0:8081"
 	DefaultDatabaseDriver     = dbtypes.DBDriverTypeLocal

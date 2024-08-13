@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	DefaultEnvPrefix = "VMCLARITY_GCP"
+	DefaultEnvPrefix = "OPENCLARITY_GCP"
 
 	projectID           = "project_id"
 	scannerZone         = "scanner_zone"

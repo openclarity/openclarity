@@ -34,9 +34,9 @@ func TestConfig(t *testing.T) {
 		{
 			Name: "Custom config",
 			EnvVars: map[string]string{
-				"VMCLARITY_UIBACKEND_LISTEN_ADDRESS":      "http://example.com:8891",
-				"VMCLARITY_UIBACKEND_APISERVER_ADDRESS":   "http://example.com:8484/api",
-				"VMCLARITY_UIBACKEND_HEALTHCHECK_ADDRESS": "example.com:18888",
+				"OPENCLARITY_UIBACKEND_LISTEN_ADDRESS":      "http://example.com:8891",
+				"OPENCLARITY_UIBACKEND_APISERVER_ADDRESS":   "http://example.com:8484/api",
+				"OPENCLARITY_UIBACKEND_HEALTHCHECK_ADDRESS": "example.com:18888",
 			},
 			ExpectedNewErrorMatcher: Not(HaveOccurred()),
 			ExpectedConfig: &Config{

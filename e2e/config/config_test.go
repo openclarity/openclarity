@@ -49,38 +49,38 @@ func TestConfig(t *testing.T) {
 			Name: "Custom config",
 			EnvVars: map[string]string{
 				// E2E configuration
-				"VMCLARITY_E2E_USE_EXISTING":      "true",
-				"VMCLARITY_E2E_ENV_SETUP_TIMEOUT": "45m",
+				"OPENCLARITY_E2E_USE_EXISTING":      "true",
+				"OPENCLARITY_E2E_ENV_SETUP_TIMEOUT": "45m",
 				// testenv configuration
-				"VMCLARITY_E2E_PLATFORM":                  "kuBERnetES",
-				"VMCLARITY_E2E_ENV_NAME":                  "vmclarity-e2e-test",
-				"VMCLARITY_E2E_APISERVER_IMAGE":           "openclarity/openclarity-api-server:test",
-				"VMCLARITY_E2E_ORCHESTRATOR_IMAGE":        "openclarity/openclarity-orchestrator:test",
-				"VMCLARITY_E2E_UI_IMAGE":                  "openclarity/openclarity-ui:test",
-				"VMCLARITY_E2E_UIBACKEND_IMAGE":           "openclarity/openclarity-uibackend:test",
-				"VMCLARITY_E2E_SCANNER_IMAGE":             "openclarity/openclarity-cli:test",
-				"VMCLARITY_E2E_CR_DISCOVERY_SERVER_IMAGE": "openclarity/openclarity-cr-discovery-server:test",
-				"VMCLARITY_E2E_PLUGIN_KICS_IMAGE":         "openclarity/openclarity-plugin-kics:test",
+				"OPENCLARITY_E2E_PLATFORM":                  "kuBERnetES",
+				"OPENCLARITY_E2E_ENV_NAME":                  "openclarity-e2e-test",
+				"OPENCLARITY_E2E_APISERVER_IMAGE":           "openclarity/openclarity-api-server:test",
+				"OPENCLARITY_E2E_ORCHESTRATOR_IMAGE":        "openclarity/openclarity-orchestrator:test",
+				"OPENCLARITY_E2E_UI_IMAGE":                  "openclarity/openclarity-ui:test",
+				"OPENCLARITY_E2E_UIBACKEND_IMAGE":           "openclarity/openclarity-uibackend:test",
+				"OPENCLARITY_E2E_SCANNER_IMAGE":             "openclarity/openclarity-cli:test",
+				"OPENCLARITY_E2E_CR_DISCOVERY_SERVER_IMAGE": "openclarity/openclarity-cr-discovery-server:test",
+				"OPENCLARITY_E2E_PLUGIN_KICS_IMAGE":         "openclarity/openclarity-plugin-kics:test",
 				// testenv.docker
-				"VMCLARITY_E2E_DOCKER_COMPOSE_FILES": "docker-compose.yml,docker-compose-override.yml",
+				"OPENCLARITY_E2E_DOCKER_COMPOSE_FILES": "docker-compose.yml,docker-compose-override.yml",
 				// testenv.kubernetes
-				"VMCLARITY_E2E_KUBERNETES_NAMESPACE":                "vmclarity-e2e-namespace",
-				"VMCLARITY_E2E_KUBERNETES_PROVIDER":                 "eXTERnal",
-				"VMCLARITY_E2E_KUBERNETES_CLUSTER_NAME":             "vmclarity-e2e-cluster",
-				"VMCLARITY_E2E_KUBERNETES_CLUSTER_CREATION_TIMEOUT": "1h",
-				"VMCLARITY_E2E_KUBERNETES_VERSION":                  "1.28",
-				"VMCLARITY_E2E_KUBERNETES_KUBECONFIG":               "kubeconfig/default.yaml",
+				"OPENCLARITY_E2E_KUBERNETES_NAMESPACE":                "openclarity-e2e-namespace",
+				"OPENCLARITY_E2E_KUBERNETES_PROVIDER":                 "eXTERnal",
+				"OPENCLARITY_E2E_KUBERNETES_CLUSTER_NAME":             "openclarity-e2e-cluster",
+				"OPENCLARITY_E2E_KUBERNETES_CLUSTER_CREATION_TIMEOUT": "1h",
+				"OPENCLARITY_E2E_KUBERNETES_VERSION":                  "1.28",
+				"OPENCLARITY_E2E_KUBERNETES_KUBECONFIG":               "kubeconfig/default.yaml",
 				// testenv.aws
-				"VMCLARITY_E2E_AWS_REGION":           "us-west-2",
-				"VMCLARITY_E2E_AWS_PRIVATE_KEY_FILE": "/home/vmclarity/.ssh/id_rsa",
-				"VMCLARITY_E2E_AWS_PUBLIC_KEY_FILE":  "/home/vmclarity/.ssh/id_rsa.pub",
+				"OPENCLARITY_E2E_AWS_REGION":           "us-west-2",
+				"OPENCLARITY_E2E_AWS_PRIVATE_KEY_FILE": "/home/openclarity/.ssh/id_rsa",
+				"OPENCLARITY_E2E_AWS_PUBLIC_KEY_FILE":  "/home/openclarity/.ssh/id_rsa.pub",
 				// testenv.gcp
-				"VMCLARITY_E2E_GCP_PRIVATE_KEY_FILE": "/home/vmclarity/.ssh/id_rsa",
-				"VMCLARITY_E2E_GCP_PUBLIC_KEY_FILE":  "/home/vmclarity/.ssh/id_rsa.pub",
+				"OPENCLARITY_E2E_GCP_PRIVATE_KEY_FILE": "/home/openclarity/.ssh/id_rsa",
+				"OPENCLARITY_E2E_GCP_PUBLIC_KEY_FILE":  "/home/openclarity/.ssh/id_rsa.pub",
 				// testenv.azure
-				"VMCLARITY_E2E_AZURE_REGION":           "polandcentral",
-				"VMCLARITY_E2E_AZURE_PRIVATE_KEY_FILE": "/home/vmclarity/.ssh/id_rsa",
-				"VMCLARITY_E2E_AZURE_PUBLIC_KEY_FILE":  "/home/vmclarity/.ssh/id_rsa.pub",
+				"OPENCLARITY_E2E_AZURE_REGION":           "polandcentral",
+				"OPENCLARITY_E2E_AZURE_PRIVATE_KEY_FILE": "/home/openclarity/.ssh/id_rsa",
+				"OPENCLARITY_E2E_AZURE_PUBLIC_KEY_FILE":  "/home/openclarity/.ssh/id_rsa.pub",
 			},
 			ExpectedNewErrorMatcher: Not(HaveOccurred()),
 			ExpectedConfig: &Config{
@@ -88,7 +88,7 @@ func TestConfig(t *testing.T) {
 				EnvSetupTimeout: 45 * time.Minute,
 				TestEnvConfig: testenv.Config{
 					Platform: testenvtypes.EnvironmentTypeKubernetes,
-					EnvName:  "vmclarity-e2e-test",
+					EnvName:  "openclarity-e2e-test",
 					Images: testenvtypes.ContainerImages[string]{
 						APIServer:         "openclarity/openclarity-api-server:test",
 						Orchestrator:      "openclarity/openclarity-orchestrator:test",
@@ -99,7 +99,7 @@ func TestConfig(t *testing.T) {
 						PluginKics:        "openclarity/openclarity-plugin-kics:test",
 					},
 					Docker: &dockerenv.Config{
-						EnvName: "vmclarity-e2e-test",
+						EnvName: "openclarity-e2e-test",
 						Images: testenvtypes.ContainerImages[string]{
 							APIServer:         "openclarity/openclarity-api-server:test",
 							Orchestrator:      "openclarity/openclarity-orchestrator:test",
@@ -115,18 +115,18 @@ func TestConfig(t *testing.T) {
 						},
 					},
 					Kubernetes: &k8senv.Config{
-						EnvName:   "vmclarity-e2e-test",
-						Namespace: "vmclarity-e2e-namespace",
+						EnvName:   "openclarity-e2e-test",
+						Namespace: "openclarity-e2e-namespace",
 						Provider:  k8senvtypes.ProviderTypeExternal,
 						ProviderConfig: k8senvtypes.ProviderConfig{
-							ClusterName:            "vmclarity-e2e-cluster",
+							ClusterName:            "openclarity-e2e-cluster",
 							ClusterCreationTimeout: time.Hour,
 							KubeConfigPath:         "kubeconfig/default.yaml",
 							KubernetesVersion:      "1.28",
 						},
 						Installer: k8senvtypes.InstallerTypeHelm,
 						HelmConfig: &helm.Config{
-							Namespace:      "vmclarity-e2e-namespace",
+							Namespace:      "openclarity-e2e-namespace",
 							ReleaseName:    "",
 							ChartPath:      "",
 							StorageDriver:  "secret",
@@ -143,21 +143,21 @@ func TestConfig(t *testing.T) {
 						},
 					},
 					AWS: &awsenv.Config{
-						EnvName:        "vmclarity-e2e-test",
+						EnvName:        "openclarity-e2e-test",
 						Region:         "us-west-2",
-						PrivateKeyFile: "/home/vmclarity/.ssh/id_rsa",
-						PublicKeyFile:  "/home/vmclarity/.ssh/id_rsa.pub",
+						PrivateKeyFile: "/home/openclarity/.ssh/id_rsa",
+						PublicKeyFile:  "/home/openclarity/.ssh/id_rsa.pub",
 					},
 					GCP: &gcpenv.Config{
-						EnvName:        "vmclarity-e2e-test",
-						PrivateKeyFile: "/home/vmclarity/.ssh/id_rsa",
-						PublicKeyFile:  "/home/vmclarity/.ssh/id_rsa.pub",
+						EnvName:        "openclarity-e2e-test",
+						PrivateKeyFile: "/home/openclarity/.ssh/id_rsa",
+						PublicKeyFile:  "/home/openclarity/.ssh/id_rsa.pub",
 					},
 					Azure: &azureenv.Config{
-						EnvName:        "vmclarity-e2e-test",
+						EnvName:        "openclarity-e2e-test",
 						Region:         "polandcentral",
-						PrivateKeyFile: "/home/vmclarity/.ssh/id_rsa",
-						PublicKeyFile:  "/home/vmclarity/.ssh/id_rsa.pub",
+						PrivateKeyFile: "/home/openclarity/.ssh/id_rsa",
+						PublicKeyFile:  "/home/openclarity/.ssh/id_rsa.pub",
 					},
 				},
 				TestSuiteParams: &TestSuiteParams{
@@ -171,7 +171,7 @@ func TestConfig(t *testing.T) {
 		{
 			Name: "Default config",
 			EnvVars: map[string]string{
-				"HOME": "/home/vmclarity",
+				"HOME": "/home/openclarity",
 			},
 			ExpectedNewErrorMatcher: Not(HaveOccurred()),
 			ExpectedConfig: &Config{
@@ -209,7 +209,7 @@ func TestConfig(t *testing.T) {
 						ProviderConfig: k8senvtypes.ProviderConfig{
 							ClusterName:            testenv.DefaultEnvName,
 							ClusterCreationTimeout: k8senv.DefaultClusterCreationTimeout,
-							KubeConfigPath:         "/home/vmclarity/.kube/config",
+							KubeConfigPath:         "/home/openclarity/.kube/config",
 							KubernetesVersion:      k8senv.DefaultKubernetesVersion,
 						},
 						Installer: k8senvtypes.InstallerTypeHelm,

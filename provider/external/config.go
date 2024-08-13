@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	DefaultEnvPrefix = "VMCLARITY_EXTERNAL"
+	DefaultEnvPrefix = "OPENCLARITY_EXTERNAL"
 )
 
 type Config struct {
