@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	DefaultEnvPrefix           = "VMCLARITY_AWS"
+	DefaultEnvPrefix           = "OPENCLARITY_AWS"
 	DefaultScannerInstanceType = "t2.large"
 	DefaultBlockDeviceName     = "xvdh"
 )

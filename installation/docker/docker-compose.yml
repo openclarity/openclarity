@@ -1,6 +1,6 @@
 services:
   apiserver:
-    image: ${VMCLARITY_APISERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/openclarity-api-server:latest}
+    image: ${OPENCLARITY_APISERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/openclarity-api-server:latest}
     command:
       - run
       - --log-level
@@ -23,7 +23,7 @@ services:
       retries: 60
 
   orchestrator:
-    image: ${VMCLARITY_ORCHESTRATOR_CONTAINER_IMAGE:-ghcr.io/openclarity/openclarity-orchestrator:latest}
+    image: ${OPENCLARITY_ORCHESTRATOR_CONTAINER_IMAGE:-ghcr.io/openclarity/openclarity-orchestrator:latest}
     command:
       - run
       - --log-level
@@ -47,7 +47,7 @@ services:
       retries: 60
 
   ui:
-    image: ${VMCLARITY_UI_CONTAINER_IMAGE:-ghcr.io/openclarity/openclarity-ui:latest}
+    image: ${OPENCLARITY_UI_CONTAINER_IMAGE:-ghcr.io/openclarity/openclarity-ui:latest}
     deploy:
       mode: replicated
       replicas: 1
@@ -58,7 +58,7 @@ services:
         condition: service_healthy
 
   uibackend:
-    image: ${VMCLARITY_UIBACKEND_CONTAINER_IMAGE:-ghcr.io/openclarity/openclarity-ui-backend:latest}
+    image: ${OPENCLARITY_UIBACKEND_CONTAINER_IMAGE:-ghcr.io/openclarity/openclarity-ui-backend:latest}
     command:
       - run
       - --log-level
@@ -91,7 +91,7 @@ services:
         condition: on-failure
 
   exploit-db-server:
-    image: ${VMCLARITY_EXPLOITSDB_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/exploit-db-server:v0.3.0}
+    image: ${OPENCLARITY_EXPLOITSDB_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/exploit-db-server:v0.3.0}
     ports:
       - "1326:1326"
     deploy:
@@ -105,7 +105,7 @@ services:
       retries: 60
 
   trivy-server:
-    image: ${VMCLARITY_TRIVY_SERVER_CONTAINER_IMAGE:-docker.io/aquasec/trivy:0.54.1}
+    image: ${OPENCLARITY_TRIVY_SERVER_CONTAINER_IMAGE:-docker.io/aquasec/trivy:0.54.1}
     command:
       - server
     ports:
@@ -122,7 +122,7 @@ services:
       retries: 60
 
   grype-server:
-    image: ${VMCLARITY_GRYPE_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/grype-server:v0.7.3}
+    image: ${OPENCLARITY_GRYPE_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/grype-server:v0.7.3}
     command:
       - run
       - --log-level
@@ -144,7 +144,7 @@ services:
       retries: 60
 
   freshclam-mirror:
-    image: ${VMCLARITY_FRESHCLAM_MIRROR_CONTAINER_IMAGE:-ghcr.io/openclarity/freshclam-mirror:v0.3.1}
+    image: ${OPENCLARITY_FRESHCLAM_MIRROR_CONTAINER_IMAGE:-ghcr.io/openclarity/freshclam-mirror:v0.3.1}
     ports:
       - "1000:80"
     deploy:
@@ -154,7 +154,7 @@ services:
         condition: on-failure
 
   yara-rule-server:
-    image: ${VMCLARITY_YARA_RULE_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/yara-rule-server:v0.3.0}
+    image: ${OPENCLARITY_YARA_RULE_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/yara-rule-server:v0.3.0}
     command:
       - run
     ports:

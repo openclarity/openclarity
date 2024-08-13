@@ -102,12 +102,12 @@ func ProjectFromConfig(config *Config) (*types.Project, error) {
 }
 
 const (
-	APIServerImageEnv    = "VMCLARITY_APISERVER_CONTAINER_IMAGE"
-	OrchestratorImageEnv = "VMCLARITY_ORCHESTRATOR_CONTAINER_IMAGE"
-	UIImageEnv           = "VMCLARITY_UI_CONTAINER_IMAGE"
-	UIBackendImageEnv    = "VMCLARITY_UIBACKEND_CONTAINER_IMAGE"
-	ScannerImageEnv      = "VMCLARITY_SCANNER_CONTAINER_IMAGE"
-	PluginKicsEnv        = "VMCLARITY_PLUGIN_KICS_CONTAINER_IMAGE"
+	APIServerImageEnv    = "OPENCLARITY_APISERVER_CONTAINER_IMAGE"
+	OrchestratorImageEnv = "OPENCLARITY_ORCHESTRATOR_CONTAINER_IMAGE"
+	UIImageEnv           = "OPENCLARITY_UI_CONTAINER_IMAGE"
+	UIBackendImageEnv    = "OPENCLARITY_UIBACKEND_CONTAINER_IMAGE"
+	ScannerImageEnv      = "OPENCLARITY_SCANNER_CONTAINER_IMAGE"
+	PluginKicsEnv        = "OPENCLARITY_PLUGIN_KICS_CONTAINER_IMAGE"
 )
 
 func WithContainerImages(o *cli.ProjectOptions, images ContainerImages) {

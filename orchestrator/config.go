@@ -34,7 +34,7 @@ import (
 )
 
 const (
-	DefaultEnvPrefix = "VMCLARITY_ORCHESTRATOR"
+	DefaultEnvPrefix = "OPENCLARITY_ORCHESTRATOR"
 
 	// Approximately half the polling delay to allow for more efficient
 	// reconcile cascading e.g. reconciling scan config creates a scan, the

@@ -35,7 +35,7 @@ import (
 )
 
 const (
-	DefaultEnvPrefix       = "VMCLARITY_E2E"
+	DefaultEnvPrefix       = "OPENCLARITY_E2E"
 	DefaultReuseFlag       = false
 	DefaultEnvSetupTimeout = 30 * time.Minute
 )

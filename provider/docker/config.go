@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	DefaultEnvPrefix   = "VMCLARITY_DOCKER"
+	DefaultEnvPrefix   = "OPENCLARITY_DOCKER"
 	DefaultHelperImage = "alpine:3.18.2"
 	DefaultNetworkName = "vmclarity"
 )

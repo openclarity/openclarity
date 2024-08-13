@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	DefaultEnvPrefix          = "VMCLARITY_UIBACKEND"
+	DefaultEnvPrefix          = "OPENCLARITY_UIBACKEND"
 	DefaultListenAddress      = "0.0.0.0:8890"
 	DefaultHealthCheckAddress = "0.0.0.0:8083"
 )

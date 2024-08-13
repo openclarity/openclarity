@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	DefaultEnvPrefix = "VMCLARITY_KUBERNETES"
+	DefaultEnvPrefix = "OPENCLARITY_KUBERNETES"
 	DefaultNamespace = "default"
 )
 
