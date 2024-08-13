@@ -31,19 +31,19 @@ param vmClarityIdentityID string
 param principalID string
 
 @description ('VMClarity APIServer Container Image')
-param apiserverContainerImage string = 'ghcr.io/openclarity/vmclarity-apiserver:latest'
+param apiserverContainerImage string = 'ghcr.io/openclarity/openclarity-api-server:latest'
 
 @description ('VMClarity Orchestrator Container Image')
-param orchestratorContainerImage string = 'ghcr.io/openclarity/vmclarity-orchestrator:latest'
+param orchestratorContainerImage string = 'ghcr.io/openclarity/openclarity-orchestrator:latest'
 
 @description ('VMClarity UI Container Image')
-param uiContainerImage string = 'ghcr.io/openclarity/vmclarity-ui:latest'
+param uiContainerImage string = 'ghcr.io/openclarity/openclarity-ui:latest'
 
 @description ('VMClarity UIBackend Container Image')
-param uibackendContainerImage string = 'ghcr.io/openclarity/vmclarity-ui-backend:latest'
+param uibackendContainerImage string = 'ghcr.io/openclarity/openclarity-ui-backend:latest'
 
 @description ('VMClarity Scanner Container Image')
-param scannerContainerImage string = 'ghcr.io/openclarity/vmclarity-cli:latest'
+param scannerContainerImage string = 'ghcr.io/openclarity/openclarity-cli:latest'
 
 @description ('Trivy Server Container Image')
 param trivyServerContainerImage string = 'docker.io/aquasec/trivy:0.52.1'

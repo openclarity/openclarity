@@ -38,7 +38,7 @@ var (
 	logger *logrus.Entry
 
 	rootCmd = &cobra.Command{
-		Use:          "vmclarity-cr-discovery-server",
+		Use:          "openclarity-cr-discovery-server",
 		Short:        "Runs a server which provides endpoints for querying the container runtime.",
 		Long:         "Runs a server which provides endpoints for querying the container runtime.",
 		SilenceUsage: true, // Don't print the usage when an error is returned from RunE

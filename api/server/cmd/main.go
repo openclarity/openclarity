@@ -31,7 +31,7 @@ import (
 const (
 	LogLevelFlag         = "log-level"
 	LogLevelDefaultValue = "warning"
-	ExecutableName       = "vmclarity-apiserver"
+	ExecutableName       = "openclarity-api-server"
 )
 
 var (

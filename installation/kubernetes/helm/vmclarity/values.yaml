@@ -9,7 +9,7 @@ apiserver:
     # -- API Server image registry
     registry: ghcr.io
     # -- API Server image repository
-    repository: openclarity/vmclarity-apiserver
+    repository: openclarity/openclarity-api-server
     # -- API Server image tag (immutable tags are recommended)
     tag: latest
     # -- API Server image digest. If set will override the tag.
@@ -71,7 +71,7 @@ orchestrator:
     # -- Orchestrator image registry
     registry: ghcr.io
     # -- Orchestrator image repository
-    repository: openclarity/vmclarity-orchestrator
+    repository: openclarity/openclarity-orchestrator
     # -- Orchestrator image tag (immutable tags are recommended)
     tag: latest
     # -- Orchestrator image digest. If set will override the tag.
@@ -135,7 +135,7 @@ orchestrator:
     # -- Scanner Container image registry
     registry: ghcr.io
     # -- Scanner Container image repository
-    repository: openclarity/vmclarity-cli
+    repository: openclarity/openclarity-cli
     # -- Scanner Container image tag (immutable tags are recommended)
     tag: latest
     # -- Scanner Container image digest. If set will override the tag.
@@ -233,7 +233,7 @@ ui:
     # -- UI image registry
     registry: ghcr.io
     # -- UI image repository
-    repository: openclarity/vmclarity-ui
+    repository: openclarity/openclarity-ui
     # -- UI image tag
     tag: latest
     # -- UI image digest. If set will override the tag
@@ -291,7 +291,7 @@ uibackend:
     # -- UI Backend image registry
     registry: ghcr.io
     # -- UI Backend image repository
-    repository: openclarity/vmclarity-ui-backend
+    repository: openclarity/openclarity-ui-backend
     # -- UI Backend image tag
     tag: latest
     # -- UI Backend image digest. If set will override the tag.
@@ -845,7 +845,7 @@ crDiscoveryServer:
     # -- Container Runtime Discovery Server container registry
     registry: ghcr.io
     # -- Container Runtime Discovery Server container repository
-    repository: openclarity/vmclarity-cr-discovery-server
+    repository: openclarity/openclarity-cr-discovery-server
     # -- Container Runtime Discovery Server container tag
     tag: latest
     # -- Container Runtime Discovery Server image digest. If set will override the tag.

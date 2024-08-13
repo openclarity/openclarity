@@ -29,7 +29,7 @@ write_files:
       Type=oneshot
       WorkingDirectory=/opt/vmclarity
       ExecStartPre=mkdir -p /var/opt/vmclarity
-      ExecStartPre=docker pull ghcr.io/openclarity/vmclarity-cli:latest
+      ExecStartPre=docker pull ghcr.io/openclarity/openclarity-cli:latest
       ExecStartPre=docker network create vmclarity
       ExecStart=docker run --rm --name %n --privileged \
           -v /:/hostfs \
@@ -39,7 +39,7 @@ write_files:
           -v /var/opt/vmclarity:/var/opt/vmclarity \
           -v /mnt:/mnt \
           --network vmclarity \
-          ghcr.io/openclarity/vmclarity-cli:latest \
+          ghcr.io/openclarity/openclarity-cli:latest \
           scan \
           --config /opt/vmclarity/scanconfig.yaml \
           --server 10.1.1.1:8888 \

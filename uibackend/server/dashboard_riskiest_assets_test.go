@@ -273,7 +273,7 @@ func Test_getAssetInfo(t *testing.T) {
 				asset: createContainerImageInfo(t),
 			},
 			want: &types.AssetInfo{
-				Location: to.Ptr("ghcr.io/openclarity/vmclarity-orchestrator@sha256:2ceda8090cfb24eb86c6b723eef4a562e90199f3c2b11120e60e5691f957b07b"),
+				Location: to.Ptr("ghcr.io/openclarity/openclarity-orchestrator@sha256:2ceda8090cfb24eb86c6b723eef4a562e90199f3c2b11120e60e5691f957b07b"),
 				Name:     to.Ptr("sha256:b520c72cef1f30a38361cf9e3d686e2db0e718b69af8cb072e93ba9bcf5658ab"),
 				Type:     to.Ptr(types.ContainerImage),
 			},
@@ -323,8 +323,8 @@ func createContainerImageInfo(t *testing.T) *apitypes.AssetType {
 	info := apitypes.AssetType{}
 	err := info.FromContainerImageInfo(apitypes.ContainerImageInfo{
 		ImageID:     "sha256:b520c72cef1f30a38361cf9e3d686e2db0e718b69af8cb072e93ba9bcf5658ab",
-		RepoTags:    to.Ptr([]string{"ghcr.io/openclarity/vmclarity-orchestrator:latest"}),
-		RepoDigests: to.Ptr([]string{"ghcr.io/openclarity/vmclarity-orchestrator@sha256:2ceda8090cfb24eb86c6b723eef4a562e90199f3c2b11120e60e5691f957b07b"}),
+		RepoTags:    to.Ptr([]string{"ghcr.io/openclarity/openclarity-orchestrator:latest"}),
+		RepoDigests: to.Ptr([]string{"ghcr.io/openclarity/openclarity-orchestrator@sha256:2ceda8090cfb24eb86c6b723eef4a562e90199f3c2b11120e60e5691f957b07b"}),
 	})
 	assert.NilError(t, err)
 	return &info

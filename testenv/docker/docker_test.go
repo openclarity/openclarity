@@ -37,12 +37,12 @@ func TestProjectFromConfig(t *testing.T) {
 			DockerConfig: &Config{
 				EnvName: "testenv",
 				Images: ContainerImages{
-					APIServer:    "openclarity/vmclarity-apiserver:latest",
-					Orchestrator: "openclarity/vmclarity-orchestrator:latest",
-					UI:           "openclarity/vmclarity-ui:latest",
-					UIBackend:    "openclarity/vmclarity-uibackend:latest",
-					Scanner:      "openclarity/vmclarity-cli:latest",
-					PluginKics:   "openclarity/vmclarity-plugin-kics:latest",
+					APIServer:    "openclarity/openclarity-api-server:latest",
+					Orchestrator: "openclarity/openclarity-orchestrator:latest",
+					UI:           "openclarity/openclarity-ui:latest",
+					UIBackend:    "openclarity/openclarity-ui-backend:latest",
+					Scanner:      "openclarity/openclarity-cli:latest",
+					PluginKics:   "openclarity/openclarity-plugin-kics:latest",
 				},
 				ComposeFiles: []string{
 					"../../installation/docker/docker-compose.yml",
@@ -50,14 +50,14 @@ func TestProjectFromConfig(t *testing.T) {
 				},
 			},
 			ExpectedServiceImages: map[string]string{
-				"apiserver":    "openclarity/vmclarity-apiserver:latest",
-				"orchestrator": "openclarity/vmclarity-orchestrator:latest",
-				"ui":           "openclarity/vmclarity-ui:latest",
-				"uibackend":    "openclarity/vmclarity-uibackend:latest",
+				"apiserver":    "openclarity/openclarity-api-server:latest",
+				"orchestrator": "openclarity/openclarity-orchestrator:latest",
+				"ui":           "openclarity/openclarity-ui:latest",
+				"uibackend":    "openclarity/openclarity-ui-backend:latest",
 			},
 			ExpectedServiceEnvironment: map[string]map[string]string{
 				"orchestrator": {
-					"VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_CONTAINER_IMAGE": "openclarity/vmclarity-cli:latest",
+					"VMCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_CONTAINER_IMAGE": "openclarity/openclarity-cli:latest",
 				},
 			},
 		},

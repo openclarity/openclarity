@@ -60,8 +60,8 @@ target "openclarity-api-server" {
 	tags = get_tag("${target.openclarity-api-server.name}")
 	inherits = ["_common", "_common_args_for_go"]
 	labels = {
-		"org.opencontainers.image.title" = "VMClarity API Server"
-		"org.opencontainers.image.description" = "The VMClarity API for managing all objects in the VMClarity system."
+		"org.opencontainers.image.title" = "OpenClarity API Server"
+		"org.opencontainers.image.description" = "The OpenClarity API for managing all objects in the OpenClarity system."
 	}
 }
 
@@ -74,8 +74,8 @@ target "openclarity-cli" {
 		VMCLARITY_TOOLS_BASE = "${VMCLARITY_TOOLS_BASE}"
 	}
 	labels = {
-		"org.opencontainers.image.title" = "VMClarity CLI"
-		"org.opencontainers.image.description" = "The VMClarity CLI for managing all objects in the VMClarity system."
+		"org.opencontainers.image.title" = "OpenClarity CLI"
+		"org.opencontainers.image.description" = "The OpenClarity CLI for managing all objects in the OpenClarity system."
 	}
 }
 
@@ -86,7 +86,7 @@ target "openclarity-cr-discovery-server" {
 	inherits = ["_common", "_common_args_for_go"]
 	labels = {
 		"org.opencontainers.image.title" = "Container Runtime Discovery Server"
-		"org.opencontainers.image.description" = "Container Runtime Discovery Server for VMClarity."
+		"org.opencontainers.image.description" = "Container Runtime Discovery Server for OpenClarity."
 	}
 }
 
@@ -96,8 +96,8 @@ target "openclarity-orchestrator" {
 	tags = get_tag("${target.openclarity-orchestrator.name}")
 	inherits = ["_common", "_common_args_for_go"]
 	labels = {
-		"org.opencontainers.image.title" = "VMClarity Orchestrator"
-		"org.opencontainers.image.description" = "Orchestrates and manages the life cycle of VMClarity scan configs, scans and asset scans."
+		"org.opencontainers.image.title" = "OpenClarity Orchestrator"
+		"org.opencontainers.image.description" = "Orchestrates and manages the life cycle of OpenClarity scan configs, scans and asset scans."
 	}
 }
 
@@ -107,7 +107,7 @@ target "openclarity-ui" {
 	tags = get_tag("${target.openclarity-ui.name}")
 	inherits = ["_common"]
 	labels = {
-		"org.opencontainers.image.title" = "VMClarity UI"
+		"org.opencontainers.image.title" = "OpenClarity UI"
 		"org.opencontainers.image.description" = "A server serving the UI static files."
 	}
 }
@@ -118,7 +118,7 @@ target "openclarity-ui-backend" {
 	tags = get_tag("${target.openclarity-ui-backend.name}")
 	inherits = ["_common", "_common_args_for_go"]
 	labels = {
-		"org.opencontainers.image.title" = "VMClarity UI Backend"
+		"org.opencontainers.image.title" = "OpenClarity UI Backend"
 		"org.opencontainers.image.description" = "A separate backend API which offloads some processing from the browser to the infrastructure to process and filter data closer to the source."
 	}
 }
@@ -129,7 +129,7 @@ target "openclarity-plugin-kics" {
 	tags = get_tag("${target.openclarity-plugin-kics.name}")
 	inherits = ["_common", "_common_args_for_go"]
 	labels = {
-		"org.opencontainers.image.title" = "VMClarity KICS Scanner"
+		"org.opencontainers.image.title" = "OpenClarity KICS Scanner"
 		"org.opencontainers.image.description" = ""
 	}
 }
@@ -139,7 +139,7 @@ target "openclarity-plugin-example-go" {
 	dockerfile = "./plugins/sdk-go/example/Dockerfile"
 	tags = get_tag("${target.openclarity-plugin-example-go.name}")
 	labels = {
-		"org.opencontainers.image.title" = "VMClarity Scanner Go Example"
+		"org.opencontainers.image.title" = "OpenClarity Scanner Go Example"
 		"org.opencontainers.image.description" = ""
 	}
 }
@@ -149,7 +149,7 @@ target "openclarity-plugin-example-python" {
 	dockerfile = "./plugins/sdk-python/example/Dockerfile.test"
 	tags = get_tag("${target.openclarity-plugin-example-python.name}")
 	labels = {
-		"org.opencontainers.image.title" = "VMClarity Scanner Python Example"
+		"org.opencontainers.image.title" = "OpenClarity Scanner Python Example"
 		"org.opencontainers.image.description" = ""
 	}
 }

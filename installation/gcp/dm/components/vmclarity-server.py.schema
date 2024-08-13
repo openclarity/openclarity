@@ -53,23 +53,23 @@ properties:
     description: The database that VMClarity should use.
   apiserverContainerImage:
     type: string
-    default: ghcr.io/openclarity/vmclarity-apiserver:latest
+    default: ghcr.io/openclarity/openclarity-api-server:latest
     description: The container image to use for the apiserver
   orchestratorContainerImage:
     type: string
-    default: ghcr.io/openclarity/vmclarity-orchestrator:latest
+    default: ghcr.io/openclarity/openclarity-orchestrator:latest
     description: The container image to use for the orchestrator
   uiContainerImage:
     type: string
-    default: ghcr.io/openclarity/vmclarity-ui:latest
+    default: ghcr.io/openclarity/openclarity-ui:latest
     description: The container image to use for the ui
   uibackendContainerImage:
     type: string
-    default: ghcr.io/openclarity/vmclarity-ui-backend:latest
+    default: ghcr.io/openclarity/openclarity-ui-backend:latest
     description: The container image to use for the uibackend
   scannerContainerImage:
     type: string
-    default: ghcr.io/openclarity/vmclarity-cli:latest
+    default: ghcr.io/openclarity/openclarity-cli:latest
     description: The container image to use for the scanner
   exploitDBServerContainerImage:
     type: string
