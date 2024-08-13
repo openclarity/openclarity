@@ -1,11 +1,11 @@
 import axios from "axios";
 
-const vmClarityApiAxiosClient = axios.create({
+const openClarityApiAxiosClient = axios.create({
   baseURL: `${window.location.origin}/api`,
 });
 
-const vmClarityUIBackendAxiosClient = axios.create({
+const openClarityUIBackendAxiosClient = axios.create({
   baseURL: `${window.location.origin}/ui/api`,
 });
 
-export { vmClarityApiAxiosClient, vmClarityUIBackendAxiosClient };
+export { openClarityApiAxiosClient, openClarityUIBackendAxiosClient };
