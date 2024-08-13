@@ -1,61 +1,61 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: |
-  VMClarity is a tool for agentless detection and management of Virtual Machine
+  OpenClarity is a tool for agentless detection and management of Virtual Machine
   Software Bill Of Materials (SBOM) and vulnerabilities
 Resources:
-  # Create separate VPC to host the VMClarity components and scans so that we
+  # Create separate VPC to host the OpenClarity components and scans so that we
   # keep VM Clarity resources completely separate from the VMs being scanned.
-  VmClarityVPC:
+  OpenClarityVPC:
     Type: "AWS::EC2::VPC"
     Properties:
       EnableDnsSupport: "true"
       EnableDnsHostnames: "true"
       CidrBlock: 10.0.0.0/16
-  # Subnet for the VmClarityServer. Will be public.
-  VmClarityServerSubnet:
+  # Subnet for the OpenClarityServer. Will be public.
+  OpenClarityServerSubnet:
     Type: "AWS::EC2::Subnet"
     Properties:
-      VpcId: !Ref VmClarityVPC
+      VpcId: !Ref OpenClarityVPC
       CidrBlock: 10.0.0.0/24
-  # Subnet for the VmClarityScanners. Will be private.
-  VmClarityScannerSubnet:
+  # Subnet for the OpenClarityScanners. Will be private.
+  OpenClarityScannerSubnet:
     Type: "AWS::EC2::Subnet"
     Properties:
-      VpcId: !Ref VmClarityVPC
+      VpcId: !Ref OpenClarityVPC
       CidrBlock: 10.0.1.0/24
-  # Elastic IP address that will be used to serve the VMClarity UI, API and SSH
+  # Elastic IP address that will be used to serve the OpenClarity UI, API and SSH
   # access.
-  VmClarityServerElasticIp:
+  OpenClarityServerElasticIp:
     Type: "AWS::EC2::EIP"
     Properties:
       Domain: "vpc"
   # Elastic IP address that will be used by the NAT gateway to allow the
   # private scanner VMs to access the internet without requiring a public
   # address themselves.
-  VmClarityScannerNatElasticIp:
+  OpenClarityScannerNatElasticIp:
     Type: "AWS::EC2::EIP"
     Properties:
       Domain: "vpc"
-  # VmClarityServer network interface definition.
-  VmClarityServerNetworkInterface:
+  # OpenClarityServer network interface definition.
+  OpenClarityServerNetworkInterface:
     Type: 'AWS::EC2::NetworkInterface'
     Properties:
       GroupSet:
-        - !Ref VmClarityServerSecurityGroup
-      SubnetId: !Ref VmClarityServerSubnet
-  # Associate the VmClarityServer elastic IP address directly to the
-  # VMClarityServers private network interface for now. In the future we might
+        - !Ref OpenClarityServerSecurityGroup
+      SubnetId: !Ref OpenClarityServerSubnet
+  # Associate the OpenClarityServer elastic IP address directly to the
+  # OpenClarityServers private network interface for now. In the future we might
   # want to replace this with a load balancer.
-  VmClarityServerEipAssociation:
+  OpenClarityServerEipAssociation:
     Type: 'AWS::EC2::EIPAssociation'
     Properties:
       AllocationId: !GetAtt
-        - VmClarityServerElasticIp
+        - OpenClarityServerElasticIp
         - AllocationId
-      NetworkInterfaceId: !Ref VmClarityServerNetworkInterface
-  # VmClarityServer will host the VMClarity services which orchestrate the scans
+      NetworkInterfaceId: !Ref OpenClarityServerNetworkInterface
+  # OpenClarityServer will host the OpenClarity services which orchestrate the scans
   # as well as serve the user interface and API
-  VmClarityServer:
+  OpenClarityServer:
     Type: "AWS::EC2::Instance"
     CreationPolicy:
       ResourceSignal:
@@ -65,9 +65,9 @@ Resources:
       InstanceType: !Ref InstanceType
       Tags:
         - Key: Name
-          Value: "VMClarity Server"
+          Value: "OpenClarity Server"
         - Key: Owner
-          Value: "VMClarity"
+          Value: "OpenClarity"
       ImageId: !FindInMap
         - AWSRegionArch2AMI
         - !Ref "AWS::Region"
@@ -84,9 +84,9 @@ Resources:
             DeleteOnTermination: 'true'
             Encrypted: 'false'
       IamInstanceProfile:
-        Ref: VmClarityServerInstanceProfile
+        Ref: OpenClarityServerInstanceProfile
       NetworkInterfaces:
-        - NetworkInterfaceId: !Ref VmClarityServerNetworkInterface
+        - NetworkInterfaceId: !Ref OpenClarityServerNetworkInterface
           DeviceIndex: "0"
       UserData:
         Fn::Base64:
@@ -100,8 +100,8 @@ Resources:
 
             ln -s /usr/local/init/ubuntu/cfn-hup /etc/init.d/cfn-hup
 
-            /usr/local/bin/cfn-init -v --stack ${AWS::StackName} --resource VmClarityServer --configsets full_install --region ${AWS::Region}
-            /usr/local/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource VmClarityServer --region ${AWS::Region}
+            /usr/local/bin/cfn-init -v --stack ${AWS::StackName} --resource OpenClarityServer --configsets full_install --region ${AWS::Region}
+            /usr/local/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource OpenClarityServer --region ${AWS::Region}
     Metadata:
       AWS::CloudFormation::Init:
         configSets:
@@ -125,8 +125,8 @@ Resources:
                 Fn::Sub: |
                   [cfn-auto-reloader-hook]
                   triggers=post.update
-                  path=Resources.VmClarityServer.Metadata.AWS::CloudFormation::Init
-                  action=/opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource VmClarityServer --configsets full_install --region ${AWS::Region}
+                  path=Resources.OpenClarityServer.Metadata.AWS::CloudFormation::Init
+                  action=/opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource OpenClarityServer --configsets full_install --region ${AWS::Region}
                   runas=root
             "/lib/systemd/system/cfn-hup.service":
               content: |
@@ -203,11 +203,11 @@ Resources:
                   fi
 
                   # Replace anywhere in the config.env __CONTROLPLANE_HOST__
-                  # with the local ipv4 IP address of the VMClarity server.
+                  # with the local ipv4 IP address of the OpenClarity server.
                   local_ip_address="$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"
                   sed -i "s/__CONTROLPLANE_HOST__/${!local_ip_address}/" /etc/vmclarity/orchestrator.env
 
-                  # Reload the systemd daemon to ensure that the VMClarity unit
+                  # Reload the systemd daemon to ensure that the OpenClarity unit
                   # has been detected.
                   systemctl daemon-reload
 
@@ -228,7 +228,7 @@ Resources:
                   /usr/bin/mkdir -p /opt/yara-rule-server
                   /usr/bin/chown -R 1000:1000 /opt/yara-rule-server
 
-                  # Enable and start/restart VMClarity backend
+                  # Enable and start/restart OpenClarity backend
                   systemctl enable vmclarity.service
                   systemctl restart vmclarity.service
 
@@ -556,9 +556,9 @@ Resources:
                     # Region where the Scanner instance needs to be created
                     OPENCLARITY_AWS_SCANNER_REGION=${AWS::Region}
                     # SubnetID where the Scanner instance needs to be created
-                    OPENCLARITY_AWS_SUBNET_ID=${VmClarityScannerSubnet}
+                    OPENCLARITY_AWS_SUBNET_ID=${OpenClarityScannerSubnet}
                     # SecurityGroupId which needs to be attached to the Scanner instance
-                    OPENCLARITY_AWS_SECURITY_GROUP_ID=${VmClarityScannerSecurityGroup}
+                    OPENCLARITY_AWS_SECURITY_GROUP_ID=${OpenClarityScannerSecurityGroup}
                     # Name of the SSH KeyPair to use for Scanner instance launch
                     OPENCLARITY_AWS_KEYPAIR_NAME=${KeyName}
                     # The AMI image used for creating Scanner instance
@@ -652,7 +652,7 @@ Resources:
             "/lib/systemd/system/vmclarity.service":
               content: |
                 [Unit]
-                Description=VmClarity
+                Description=OpenClarity
                 After=docker.service
                 Requires=docker.service
 
@@ -671,189 +671,189 @@ Resources:
               command: /etc/vmclarity/deploy.sh
 
     DependsOn:
-      - VmClarityServerPublicRoute
-  # Create a Security Group for the VMClarity server. Allow on the public
+      - OpenClarityServerPublicRoute
+  # Create a Security Group for the OpenClarity server. Allow on the public
   # address, SSH access can be restricted by source CIDR range during
   # installation of the stack through the SSHLocation parameter.
   # TODO(sambetts) Enable HTTP access from the public address for the UI and
   # API
-  VmClarityServerSecurityGroup:
+  OpenClarityServerSecurityGroup:
     Type: "AWS::EC2::SecurityGroup"
     Properties:
-      VpcId: !Ref VmClarityVPC
-      GroupDescription: Allow only required network traffic for VMClarity server
+      VpcId: !Ref OpenClarityVPC
+      GroupDescription: Allow only required network traffic for OpenClarity server
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
           CidrIp: !Ref SSHLocation
-  # Create a Security Group for the VMClarity scanner VMs. Restrict all ingress
-  # except SSH access from the VMClarityServerSecurityGroup, the
-  # VMClarityServer can act as a bastion for debugging the scanners.
-  VmClarityScannerSecurityGroup:
+  # Create a Security Group for the OpenClarity scanner VMs. Restrict all ingress
+  # except SSH access from the OpenClarityServerSecurityGroup, the
+  # OpenClarityServer can act as a bastion for debugging the scanners.
+  OpenClarityScannerSecurityGroup:
     Type: "AWS::EC2::SecurityGroup"
     Properties:
-      VpcId: !Ref VmClarityVPC
-      GroupDescription: Allow only required network traffic for VMClarity scanners
-  # Allow the VMClarity Server in the VmClarityScannerSecurityGroup to access
+      VpcId: !Ref OpenClarityVPC
+      GroupDescription: Allow only required network traffic for OpenClarity scanners
+  # Allow the OpenClarity Server in the OpenClarityScannerSecurityGroup to access
   # the Scanner VMs through SSH by adding an ingress rule to the
-  # VmClarityScannerSecurityGroup.
-  VmClarityScannerSecurityGroupServerIngressToSSH:
+  # OpenClarityScannerSecurityGroup.
+  OpenClarityScannerSecurityGroupServerIngressToSSH:
     Type: "AWS::EC2::SecurityGroupIngress"
     Properties:
-      GroupId: !Ref VmClarityScannerSecurityGroup
+      GroupId: !Ref OpenClarityScannerSecurityGroup
       IpProtocol: tcp
       FromPort: 22
       ToPort: 22
-      SourceSecurityGroupId: !Ref VmClarityServerSecurityGroup
-  # Allow the Scanner VMs in the VmClarityScannerSecurityGroup to access the
-  # VMClarity server API on 8888 by adding an ingress rule to the
-  # VmClarityServerSecurityGroup.
-  VmClarityServerSecurityGroupScannerIngressToAPI:
+      SourceSecurityGroupId: !Ref OpenClarityServerSecurityGroup
+  # Allow the Scanner VMs in the OpenClarityScannerSecurityGroup to access the
+  # OpenClarity server API on 8888 by adding an ingress rule to the
+  # OpenClarityServerSecurityGroup.
+  OpenClarityServerSecurityGroupScannerIngressToAPI:
     Type: "AWS::EC2::SecurityGroupIngress"
     Properties:
-      GroupId: !Ref VmClarityServerSecurityGroup
+      GroupId: !Ref OpenClarityServerSecurityGroup
       IpProtocol: tcp
       FromPort: 8888
       ToPort: 8888
-      SourceSecurityGroupId: !Ref VmClarityScannerSecurityGroup
-  # Allow the Scanner VMs in the VmClarityScannerSecurityGroup to access the
+      SourceSecurityGroupId: !Ref OpenClarityScannerSecurityGroup
+  # Allow the Scanner VMs in the OpenClarityScannerSecurityGroup to access the
   # Exploits DB server on port 1326 by adding an ingress rule to the
-  # VmClarityServerSecurityGroup.
-  VmClarityServerSecurityGroupScannerIngressToExploitDB:
+  # OpenClarityServerSecurityGroup.
+  OpenClarityServerSecurityGroupScannerIngressToExploitDB:
     Type: "AWS::EC2::SecurityGroupIngress"
     Properties:
-      GroupId: !Ref VmClarityServerSecurityGroup
+      GroupId: !Ref OpenClarityServerSecurityGroup
       IpProtocol: tcp
       FromPort: 1326
       ToPort: 1326
-      SourceSecurityGroupId: !Ref VmClarityScannerSecurityGroup
-  # Allow the Scanner VMs in the VmClarityScannerSecurityGroup to access the
+      SourceSecurityGroupId: !Ref OpenClarityScannerSecurityGroup
+  # Allow the Scanner VMs in the OpenClarityScannerSecurityGroup to access the
   # Trivy Server on port 9992 by adding an ingress rule to the
-  # VmClarityServerSecurityGroup.
-  VmClarityServerSecurityGroupScannerIngressToTrivyServer:
+  # OpenClarityServerSecurityGroup.
+  OpenClarityServerSecurityGroupScannerIngressToTrivyServer:
     Type: "AWS::EC2::SecurityGroupIngress"
     Properties:
-      GroupId: !Ref VmClarityServerSecurityGroup
+      GroupId: !Ref OpenClarityServerSecurityGroup
       IpProtocol: tcp
       FromPort: 9992
       ToPort: 9992
-      SourceSecurityGroupId: !Ref VmClarityScannerSecurityGroup
-  # Allow the Scanner VMs in the VmClarityScannerSecurityGroup to access the
+      SourceSecurityGroupId: !Ref OpenClarityScannerSecurityGroup
+  # Allow the Scanner VMs in the OpenClarityScannerSecurityGroup to access the
   # Grype Server on port 9992 by adding an ingress rule to the
-  # VmClarityServerSecurityGroup.
-  VmClarityServerSecurityGroupScannerIngressToGrypeServer:
+  # OpenClarityServerSecurityGroup.
+  OpenClarityServerSecurityGroupScannerIngressToGrypeServer:
     Type: "AWS::EC2::SecurityGroupIngress"
     Properties:
-      GroupId: !Ref VmClarityServerSecurityGroup
+      GroupId: !Ref OpenClarityServerSecurityGroup
       IpProtocol: tcp
       FromPort: 9991
       ToPort: 9991
-      SourceSecurityGroupId: !Ref VmClarityScannerSecurityGroup
-  # Allow the Scanner VMs in the VmClarityScannerSecurityGroup to access the
+      SourceSecurityGroupId: !Ref OpenClarityScannerSecurityGroup
+  # Allow the Scanner VMs in the OpenClarityScannerSecurityGroup to access the
   # FreshClam mirror on port 1000 by adding an ingress rule to the
-  # VmClarityServerSecurityGroup.
-  VmClarityServerSecurityGroupScannerIngressToFreshClamMirror:
+  # OpenClarityServerSecurityGroup.
+  OpenClarityServerSecurityGroupScannerIngressToFreshClamMirror:
     Type: "AWS::EC2::SecurityGroupIngress"
     Properties:
-      GroupId: !Ref VmClarityServerSecurityGroup
+      GroupId: !Ref OpenClarityServerSecurityGroup
       IpProtocol: tcp
       FromPort: 1000
       ToPort: 1000
-      SourceSecurityGroupId: !Ref VmClarityScannerSecurityGroup
-  # Allow the Scanner VMs in the VmClarityScannerSecurityGroup to access the
+      SourceSecurityGroupId: !Ref OpenClarityScannerSecurityGroup
+  # Allow the Scanner VMs in the OpenClarityScannerSecurityGroup to access the
   # Yara Rule Server on port 9993 by adding an ingress rule to the
-  # VmClarityServerSecurityGroup.
-  VmClarityServerSecurityGroupScannerIngressToYaraRuleServer:
+  # OpenClarityServerSecurityGroup.
+  OpenClarityServerSecurityGroupScannerIngressToYaraRuleServer:
     Type: "AWS::EC2::SecurityGroupIngress"
     Properties:
-      GroupId: !Ref VmClarityServerSecurityGroup
+      GroupId: !Ref OpenClarityServerSecurityGroup
       IpProtocol: tcp
       FromPort: 9993
       ToPort: 9993
-      SourceSecurityGroupId: !Ref VmClarityScannerSecurityGroup
+      SourceSecurityGroupId: !Ref OpenClarityScannerSecurityGroup
 
-  # Create an Internet Gateway to allow VMClarityServer to talk to the internet
+  # Create an Internet Gateway to allow OpenClarityServer to talk to the internet
   # and the internet to talk to it for SSH/HTTP.
-  VmClarityServerInternetGateway:
+  OpenClarityServerInternetGateway:
     Type: "AWS::EC2::InternetGateway"
     Properties: {}
   # Attach our VPC to the InternetGateway above
-  VmClarityServerInternetGatewayAttachment:
+  OpenClarityServerInternetGatewayAttachment:
     Type: "AWS::EC2::VPCGatewayAttachment"
     Properties:
-      VpcId: !Ref VmClarityVPC
-      InternetGatewayId: !Ref VmClarityServerInternetGateway
+      VpcId: !Ref OpenClarityVPC
+      InternetGatewayId: !Ref OpenClarityServerInternetGateway
   # Create a route table to host the routes required for our VPC.
-  VmClarityServerRouteTable:
+  OpenClarityServerRouteTable:
     Type: "AWS::EC2::RouteTable"
     Properties:
-      VpcId: !Ref VmClarityVPC
+      VpcId: !Ref OpenClarityVPC
   # Associate the route table with our subnet so that VMs in that subnet get
   # the routes from the route table.
-  VmClarityServerSubnetRouteTableAssociation:
+  OpenClarityServerSubnetRouteTableAssociation:
     Type: "AWS::EC2::SubnetRouteTableAssociation"
     Properties:
-      SubnetId: !Ref VmClarityServerSubnet
-      RouteTableId: !Ref VmClarityServerRouteTable
+      SubnetId: !Ref OpenClarityServerSubnet
+      RouteTableId: !Ref OpenClarityServerRouteTable
   # Create a route with forwards all non-local traffic to the internet gateway
   # for routing.
-  VmClarityServerPublicRoute:
+  OpenClarityServerPublicRoute:
     Type: "AWS::EC2::Route"
     Properties:
-      RouteTableId: !Ref VmClarityServerRouteTable
-      GatewayId: !Ref VmClarityServerInternetGateway
+      RouteTableId: !Ref OpenClarityServerRouteTable
+      GatewayId: !Ref OpenClarityServerInternetGateway
       DestinationCidrBlock: 0.0.0.0/0
     DependsOn:
-      - VmClarityServerInternetGatewayAttachment
+      - OpenClarityServerInternetGatewayAttachment
 
-  # Create a NAT gateway to allow VMClarity Scanner instances to access the
+  # Create a NAT gateway to allow OpenClarity Scanner instances to access the
   # internet without needing an internet routable IP address. This goes into
-  # the VmClarityServerSubnet so that it has public access to the internet.
-  VmClarityScannerNatGateway:
+  # the OpenClarityServerSubnet so that it has public access to the internet.
+  OpenClarityScannerNatGateway:
     Type: "AWS::EC2::NatGateway"
     Properties:
       AllocationId: !GetAtt
-        - VmClarityScannerNatElasticIp
+        - OpenClarityScannerNatElasticIp
         - AllocationId
-      SubnetId: !Ref VmClarityServerSubnet
-  # Create route table for VMClarity Scanner instances to access the NAT
+      SubnetId: !Ref OpenClarityServerSubnet
+  # Create route table for OpenClarity Scanner instances to access the NAT
   # gateway
-  VmClarityScannerNatRouteTable:
+  OpenClarityScannerNatRouteTable:
     Type: "AWS::EC2::RouteTable"
     Properties:
-      VpcId: !Ref VmClarityVPC
+      VpcId: !Ref OpenClarityVPC
   # Create route rule the pushes all non-local traffic to the NAT gateway for
   # routing.
-  VMClarityScannerNatRoute:
+  OpenClarityScannerNatRoute:
     Type: "AWS::EC2::Route"
     Properties:
-      RouteTableId: !Ref VmClarityScannerNatRouteTable
-      NatGatewayId: !Ref VmClarityScannerNatGateway
+      RouteTableId: !Ref OpenClarityScannerNatRouteTable
+      NatGatewayId: !Ref OpenClarityScannerNatGateway
       DestinationCidrBlock: 0.0.0.0/0
-  # Associate the VMClarity Scanner subnet with the Scanner route table that
+  # Associate the OpenClarity Scanner subnet with the Scanner route table that
   # goes to the NAT gateway.
-  VmClarityScannerSubnetRouteTableAssociation:
+  OpenClarityScannerSubnetRouteTableAssociation:
     Type: "AWS::EC2::SubnetRouteTableAssociation"
     Properties:
-      SubnetId: !Ref VmClarityScannerSubnet
-      RouteTableId: !Ref VmClarityScannerNatRouteTable
+      SubnetId: !Ref OpenClarityScannerSubnet
+      RouteTableId: !Ref OpenClarityScannerNatRouteTable
 
-  # Create a IAM policy which allows the VMClarityServer to perform all the
+  # Create a IAM policy which allows the OpenClarityServer to perform all the
   # tasks required to discover instances running on the AWS account, snapshot
   # their volumes, and then create the scanner instances with those volumes
   # attached.
-  VmClarityServerPolicy:
+  OpenClarityServerPolicy:
     Type: AWS::IAM::Policy
     Properties:
-      PolicyName: VmClarityServerPolicy
+      PolicyName: OpenClarityServerPolicy
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
           # ##########################
           # Allow snapshots everywhere in the AWS account to ensure that we can
           # snapshot all the VMs. Enforce that we tag those snapshots with the
-          # VMClarity Owner tag so that we can control deleting them.
+          # OpenClarity Owner tag so that we can control deleting them.
           - Effect: "Allow"
             Action: "ec2:CreateSnapshot"
             Resource: !Sub "arn:aws:ec2:*:${AWS::AccountId}:volume/*"
@@ -862,15 +862,15 @@ Resources:
             Resource: !Sub "arn:${AWS::Partition}:ec2:*::snapshot/*"
             Condition:
               StringEquals:
-                "aws:RequestTag/Owner": "VMClarity"
+                "aws:RequestTag/Owner": "OpenClarity"
               "ForAllValues:StringEquals":
                 "aws:TagKeys":
                   - Owner
                   - Name
-                  - VMClarity.ScanID
-                  - VMClarity.AssetScanID
-                  - VMClarity.AssetID
-                  - VMClarity.AssetVolumeID
+                  - OpenClarity.ScanID
+                  - OpenClarity.AssetScanID
+                  - OpenClarity.AssetID
+                  - OpenClarity.AssetVolumeID
           #
           # ##########################
 
@@ -878,7 +878,7 @@ Resources:
 
           #
           # ##########################
-          # Allow VMClarity server to call the pricing list API in order to get the latest prices for scan cost estimation.
+          # Allow OpenClarity server to call the pricing list API in order to get the latest prices for scan cost estimation.
           - Effect: "Allow"
             Action:
             - "pricing:GetProducts"
@@ -887,25 +887,25 @@ Resources:
           #
           # ##########################
           # ##########################
-          # Allow copying snapshots to the VMClarity Server region for
-          # scanning. Only allow copy if the copy will have the VMClarity Owner
+          # Allow copying snapshots to the OpenClarity Server region for
+          # scanning. Only allow copy if the copy will have the OpenClarity Owner
           # tag.
           # TODO(sambetts) Only allow us to copy snapshots which have the
-          # OwnerVMClarity tag.
+          # OwnerOpenClarity tag.
           - Effect: "Allow"
             Action: "ec2:CopySnapshot"
             Resource: !Sub "arn:${AWS::Partition}:ec2:*::snapshot/*"
             Condition:
               StringEquals:
-                "aws:RequestTag/Owner": "VMClarity"
+                "aws:RequestTag/Owner": "OpenClarity"
               "ForAllValues:StringEquals":
                 "aws:TagKeys":
                   - Owner
                   - Name
-                  - VMClarity.ScanID
-                  - VMClarity.AssetScanID
-                  - VMClarity.AssetID
-                  - VMClarity.AssetVolumeID
+                  - OpenClarity.ScanID
+                  - OpenClarity.AssetScanID
+                  - OpenClarity.AssetID
+                  - OpenClarity.AssetVolumeID
           #
           # ##########################
 
@@ -916,34 +916,34 @@ Resources:
               - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:volume/*"
             Condition:
               StringEquals:
-                "aws:RequestTag/Owner": "VMClarity"
+                "aws:RequestTag/Owner": "OpenClarity"
               "ForAllValues:StringEquals":
                 "aws:TagKeys":
                   - Owner
                   - Name
-                  - VMClarity.ScanID
-                  - VMClarity.AssetScanID
-                  - VMClarity.AssetID
-                  - VMClarity.AssetVolumeID
+                  - OpenClarity.ScanID
+                  - OpenClarity.AssetScanID
+                  - OpenClarity.AssetID
+                  - OpenClarity.AssetVolumeID
 
           # ##########################
-          # Only allow RunInstances inside of the VMClarity VPC by enforcing
-          # that the Subnet the Instance is created in belongs to the VmClarity
+          # Only allow RunInstances inside of the OpenClarity VPC by enforcing
+          # that the Subnet the Instance is created in belongs to the OpenClarity
           # VPC.
           - Effect: "Allow"
             Action: "ec2:RunInstances"
             Resource: !Sub "arn:aws:ec2:*:${AWS::AccountId}:subnet/*"
             Condition:
               ArnEquals:
-                "ec2:Vpc": !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:vpc/${VmClarityVPC}"
+                "ec2:Vpc": !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:vpc/${OpenClarityVPC}"
           # Force that we tag the instance when we create it, this is so that
           # we can limit the instances we're allow to terminate. The only tag
           # keys allowed are:
           #  * Owner
-          #  * VMClarity.ScanID
-          #  * VMClarity.AssetScanID
-          #  * VMClarity.AssetID
-          # "Owner" must be set to "VmClarity".
+          #  * OpenClarity.ScanID
+          #  * OpenClarity.AssetScanID
+          #  * OpenClarity.AssetID
+          # "Owner" must be set to "OpenClarity".
           - Effect: "Allow"
             Action:
               - "ec2:RunInstances"
@@ -953,30 +953,30 @@ Resources:
               - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:volume/*"
             Condition:
               StringEquals:
-                "aws:RequestTag/Owner": "VMClarity"
+                "aws:RequestTag/Owner": "OpenClarity"
               "ForAllValues:StringEquals":
                 "aws:TagKeys":
                   - Owner
                   - Name
-                  - VMClarity.ScanID
-                  - VMClarity.AssetScanID
-                  - VMClarity.AssetID
+                  - OpenClarity.ScanID
+                  - OpenClarity.AssetScanID
+                  - OpenClarity.AssetID
           # Allow instance to be created using snapshots, only if the snapshot
-          # has the Owner:VMClarity tag.
+          # has the Owner:OpenClarity tag.
           - Effect: "Allow"
             Action: "ec2:RunInstances"
             Resource:
               !Sub "arn:${AWS::Partition}:ec2:*::snapshot/*"
             Condition:
               StringEquals:
-                "aws:ResourceTag/Owner": "VMClarity"
+                "aws:ResourceTag/Owner": "OpenClarity"
               "ForAllValues:StringEquals":
                 "aws:TagKeys":
                   - Owner
                   - Name
-                  - VMClarity.ScanID
-                  - VMClarity.AssetScanID
-                  - VMClarity.AssetID
+                  - OpenClarity.ScanID
+                  - OpenClarity.AssetScanID
+                  - OpenClarity.AssetID
           # Allow the creation of network interfaces, and allow instances to be
           # created with any security group and image in our account and
           # region.
@@ -1032,12 +1032,12 @@ Resources:
               - !Sub "arn:${AWS::Partition}:ec2:*::snapshot/*"
             Condition:
               StringEquals:
-                "aws:ResourceTag/Owner": "VMClarity"
+                "aws:ResourceTag/Owner": "OpenClarity"
           #
           # ##########################
 
           # ##########################
-          # Allow VMClarity to query everything
+          # Allow OpenClarity to query everything
           - Effect: "Allow"
             Action:
             - "ec2:DescribeImages"
@@ -1066,13 +1066,13 @@ Resources:
               - !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:volume/*"
             Condition:
               StringEquals:
-                "aws:ResourceTag/Owner": "VMClarity"
+                "aws:ResourceTag/Owner": "OpenClarity"
           #
           # ##########################
       Roles:
-        - !Ref VmClarityServerRole
+        - !Ref OpenClarityServerRole
   # Create a IAM role which will contain the policy above.
-  VmClarityServerRole:
+  OpenClarityServerRole:
     Type: AWS::IAM::Role
     Properties:
       Path: "/"
@@ -1086,18 +1086,18 @@ Resources:
                 - "ec2.amazonaws.com"
             Action:
               - "sts:AssumeRole"
-  # Create an InstanceProfile which binds the role to the VmClarityServer.
-  VmClarityServerInstanceProfile:
+  # Create an InstanceProfile which binds the role to the OpenClarityServer.
+  OpenClarityServerInstanceProfile:
     Type: "AWS::IAM::InstanceProfile"
     Properties:
       Path: /
       Roles:
-        - !Ref VmClarityServerRole
+        - !Ref OpenClarityServerRole
 Parameters:
   # Provide some choice of instance type, these are all 2 VCPU 8GB RAM systems
   # and should perform similarly.
   InstanceType:
-    Description: VmClarity Server Instance Type
+    Description: OpenClarity Server Instance Type
     Type: String
     Default: t2.large
     AllowedValues:
@@ -1107,7 +1107,7 @@ Parameters:
       - t4g.large
     ConstraintDescription: must be a valid EC2 instance type.
   ScannerInstanceType:
-    Description: VmClarity Scanner Instance Type
+    Description: OpenClarity Scanner Instance Type
     Type: String
     Default: t2.large
     AllowedValues:
@@ -1129,25 +1129,25 @@ Parameters:
     ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
   APIServerContainerImageOverride:
     Description: >
-      Name of the container image used for deploying VMClarity API server.
+      Name of the container image used for deploying OpenClarity API server.
       "ghcr.io/openclarity/openclarity-api-server:latest" will be used if not overridden.
     Type: String
     Default: ''
   OrchestratorContainerImageOverride:
     Description: >
-      Name of the container image used for deploying VMClarity orchestrator.
+      Name of the container image used for deploying OpenClarity orchestrator.
       "ghcr.io/openclarity/openclarity-orchestrator:latest" will be used if not overridden.
     Type: String
     Default: ''
   UIContainerImageOverride:
     Description: >
-      Name of the container image used for deploying VMClarity UI.
+      Name of the container image used for deploying OpenClarity UI.
       "ghcr.io/openclarity/openclarity-ui:latest" will be used if not overridden.
     Type: String
     Default: ''
   UIBackendContainerImageOverride:
     Description: >
-      Name of the container image used for deploying VMClarity UI backend.
+      Name of the container image used for deploying OpenClarity UI backend.
       "ghcr.io/openclarity/openclarity-ui-backend:latest" will be used if not overridden.
     Type: String
     Default: ''
@@ -1194,7 +1194,7 @@ Parameters:
     Type: String
     Default: ''
   AssetScanDeletePolicy:
-    Description: When VMClarity should delete resources after a completed asset scan.
+    Description: When OpenClarity should delete resources after a completed asset scan.
     Type: String
     Default: Always
     AllowedValues:
@@ -1202,7 +1202,7 @@ Parameters:
       - OnSuccess
       - Never
   DatabaseToUse:
-    Description: Database VMClarity should use to store its objects.
+    Description: Database OpenClarity should use to store its objects.
     Type: String
     Default: SQLite
     AllowedValues:
@@ -1277,7 +1277,7 @@ Metadata:
           - AssetScanDeletePolicy
     ParameterLabels:
       InstanceType:
-        default: VMClarity Server Instance Type
+        default: OpenClarity Server Instance Type
       ScannerInstanceType:
         default: Scanner Job Instance Type
       APIServerContainerImageOverride:
@@ -1435,5 +1435,5 @@ Conditions:
     - 'Postgresql'
 Outputs:
   URL:
-    Value: !Sub "${VmClarityServer.PublicIp}"
-    Description: VmClarity SSH Address
+    Value: !Sub "${OpenClarityServer.PublicIp}"
+    Description: OpenClarity SSH Address

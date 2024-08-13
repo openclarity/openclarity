@@ -243,7 +243,7 @@ lint-bicep: bin/bicep ## Lint Azure Bicep template(s)
 
 .PHONY: lint-cfn
 lint-cfn: bin/cfn-lint ## Lint AWS CloudFormation template
-	$(CFNLINT_BIN) installation/aws/VmClarity.cfn
+	$(CFNLINT_BIN) installation/aws/OpenClarity.cfn
 
 .PHONY: lint-js
 lint-js: ## Lint Javascript source code
@@ -452,7 +452,7 @@ $(DIST_DIR)/aws-cloudformation-$(VERSION).tar.gz: $(DIST_DIR)/aws-cloudformation
 $(DIST_DIR)/aws-cloudformation-$(VERSION).bundle: $(CFN_FILES) | $(CFN_DIST_DIR)
 	$(info --- Generate Cloudformation bundle)
 	cp -vR $(CFN_DIR)/* $(CFN_DIST_DIR)/
-	sed -i -E 's@(ghcr\.io\/openclarity\/vmclarity\-(apiserver|cli|orchestrator|ui-backend|ui)):latest@\1:$(VERSION)@' $(CFN_DIST_DIR)/VmClarity.cfn
+	sed -i -E 's@(ghcr\.io\/openclarity\/openclarity\-(api-server|cli|orchestrator|ui-backend|ui)):latest@\1:$(VERSION)@' $(CFN_DIST_DIR)/OpenClarity.cfn
 	@touch $@
 
 $(CFN_DIST_DIR)/LICENSE: $(ROOT_DIR)/LICENSE | $(CFN_DIST_DIR)
