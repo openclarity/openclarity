@@ -15,7 +15,7 @@
 
 """Creates the virtual machine with environment variables and startup script."""
 
-import vmclarity_install_script
+import installation.gcp.dm.components.openclarity_install_script as openclarity_install_script
 
 COMPUTE_URL_BASE = "https://www.googleapis.com/compute/v1/"
 
@@ -25,7 +25,7 @@ IMAGE_SELFLINK = "projects/ubuntu-os-cloud/global/images/ubuntu-2204-jammy-v2023
 def GenerateConfig(context):
     """Creates the virtual machine."""
 
-    startup_script = vmclarity_install_script.GenerateInstallScript(context)
+    startup_script = openclarity_install_script.GenerateInstallScript(context)
 
     resources = [
         {
