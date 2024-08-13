@@ -412,21 +412,21 @@ clean-dist:
 	rm -rf $(DIST_DIR)/*
 
 .PHONY: dist-all
-dist-all: dist-bicep dist-cloudformation dist-docker-compose dist-gcp-deployment dist-helm-chart dist-vmclarity-cli
+dist-all: dist-bicep dist-cloudformation dist-docker-compose dist-gcp-deployment dist-helm-chart dist-openclarity-cli
 
 CLI_OSARCH := $(shell echo {linux-,darwin-}{amd64,arm64})
-CLI_BINARIES := $(CLI_OSARCH:%=$(DIST_DIR)/%/vmclarity-cli)
-CLI_TARS := $(CLI_OSARCH:%=$(DIST_DIR)/vmclarity-cli-$(VERSION)-%.tar.gz)
+CLI_BINARIES := $(CLI_OSARCH:%=$(DIST_DIR)/%/openclarity-cli)
+CLI_TARS := $(CLI_OSARCH:%=$(DIST_DIR)/openclarity-cli-$(VERSION)-%.tar.gz)
 CLI_TAR_SHA256SUMS := $(CLI_TARS:%=%.sha256sum)
 
-.PHONY: dist-vmclarity-cli
-dist-vmclarity-cli: $(CLI_BINARIES) $(CLI_TARS) $(CLI_TAR_SHA256SUMS) | $(DIST_DIR) ## Create vmclarity-cli release artifacts
+.PHONY: dist-openclarity-cli
+dist-openclarity-cli: $(CLI_BINARIES) $(CLI_TARS) $(CLI_TAR_SHA256SUMS) | $(DIST_DIR) ## Create openclarity-cli release artifacts
 
-$(DIST_DIR)/vmclarity-cli-$(VERSION)-%.tar.gz: $(DIST_DIR)/%/vmclarity-cli $(DIST_DIR)/%/LICENSE $(DIST_DIR)/%/README.md
+$(DIST_DIR)/openclarity-cli-$(VERSION)-%.tar.gz: $(DIST_DIR)/%/openclarity-cli $(DIST_DIR)/%/LICENSE $(DIST_DIR)/%/README.md
 	$(info --- Bundling $(dir $<) into $(notdir $@))
 	tar cv -f $@ -C $(dir $<) --use-compress-program='gzip -9' $(notdir $^)
 
-$(DIST_DIR)/%/vmclarity-cli: $(shell find api cli utils core)
+$(DIST_DIR)/%/openclarity-cli: $(shell find api cli utils core)
 	$(info --- Building $(notdir $@) for $*)
 	GOOS=$(firstword $(subst -, ,$*)) \
 	GOARCH=$(lastword $(subst -, ,$*)) \
