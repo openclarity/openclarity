@@ -28,7 +28,7 @@ on:
         default: true
 
 env:
-  images: vmclarity-apiserver-dev,vmclarity-orchestrator-dev,vmclarity-cli-dev,vmclarity-ui-backend-dev,vmclarity-ui-dev
+  images: openclarity-api-server-dev,openclarity-orchestrator-dev,openclarity-cli-dev,openclarity-ui-backend-dev,openclarity-ui-dev
 
 permissions:
   packages: write

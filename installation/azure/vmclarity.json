@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.29.47.4906",
-      "templateHash": "17757178513922425303"
+      "templateHash": "7438112909750510001"
     }
   },
   "parameters": {
@@ -55,35 +55,35 @@
     },
     "apiserverContainerImage": {
       "type": "string",
-      "defaultValue": "ghcr.io/openclarity/vmclarity-apiserver:latest",
+      "defaultValue": "ghcr.io/openclarity/openclarity-api-server:latest",
       "metadata": {
         "description": "VMClarity APIServer Container Image"
       }
     },
     "orchestratorContainerImage": {
       "type": "string",
-      "defaultValue": "ghcr.io/openclarity/vmclarity-orchestrator:latest",
+      "defaultValue": "ghcr.io/openclarity/openclarity-orchestrator:latest",
       "metadata": {
         "description": "VMClarity Orchestrator Container Image"
       }
     },
     "uiContainerImage": {
       "type": "string",
-      "defaultValue": "ghcr.io/openclarity/vmclarity-ui:latest",
+      "defaultValue": "ghcr.io/openclarity/openclarity-ui:latest",
       "metadata": {
         "description": "VMClarity UI Container Image"
       }
     },
     "uibackendContainerImage": {
       "type": "string",
-      "defaultValue": "ghcr.io/openclarity/vmclarity-ui-backend:latest",
+      "defaultValue": "ghcr.io/openclarity/openclarity-ui-backend:latest",
       "metadata": {
         "description": "VMClarity UIBackend Container Image"
       }
     },
     "scannerContainerImage": {
       "type": "string",
-      "defaultValue": "ghcr.io/openclarity/vmclarity-cli:latest",
+      "defaultValue": "ghcr.io/openclarity/openclarity-cli:latest",
       "metadata": {
         "description": "VMClarity Scanner Container Image"
       }
@@ -577,7 +577,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "3933691059982936053"
+              "templateHash": "6620794244132709815"
             }
           },
           "parameters": {
@@ -646,35 +646,35 @@
             },
             "apiserverContainerImage": {
               "type": "string",
-              "defaultValue": "ghcr.io/openclarity/vmclarity-apiserver:latest",
+              "defaultValue": "ghcr.io/openclarity/openclarity-api-server:latest",
               "metadata": {
                 "description": "VMClarity APIServer Container Image"
               }
             },
             "orchestratorContainerImage": {
               "type": "string",
-              "defaultValue": "ghcr.io/openclarity/vmclarity-orchestrator:latest",
+              "defaultValue": "ghcr.io/openclarity/openclarity-orchestrator:latest",
               "metadata": {
                 "description": "VMClarity Orchestrator Container Image"
               }
             },
             "uiContainerImage": {
               "type": "string",
-              "defaultValue": "ghcr.io/openclarity/vmclarity-ui:latest",
+              "defaultValue": "ghcr.io/openclarity/openclarity-ui:latest",
               "metadata": {
                 "description": "VMClarity UI Container Image"
               }
             },
             "uibackendContainerImage": {
               "type": "string",
-              "defaultValue": "ghcr.io/openclarity/vmclarity-ui-backend:latest",
+              "defaultValue": "ghcr.io/openclarity/openclarity-ui-backend:latest",
               "metadata": {
                 "description": "VMClarity UIBackend Container Image"
               }
             },
             "scannerContainerImage": {
               "type": "string",
-              "defaultValue": "ghcr.io/openclarity/vmclarity-cli:latest",
+              "defaultValue": "ghcr.io/openclarity/openclarity-cli:latest",
               "metadata": {
                 "description": "VMClarity Scanner Container Image"
               }

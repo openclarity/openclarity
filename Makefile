@@ -170,13 +170,13 @@ E2E_TARGETS =
 E2E_ENV =
 ifneq ($(CI),true)
 	E2E_TARGETS += docker
-	E2E_ENV += VMCLARITY_E2E_APISERVER_IMAGE=$(DOCKER_REGISTRY)/vmclarity-apiserver:$(DOCKER_TAG)
-	E2E_ENV += VMCLARITY_E2E_ORCHESTRATOR_IMAGE=$(DOCKER_REGISTRY)/vmclarity-orchestrator:$(DOCKER_TAG)
-	E2E_ENV += VMCLARITY_E2E_UI_IMAGE=$(DOCKER_REGISTRY)/vmclarity-ui:$(DOCKER_TAG)
-	E2E_ENV += VMCLARITY_E2E_UIBACKEND_IMAGE=$(DOCKER_REGISTRY)/vmclarity-ui-backend:$(DOCKER_TAG)
-	E2E_ENV += VMCLARITY_E2E_SCANNER_IMAGE=$(DOCKER_REGISTRY)/vmclarity-cli:$(DOCKER_TAG)
-	E2E_ENV += VMCLARITY_E2E_CR_DISCOVERY_SERVER_IMAGE=$(DOCKER_REGISTRY)/vmclarity-cr-discovery-server:$(DOCKER_TAG)
-	E2E_ENV += VMCLARITY_E2E_PLUGIN_KICS_IMAGE=$(DOCKER_REGISTRY)/vmclarity-plugin-kics:$(DOCKER_TAG)
+	E2E_ENV += VMCLARITY_E2E_APISERVER_IMAGE=$(DOCKER_REGISTRY)/openclarity-api-server:$(DOCKER_TAG)
+	E2E_ENV += VMCLARITY_E2E_ORCHESTRATOR_IMAGE=$(DOCKER_REGISTRY)/openclarity-orchestrator:$(DOCKER_TAG)
+	E2E_ENV += VMCLARITY_E2E_UI_IMAGE=$(DOCKER_REGISTRY)/openclarity-ui:$(DOCKER_TAG)
+	E2E_ENV += VMCLARITY_E2E_UIBACKEND_IMAGE=$(DOCKER_REGISTRY)/openclarity-ui-backend:$(DOCKER_TAG)
+	E2E_ENV += VMCLARITY_E2E_SCANNER_IMAGE=$(DOCKER_REGISTRY)/openclarity-cli:$(DOCKER_TAG)
+	E2E_ENV += VMCLARITY_E2E_CR_DISCOVERY_SERVER_IMAGE=$(DOCKER_REGISTRY)/openclarity-cr-discovery-server:$(DOCKER_TAG)
+	E2E_ENV += VMCLARITY_E2E_PLUGIN_KICS_IMAGE=$(DOCKER_REGISTRY)/openclarity-plugin-kics:$(DOCKER_TAG)
 endif
 
 .PHONY: e2e
@@ -298,7 +298,7 @@ BAKE_ENV += BUILD_OPTS="$(BUILD_OPTS)"
 
 BAKE_OPTS =
 ifneq ($(strip $(VMCLARITY_TOOLS_BASE)),)
-	BAKE_OPTS += --set vmclarity-cli.args.VMCLARITY_TOOLS_BASE=$(VMCLARITY_TOOLS_BASE)
+	BAKE_OPTS += --set openclarity-cli.args.VMCLARITY_TOOLS_BASE=$(VMCLARITY_TOOLS_BASE)
 endif
 
 ifeq ($(DOCKER_PUSH),true)
@@ -311,17 +311,17 @@ endif
 # docker: ## Build All Docker images
 # 	$(info Building all docker images ...)
 # 	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS)
-docker: docker-apiserver docker-cli docker-orchestrator docker-ui docker-ui-backend docker-cr-discovery-server docker-scanner-plugins ## Build all Docker images
+docker: docker-api-server docker-cli docker-orchestrator docker-ui docker-ui-backend docker-cr-discovery-server docker-scanner-plugins ## Build all Docker images
 
-.PHONY: docker-apiserver
-docker-apiserver: ## Build API Server container image
-	$(info Building apiserver docker image ...)
-	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS) vmclarity-apiserver
+.PHONY: docker-api-server
+docker-api-server: ## Build API Server container image
+	$(info Building api-server docker image ...)
+	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS) openclarity-api-server
 
 .PHONY: docker-cli
 docker-cli: ## Build CLI container image
 	$(info Building cli docker image ...)
-	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS) vmclarity-cli
+	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS) openclarity-cli
 
 # TODO(paralta) Temporary workaround to remove race flag from orchestrator build
 # since build fails in arm64 after #1587
@@ -330,27 +330,27 @@ BAKE_ENV_ORCHESTRATOR = $(subst -race,, $(BAKE_ENV))
 .PHONY: docker-orchestrator
 docker-orchestrator: ## Build Orchestrator container image
 	$(info Building orchestrator docker image ...)
-	$(BAKE_ENV_ORCHESTRATOR) docker buildx bake $(BAKE_OPTS) vmclarity-orchestrator
+	$(BAKE_ENV_ORCHESTRATOR) docker buildx bake $(BAKE_OPTS) openclarity-orchestrator
 
 .PHONY: docker-ui
 docker-ui: ## Build UI container image
 	$(info Building ui docker image ...)
-	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS) vmclarity-ui
+	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS) openclarity-ui
 
 .PHONY: docker-ui-backend
 docker-ui-backend: ## Build UI Backend container image
 	$(info Building ui-backend docker image ...)
-	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS) vmclarity-ui-backend
+	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS) openclarity-ui-backend
 
 .PHONY: docker-cr-discovery-server
 docker-cr-discovery-server: ## Build K8S Image Resolver Docker image
 	$(info Building cr-discovery-server docker image ...)
-	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS) vmclarity-cr-discovery-server
+	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS) openclarity-cr-discovery-server
 
 .PHONY: docker-scanner-plugins
 docker-scanner-plugins: ## Build scanner plugin container images
 	$(info Building scanner plugin docker images ...)
-	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS) vmclarity-scanner-plugins
+	$(BAKE_ENV) docker buildx bake $(BAKE_OPTS) openclarity-scanner-plugins
 
 ##@ Code generation
 

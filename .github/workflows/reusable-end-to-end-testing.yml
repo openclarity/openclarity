@@ -89,13 +89,13 @@ jobs:
 
       - name: Run end to end tests
         env:
-          VMCLARITY_E2E_APISERVER_IMAGE: ${{ inputs.registry_name }}/vmclarity-apiserver:${{ inputs.image_tag }}
-          VMCLARITY_E2E_ORCHESTRATOR_IMAGE: ${{ inputs.registry_name }}/vmclarity-orchestrator:${{ inputs.image_tag }}
-          VMCLARITY_E2E_UI_IMAGE: ${{ inputs.registry_name }}/vmclarity-ui:${{ inputs.image_tag }}
-          VMCLARITY_E2E_UIBACKEND_IMAGE: ${{ inputs.registry_name }}/vmclarity-ui-backend:${{ inputs.image_tag }}
-          VMCLARITY_E2E_SCANNER_IMAGE: ${{ inputs.registry_name }}/vmclarity-cli:${{ inputs.image_tag }}
-          VMCLARITY_E2E_CR_DISCOVERY_SERVER_IMAGE: ${{ inputs.registry_name }}/vmclarity-cr-discovery-server:${{ inputs.image_tag }}
-          VMCLARITY_E2E_PLUGIN_KICS_IMAGE: ${{ inputs.registry_name }}/vmclarity-plugin-kics:${{ inputs.image_tag }}
+          VMCLARITY_E2E_APISERVER_IMAGE: ${{ inputs.registry_name }}/openclarity-api-server:${{ inputs.image_tag }}
+          VMCLARITY_E2E_ORCHESTRATOR_IMAGE: ${{ inputs.registry_name }}/openclarity-orchestrator:${{ inputs.image_tag }}
+          VMCLARITY_E2E_UI_IMAGE: ${{ inputs.registry_name }}/openclarity-ui:${{ inputs.image_tag }}
+          VMCLARITY_E2E_UIBACKEND_IMAGE: ${{ inputs.registry_name }}/openclarity-ui-backend:${{ inputs.image_tag }}
+          VMCLARITY_E2E_SCANNER_IMAGE: ${{ inputs.registry_name }}/openclarity-cli:${{ inputs.image_tag }}
+          VMCLARITY_E2E_CR_DISCOVERY_SERVER_IMAGE: ${{ inputs.registry_name }}/openclarity-cr-discovery-server:${{ inputs.image_tag }}
+          VMCLARITY_E2E_PLUGIN_KICS_IMAGE: ${{ inputs.registry_name }}/openclarity-plugin-kics:${{ inputs.image_tag }}
           VMCLARITY_E2E_PLATFORM: ${{ inputs.platform }}
         run: |
           if [[ "${{ inputs.platform }}" == "kubernetes" ]]; then

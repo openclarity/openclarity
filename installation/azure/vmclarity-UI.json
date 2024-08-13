@@ -172,7 +172,7 @@
                             "type": "Microsoft.Common.TextBox",
                             "label": "Orchestrator Container Image",
                             "subLabel": "",
-                            "defaultValue": "ghcr.io/openclarity/vmclarity-orchestrator:latest",
+                            "defaultValue": "ghcr.io/openclarity/openclarity-orchestrator:latest",
                             "toolTip": "VMClarity Orchestrator Container Image",
                             "constraints": {
                                 "required": false,
@@ -188,7 +188,7 @@
                             "type": "Microsoft.Common.TextBox",
                             "label": "APIServer Container Image",
                             "subLabel": "",
-                            "defaultValue": "ghcr.io/openclarity/vmclarity-apiserver:latest",
+                            "defaultValue": "ghcr.io/openclarity/openclarity-api-server:latest",
                             "toolTip": "VMClarity APIServer Container Image",
                             "constraints": {
                                 "required": false,
@@ -204,7 +204,7 @@
                             "type": "Microsoft.Common.TextBox",
                             "label": "UI Container Image",
                             "subLabel": "",
-                            "defaultValue": "ghcr.io/openclarity/vmclarity-ui:latest",
+                            "defaultValue": "ghcr.io/openclarity/openclarity-ui:latest",
                             "toolTip": "VMClarity UI Container Image",
                             "constraints": {
                                 "required": false,
@@ -220,7 +220,7 @@
                             "type": "Microsoft.Common.TextBox",
                             "label": "UI Backend Container Image",
                             "subLabel": "",
-                            "defaultValue": "ghcr.io/openclarity/vmclarity-ui-backend:latest",
+                            "defaultValue": "ghcr.io/openclarity/openclarity-ui-backend:latest",
                             "toolTip": "VMClarity UI Backend Container Image",
                             "constraints": {
                                 "required": false,
@@ -236,7 +236,7 @@
                             "type": "Microsoft.Common.TextBox",
                             "label": "Scanner Container Image",
                             "subLabel": "",
-                            "defaultValue": "ghcr.io/openclarity/vmclarity-cli:latest",
+                            "defaultValue": "ghcr.io/openclarity/openclarity-cli:latest",
                             "toolTip": "VMClarity Scanner Container Image",
                             "constraints": {
                                 "required": false,

@@ -36,20 +36,20 @@ import (
 var ImageTag = utils.GetEnvOrDefault("VERSION", "latest")
 
 var DockerContainerImages = docker.ContainerImages{
-	APIServer:    "ghcr.io/openclarity/vmclarity-apiserver:" + ImageTag,
-	Orchestrator: "ghcr.io/openclarity/vmclarity-orchestrator:" + ImageTag,
-	UI:           "ghcr.io/openclarity/vmclarity-ui:" + ImageTag,
-	UIBackend:    "ghcr.io/openclarity/vmclarity-ui-backend:" + ImageTag,
-	Scanner:      "ghcr.io/openclarity/vmclarity-cli:" + ImageTag,
+	APIServer:    "ghcr.io/openclarity/openclarity-api-server:" + ImageTag,
+	Orchestrator: "ghcr.io/openclarity/openclarity-orchestrator:" + ImageTag,
+	UI:           "ghcr.io/openclarity/openclarity-ui:" + ImageTag,
+	UIBackend:    "ghcr.io/openclarity/openclarity-ui-backend:" + ImageTag,
+	Scanner:      "ghcr.io/openclarity/openclarity-cli:" + ImageTag,
 }
 
 var KubernetesContainerImages = kubernetes.ContainerImages{
-	APIServer:         envtypes.NewImageRef("ghcr.io/openclarity/vmclarity-apiserver", "ghcr.io", "openclarity/vmclarity-apiserver", ImageTag, ""),
-	Orchestrator:      envtypes.NewImageRef("ghcr.io/openclarity/vmclarity-orchestrator", "ghcr.io", "openclarity/vmclarity-orchestrator", ImageTag, ""),
-	UI:                envtypes.NewImageRef("ghcr.io/openclarity/vmclarity-ui", "ghcr.io", "openclarity/vmclarity-ui", ImageTag, ""),
-	UIBackend:         envtypes.NewImageRef("ghcr.io/openclarity/vmclarity-ui-backend", "ghcr.io", "openclarity/vmclarity-ui-backend", ImageTag, ""),
-	Scanner:           envtypes.NewImageRef("ghcr.io/openclarity/vmclarity-cli", "ghcr.io", "openclarity/vmclarity-cli", ImageTag, ""),
-	CRDiscoveryServer: envtypes.NewImageRef("ghcr.io/openclarity/vmclarity-cr-discovery-server", "ghcr.io", "openclarity/vmclarity-cr-discovery-server", ImageTag, ""),
+	APIServer:         envtypes.NewImageRef("ghcr.io/openclarity/openclarity-api-server", "ghcr.io", "openclarity/openclarity-api-server", ImageTag, ""),
+	Orchestrator:      envtypes.NewImageRef("ghcr.io/openclarity/openclarity-orchestrator", "ghcr.io", "openclarity/openclarity-orchestrator", ImageTag, ""),
+	UI:                envtypes.NewImageRef("ghcr.io/openclarity/openclarity-ui", "ghcr.io", "openclarity/openclarity-ui", ImageTag, ""),
+	UIBackend:         envtypes.NewImageRef("ghcr.io/openclarity/openclarity-ui-backend", "ghcr.io", "openclarity/openclarity-ui-backend", ImageTag, ""),
+	Scanner:           envtypes.NewImageRef("ghcr.io/openclarity/openclarity-cli", "ghcr.io", "openclarity/openclarity-cli", ImageTag, ""),
+	CRDiscoveryServer: envtypes.NewImageRef("ghcr.io/openclarity/openclarity-cr-discovery-server", "ghcr.io", "openclarity/openclarity-cr-discovery-server", ImageTag, ""),
 }
 
 func TestTestEnv(t *testing.T) {
@@ -225,10 +225,10 @@ func AssertServicesContains(left, right envtypes.Services, fn ServiceComparisonF
 func NewKubernetesServices(namespace, release string) envtypes.Services {
 	return envtypes.Services{
 		&kubernetes.Service{
-			ID:          release + "-vmclarity-apiserver",
+			ID:          release + "-openclarity-api-server",
 			Namespace:   namespace,
-			Application: "vmclarity",
-			Component:   "apiserver",
+			Application: "openclarity",
+			Component:   "api-server",
 			State:       envtypes.ServiceStateReady,
 		},
 		&kubernetes.Service{
@@ -260,9 +260,9 @@ func NewKubernetesServices(namespace, release string) envtypes.Services {
 			State:       envtypes.ServiceStateReady,
 		},
 		&kubernetes.Service{
-			ID:          release + "-vmclarity-orchestrator",
+			ID:          release + "-openclarity-orchestrator",
 			Namespace:   namespace,
-			Application: "vmclarity",
+			Application: "openclarity",
 			Component:   "orchestrator",
 			State:       envtypes.ServiceStateReady,
 		},
@@ -281,16 +281,16 @@ func NewKubernetesServices(namespace, release string) envtypes.Services {
 			State:       envtypes.ServiceStateReady,
 		},
 		&kubernetes.Service{
-			ID:          release + "-vmclarity-ui",
+			ID:          release + "-openclarity-ui",
 			Namespace:   namespace,
-			Application: "vmclarity",
+			Application: "openclarity",
 			Component:   "ui",
 			State:       envtypes.ServiceStateReady,
 		},
 		&kubernetes.Service{
-			ID:          release + "-vmclarity-uibackend",
+			ID:          release + "-openclarity-ui-backend",
 			Namespace:   namespace,
-			Application: "vmclarity",
+			Application: "openclarity",
 			Component:   "uibackend",
 			State:       envtypes.ServiceStateReady,
 		},
@@ -309,9 +309,9 @@ func NewKubernetesServices(namespace, release string) envtypes.Services {
 			State:       envtypes.ServiceStateReady,
 		},
 		&kubernetes.Service{
-			ID:          release + "-vmclarity-cr-discovery-server",
+			ID:          release + "-openclarity-cr-discovery-server",
 			Namespace:   namespace,
-			Application: "vmclarity",
+			Application: "openclarity",
 			Component:   "cr-discovery-server",
 			State:       envtypes.ServiceStateReady,
 		},

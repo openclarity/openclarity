@@ -44,7 +44,7 @@ plugins:
       input_type: "rootfs"
   scanners_config:
     kics:
-      image_name: "ghcr.io/openclarity/vmclarity-plugin-kics:latest"
+      image_name: "ghcr.io/openclarity/openclarity-plugin-kics:latest"
       config: "{}"
 ```
 

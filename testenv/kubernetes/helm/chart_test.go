@@ -43,28 +43,28 @@ func TestChartWithContainerImages(t *testing.T) {
 				KubeConfigPath: "kubeconfig",
 			},
 			ContainerImagesMap: map[string]string{
-				"apiserver_image":           "openclarity.io/vmclarity-apiserver",
-				"orchestrator_image":        "openclarity.io/vmclarity-orchestrator:test@sha256:96374b22a50bcfc96b96b5153b185ce5bf16d7a454766747633a32d2f1fefead",
-				"ui_image":                  "ghcr.io/openclarity/vmclarity-ui:test",
-				"uibackend_image":           "openclarity.io/vmclarity-uibackend:test",
-				"scanner_image":             "vmclarity-scanner:test",
-				"cr_discovery_server_image": "openclarity.io/vmclarity-cr-discovery-server:test",
+				"apiserver_image":           "openclarity.io/openclarity-api-server",
+				"orchestrator_image":        "openclarity.io/openclarity-orchestrator:test@sha256:96374b22a50bcfc96b96b5153b185ce5bf16d7a454766747633a32d2f1fefead",
+				"ui_image":                  "ghcr.io/openclarity/openclarity-ui:test",
+				"uibackend_image":           "openclarity.io/openclarity-ui-backend:test",
+				"scanner_image":             "openclarity-scanner:test",
+				"cr_discovery_server_image": "openclarity.io/openclarity-cr-discovery-server:test",
 			},
 			ExpectedValues: map[string]map[string]string{
 				"apiserver.image": {
 					"registry":   "openclarity.io",
-					"repository": "vmclarity-apiserver",
+					"repository": "openclarity-api-server",
 					"tag":        "latest",
 				},
 				"orchestrator.image": {
 					"registry":   "openclarity.io",
-					"repository": "vmclarity-orchestrator",
+					"repository": "openclarity-orchestrator",
 					"tag":        "test",
 					"digest":     "sha256:96374b22a50bcfc96b96b5153b185ce5bf16d7a454766747633a32d2f1fefead",
 				},
 				"orchestrator.scannerImage": {
 					"registry":   "docker.io",
-					"repository": "library/vmclarity-scanner",
+					"repository": "library/openclarity-scanner",
 					"tag":        "test",
 				},
 				"orchestrator.serviceAccount": {
@@ -75,17 +75,17 @@ func TestChartWithContainerImages(t *testing.T) {
 				},
 				"ui.image": {
 					"registry":   "ghcr.io",
-					"repository": "openclarity/vmclarity-ui",
+					"repository": "openclarity/openclarity-ui",
 					"tag":        "test",
 				},
 				"uibackend.image": {
 					"registry":   "openclarity.io",
-					"repository": "vmclarity-uibackend",
+					"repository": "openclarity-ui-backend",
 					"tag":        "test",
 				},
 				"crDiscoveryServer.image": {
 					"registry":   "openclarity.io",
-					"repository": "vmclarity-cr-discovery-server",
+					"repository": "openclarity-cr-discovery-server",
 					"tag":        "test",
 				},
 			},

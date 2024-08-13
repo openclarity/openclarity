@@ -33,7 +33,7 @@ import (
 const (
 	LogLevelFlag         = "log-level"
 	LogLevelDefaultValue = "warning"
-	ExecutableName       = "vmclarity-orchestrator"
+	ExecutableName       = "openclarity-orchestrator"
 )
 
 var (

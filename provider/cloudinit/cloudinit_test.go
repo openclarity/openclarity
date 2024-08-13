@@ -40,7 +40,7 @@ func TestNewCloudInit(t *testing.T) {
 		{
 			Name: "Cloud-init from ScanJobConfig passed by pointer",
 			CloudInitData: &provider.ScanJobConfig{
-				ScannerImage:     "ghcr.io/openclarity/vmclarity-cli:latest",
+				ScannerImage:     "ghcr.io/openclarity/openclarity-cli:latest",
 				ScannerCLIConfig: ScannerCLIConfig,
 				VMClarityAddress: "10.1.1.1:8888",
 				ScanMetadata: provider.ScanMetadata{
@@ -52,7 +52,7 @@ func TestNewCloudInit(t *testing.T) {
 		{
 			Name: "Cloud-init from ScanJobConfig passed by value",
 			CloudInitData: provider.ScanJobConfig{
-				ScannerImage:     "ghcr.io/openclarity/vmclarity-cli:latest",
+				ScannerImage:     "ghcr.io/openclarity/openclarity-cli:latest",
 				ScannerCLIConfig: ScannerCLIConfig,
 				VMClarityAddress: "10.1.1.1:8888",
 				ScanMetadata: provider.ScanMetadata{
