@@ -1,15 +1,15 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "vmclarity.swaggerUI.name" . }}
-  labels: {{- include "vmclarity.swaggerUI.labels.standard" . | nindent 4 }}
+  name: {{ include "openclarity.swaggerUI.name" . }}
+  labels: {{- include "openclarity.swaggerUI.labels.standard" . | nindent 4 }}
 spec:
   selector:
-    matchLabels: {{- include "vmclarity.swaggerUI.labels.matchLabels" . | nindent 6 }}
+    matchLabels: {{- include "openclarity.swaggerUI.labels.matchLabels" . | nindent 6 }}
   replicas: {{ .Values.swaggerUI.replicaCount }}
   template:
     metadata:
-      labels: {{- include "vmclarity.swaggerUI.labels.standard" . | nindent 8 }}
+      labels: {{- include "openclarity.swaggerUI.labels.standard" . | nindent 8 }}
       annotations:
         checksum/configmap: {{ include (print $.Template.BasePath "/swagger-ui/configmap.yaml") . | sha256sum }}
     spec:
@@ -27,7 +27,7 @@ spec:
       {{- end }}
       containers:
         - name: swagger-ui
-          image: {{ include "vmclarity.images.image" ( dict "imageRoot" .Values.swaggerUI.image "global" .Values.global ) }}
+          image: {{ include "openclarity.images.image" ( dict "imageRoot" .Values.swaggerUI.image "global" .Values.global ) }}
           imagePullPolicy: {{ .Values.swaggerUI.image.pullPolicy | quote }}
           {{- if .Values.swaggerUI.containerSecurityContext.enabled }}
           securityContext: {{- omit .Values.swaggerUI.containerSecurityContext "enabled" | toYaml | nindent 12 }}
@@ -53,5 +53,5 @@ spec:
           emptyDir: {}
         - name: swagger-ui-config
           configMap:
-            name: {{ include "vmclarity.swaggerUI.name" . }}
-      serviceAccountName: {{ include "vmclarity.swaggerUI.serviceAccountName" . }}
+            name: {{ include "openclarity.swaggerUI.name" . }}
+      serviceAccountName: {{ include "openclarity.swaggerUI.serviceAccountName" . }}

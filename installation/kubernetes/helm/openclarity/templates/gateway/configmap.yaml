@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "vmclarity.gateway.name" . }}
+  name: {{ include "openclarity.gateway.name" . }}
   namespace: {{ .Release.Namespace | quote }}
-  labels: {{- include "vmclarity.gateway.labels.standard" . | nindent 4 }}
+  labels: {{- include "openclarity.gateway.labels.standard" . | nindent 4 }}
 data:
   nginx.conf: |
     events {
@@ -12,19 +12,19 @@ data:
     
     http {
         upstream ui {
-            server {{ printf "%s" (include "vmclarity.ui.name" .) }}:8080;
+            server {{ printf "%s" (include "openclarity.ui.name" .) }}:8080;
         }
     
         upstream uibackend {
-            server {{ printf "%s" (include "vmclarity.uibackend.name" .) }}:8890;
+            server {{ printf "%s" (include "openclarity.uibackend.name" .) }}:8890;
         }
     
         upstream apiserver {
-            server {{ printf "%s" (include "vmclarity.apiserver.name" .) }}:8888;
+            server {{ printf "%s" (include "openclarity.apiserver.name" .) }}:8888;
         }
 
         upstream swaggerui {
-          server {{ printf "%s" (include "vmclarity.swaggerUI.name" .) }}:8080;
+          server {{ printf "%s" (include "openclarity.swaggerUI.name" .) }}:8080;
         }
     
         server {

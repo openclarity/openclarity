@@ -1,7 +1,7 @@
 apiVersion: v2
-name: vmclarity
+name: openclarity
 description: |
-  VMClarity is an open source tool for agentless detection and management of
+  OpenClarity is an open source tool for agentless detection and management of
   Virtual Machine Software Bill Of Materials (SBOM) and security threats such
   as vulnerabilities, exploits, malware, rootkits, misconfigurations and leaked
   secrets.

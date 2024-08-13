@@ -1,15 +1,15 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "vmclarity.trivyServer.name" . }}
-  labels: {{- include "vmclarity.trivyServer.labels.standard" . | nindent 4 }}
+  name: {{ include "openclarity.trivyServer.name" . }}
+  labels: {{- include "openclarity.trivyServer.labels.standard" . | nindent 4 }}
 spec:
   selector:
-    matchLabels: {{- include "vmclarity.trivyServer.labels.matchLabels" . | nindent 6 }}
+    matchLabels: {{- include "openclarity.trivyServer.labels.matchLabels" . | nindent 6 }}
   replicas: {{ .Values.trivyServer.replicaCount }}
   template:
     metadata:
-      labels: {{- include "vmclarity.trivyServer.labels.standard" . | nindent 8 }}
+      labels: {{- include "openclarity.trivyServer.labels.standard" . | nindent 8 }}
     spec:
       {{- if .Values.trivyServer.affinity }}
       affinity: {{- .Values.trivyServer.affinity | toYaml | nindent 8 }}
@@ -25,7 +25,7 @@ spec:
       {{- end }}
       containers:
         - name: trivy-server
-          image: {{ include "vmclarity.images.image" ( dict "imageRoot" .Values.trivyServer.image "global" .Values.global ) }}
+          image: {{ include "openclarity.images.image" ( dict "imageRoot" .Values.trivyServer.image "global" .Values.global ) }}
           imagePullPolicy: {{ .Values.trivyServer.image.pullPolicy | quote }}
           {{- if .Values.trivyServer.containerSecurityContext.enabled }}
           securityContext: {{- omit .Values.trivyServer.containerSecurityContext "enabled" | toYaml | nindent 12 }}
@@ -50,4 +50,4 @@ spec:
           emptyDir: {}
         - name: tmp
           emptyDir: {}
-      serviceAccountName: {{ include "vmclarity.trivyServer.serviceAccountName" . }}
+      serviceAccountName: {{ include "openclarity.trivyServer.serviceAccountName" . }}

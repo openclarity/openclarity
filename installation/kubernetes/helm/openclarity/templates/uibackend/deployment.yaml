@@ -1,15 +1,15 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "vmclarity.uibackend.name" . }}
-  labels: {{- include "vmclarity.uibackend.labels.standard" . | nindent 4 }}
+  name: {{ include "openclarity.uibackend.name" . }}
+  labels: {{- include "openclarity.uibackend.labels.standard" . | nindent 4 }}
 spec:
   selector:
-    matchLabels: {{- include "vmclarity.uibackend.labels.matchLabels" . | nindent 6 }}
+    matchLabels: {{- include "openclarity.uibackend.labels.matchLabels" . | nindent 6 }}
   replicas: {{ .Values.uibackend.replicaCount }}
   template:
     metadata:
-      labels: {{- include "vmclarity.uibackend.labels.standard" . | nindent 8 }}
+      labels: {{- include "openclarity.uibackend.labels.standard" . | nindent 8 }}
     spec:
       {{- if .Values.uibackend.affinity }}
       affinity: {{- .Values.uibackend.affinity | toYaml | nindent 8 }}
@@ -25,7 +25,7 @@ spec:
       {{- end }}
       containers:
         - name: uibackend
-          image: {{ include "vmclarity.images.image" ( dict "imageRoot" .Values.uibackend.image "global" .Values.global ) }}
+          image: {{ include "openclarity.images.image" ( dict "imageRoot" .Values.uibackend.image "global" .Values.global ) }}
           imagePullPolicy: {{ .Values.uibackend.image.pullPolicy | quote }}
           {{- if .Values.uibackend.containerSecurityContext.enabled }}
           securityContext: {{- omit .Values.uibackend.containerSecurityContext "enabled" | toYaml | nindent 12 }}
@@ -58,7 +58,7 @@ spec:
             failureThreshold: 5
             timeoutSeconds: 10
           env:
-            # VMClarity API server address
+            # OpenClarity API server address
             - name: OPENCLARITY_UIBACKEND_APISERVER_ADDRESS
-              value: {{ printf "http://%s:%s" (include "vmclarity.apiserver.name" .) "8888" }}
-      serviceAccountName: {{ include "vmclarity.uibackend.serviceAccountName" . }}
+              value: {{ printf "http://%s:%s" (include "openclarity.apiserver.name" .) "8888" }}
+      serviceAccountName: {{ include "openclarity.uibackend.serviceAccountName" . }}

@@ -31,7 +31,7 @@ GOMODULES := $(shell find $(ROOT_DIR) -name 'go.mod' -exec dirname {} \;)
 BUILD_TIMESTAMP := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 COMMIT_HASH := $(shell git rev-parse HEAD)
 INSTALLATION_DIR := $(ROOT_DIR)/installation
-HELM_CHART_DIR := $(INSTALLATION_DIR)/kubernetes/helm/vmclarity
+HELM_CHART_DIR := $(INSTALLATION_DIR)/kubernetes/helm/openclarity
 HELM_OCI_REPOSITORY := ghcr.io/openclarity/charts
 DIST_DIR ?= $(ROOT_DIR)/dist
 BICEP_DIR := $(INSTALLATION_DIR)/azure
@@ -534,16 +534,16 @@ $(GCP_DM_DIST_DIR):
 	@mkdir -p $@
 
 HELM_CHART_FILES := $(shell find $(HELM_CHART_DIR))
-HELM_CHART_DIST_DIR := $(DIST_DIR)/helm-vmclarity-chart
+HELM_CHART_DIST_DIR := $(DIST_DIR)/helm-openclarity-chart
 
 .PHONY: dist-helm-chart
-dist-helm-chart: $(DIST_DIR)/vmclarity-$(VERSION:v%=%).tgz $(DIST_DIR)/vmclarity-$(VERSION:v%=%).tgz.sha256sum ## Create Helm Chart bundle
+dist-helm-chart: $(DIST_DIR)/openclarity-$(VERSION:v%=%).tgz $(DIST_DIR)/openclarity-$(VERSION:v%=%).tgz.sha256sum ## Create Helm Chart bundle
 
-$(DIST_DIR)/vmclarity-$(VERSION:v%=%).tgz: $(DIST_DIR)/helm-vmclarity-chart-$(VERSION:v%=%).bundle bin/helm | $(HELM_CHART_DIST_DIR)
+$(DIST_DIR)/openclarity-$(VERSION:v%=%).tgz: $(DIST_DIR)/helm-openclarity-chart-$(VERSION:v%=%).bundle bin/helm | $(HELM_CHART_DIST_DIR)
 	$(info --- Bundle $(HELM_CHART_DIST_DIR) into $(notdir $@))
 	$(HELM_BIN) package $(HELM_CHART_DIST_DIR) --version "$(VERSION:v%=%)" --app-version "$(VERSION)" --destination $(DIST_DIR)
 
-$(DIST_DIR)/helm-vmclarity-chart-$(VERSION:v%=%).bundle: $(HELM_CHART_FILES) bin/yq bin/helm-docs | $(HELM_CHART_DIST_DIR)
+$(DIST_DIR)/helm-openclarity-chart-$(VERSION:v%=%).bundle: $(HELM_CHART_FILES) bin/yq bin/helm-docs | $(HELM_CHART_DIST_DIR)
 	$(info --- Generate Helm Chart bundle)
 	cp -vR $(HELM_CHART_DIR)/* $(HELM_CHART_DIST_DIR)/
 	$(YQ_BIN) -i '.apiserver.image.tag = "$(VERSION)" | .orchestrator.image.tag = "$(VERSION)" | .orchestrator.scannerImage.tag = "$(VERSION)" | .ui.image.tag = "$(VERSION)" | .uibackend.image.tag = "$(VERSION)"' \
@@ -556,7 +556,7 @@ $(HELM_CHART_DIST_DIR):
 	@mkdir -p $@
 
 .PHONY: publish-helm-chart
-publish-helm-chart: $(DIST_DIR)/vmclarity-$(VERSION:v%=%).tgz bin/helm ## Publish Helm Chart bundle to OCI registry
+publish-helm-chart: $(DIST_DIR)/openclarity-$(VERSION:v%=%).tgz bin/helm ## Publish Helm Chart bundle to OCI registry
 	$(HELM_BIN) push $< oci://$(HELM_OCI_REPOSITORY)
 
 $(DIST_DIR)/%.sha256sum: | $(DIST_DIR)

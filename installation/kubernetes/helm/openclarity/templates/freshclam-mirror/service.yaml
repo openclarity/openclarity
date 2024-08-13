@@ -6,9 +6,9 @@ all replicas instead of relying on kube-proxy to do it.
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "vmclarity.freshclamMirror.name" . }}
+  name: {{ include "openclarity.freshclamMirror.name" . }}
   namespace: {{ .Release.Namespace | quote }}
-  labels: {{- include "vmclarity.freshclamMirror.labels.standard" . | nindent 4 }}
+  labels: {{- include "openclarity.freshclamMirror.labels.standard" . | nindent 4 }}
 spec:
   type: ClusterIP
   ports:
@@ -16,4 +16,4 @@ spec:
       protocol: TCP
       port: 1000
       targetPort: 80
-  selector: {{- include "vmclarity.freshclamMirror.labels.matchLabels" . | nindent 4 }}
+  selector: {{- include "openclarity.freshclamMirror.labels.matchLabels" . | nindent 4 }}

@@ -1,15 +1,15 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "vmclarity.yaraRuleServer.name" . }}
-  labels: {{- include "vmclarity.yaraRuleServer.labels.standard" . | nindent 4 }}
+  name: {{ include "openclarity.yaraRuleServer.name" . }}
+  labels: {{- include "openclarity.yaraRuleServer.labels.standard" . | nindent 4 }}
 spec:
   selector:
-    matchLabels: {{- include "vmclarity.yaraRuleServer.labels.matchLabels" . | nindent 6 }}
+    matchLabels: {{- include "openclarity.yaraRuleServer.labels.matchLabels" . | nindent 6 }}
   replicas: {{ .Values.yaraRuleServer.replicaCount }}
   template:
     metadata:
-      labels: {{- include "vmclarity.yaraRuleServer.labels.standard" . | nindent 8 }}
+      labels: {{- include "openclarity.yaraRuleServer.labels.standard" . | nindent 8 }}
     spec:
       {{- if .Values.yaraRuleServer.affinity }}
       affinity: {{- .Values.yaraRuleServer.affinity | toYaml | nindent 8 }}
@@ -25,7 +25,7 @@ spec:
       {{- end }}
       containers:
         - name: yara-rule-server
-          image: {{ include "vmclarity.images.image" ( dict "imageRoot" .Values.yaraRuleServer.image "global" .Values.global ) }}
+          image: {{ include "openclarity.images.image" ( dict "imageRoot" .Values.yaraRuleServer.image "global" .Values.global ) }}
           imagePullPolicy: {{ .Values.yaraRuleServer.image.pullPolicy | quote }}
           {{- if .Values.yaraRuleServer.containerSecurityContext.enabled }}
           securityContext: {{- omit .Values.yaraRuleServer.containerSecurityContext "enabled" | toYaml | nindent 12 }}
@@ -46,5 +46,5 @@ spec:
           emptyDir: {}
         - name: yara-rule-server-config
           configMap:
-            name: {{ include "vmclarity.yaraRuleServer.name" . }}
-      serviceAccountName: {{ include "vmclarity.yaraRuleServer.serviceAccountName" . }}
+            name: {{ include "openclarity.yaraRuleServer.name" . }}
+      serviceAccountName: {{ include "openclarity.yaraRuleServer.serviceAccountName" . }}

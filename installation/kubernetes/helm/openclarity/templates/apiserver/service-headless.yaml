@@ -6,9 +6,9 @@ all replicas using the DNS record instead of relying on kube-proxy to do it.
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "vmclarity.apiserver.name" . }}-hl
+  name: {{ include "openclarity.apiserver.name" . }}-hl
   namespace: {{ .Release.Namespace | quote }}
-  labels: {{- include "vmclarity.apiserver.labels.standard" . | nindent 4 }}
+  labels: {{- include "openclarity.apiserver.labels.standard" . | nindent 4 }}
 spec:
   type: ClusterIP
   clusterIP: None
@@ -17,4 +17,4 @@ spec:
       protocol: TCP
       port: 8888
       targetPort: 8888
-  selector: {{- include "vmclarity.apiserver.labels.matchLabels" . | nindent 4 }}
+  selector: {{- include "openclarity.apiserver.labels.matchLabels" . | nindent 4 }}

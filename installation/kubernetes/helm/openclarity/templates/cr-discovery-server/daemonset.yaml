@@ -2,14 +2,14 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: {{ include "vmclarity.crDiscoveryServer.name" . }}
-  labels: {{- include "vmclarity.crDiscoveryServer.labels.standard" . | nindent 4 }}
+  name: {{ include "openclarity.crDiscoveryServer.name" . }}
+  labels: {{- include "openclarity.crDiscoveryServer.labels.standard" . | nindent 4 }}
 spec:
   selector:
-    matchLabels: {{- include "vmclarity.crDiscoveryServer.labels.matchLabels" . | nindent 6 }}
+    matchLabels: {{- include "openclarity.crDiscoveryServer.labels.matchLabels" . | nindent 6 }}
   template:
     metadata:
-      labels: {{- include "vmclarity.crDiscoveryServer.labels.standard" . | nindent 8 }}
+      labels: {{- include "openclarity.crDiscoveryServer.labels.standard" . | nindent 8 }}
     spec:
       {{- if .Values.crDiscoveryServer.affinity }}
       affinity: {{- .Values.crDiscoveryServer.affinity | toYaml | nindent 8 }}
@@ -25,7 +25,7 @@ spec:
       {{- end }}
       containers:
         - name: cr-discovery-server
-          image: {{ include "vmclarity.images.image" ( dict "imageRoot" .Values.crDiscoveryServer.image "global" .Values.global ) }}
+          image: {{ include "openclarity.images.image" ( dict "imageRoot" .Values.crDiscoveryServer.image "global" .Values.global ) }}
           imagePullPolicy: {{ .Values.crDiscoveryServer.image.pullPolicy | quote }}
           {{- if .Values.crDiscoveryServer.containerSecurityContext.enabled }}
           securityContext: {{- omit .Values.crDiscoveryServer.containerSecurityContext "enabled" | toYaml | nindent 12 }}
@@ -47,5 +47,5 @@ spec:
         - name: containerd
           hostPath:
             path: /var/run/containerd
-      serviceAccountName: {{ include "vmclarity.crDiscoveryServer.serviceAccountName" . }}
+      serviceAccountName: {{ include "openclarity.crDiscoveryServer.serviceAccountName" . }}
 {{- end -}}

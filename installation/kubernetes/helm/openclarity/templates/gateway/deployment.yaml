@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "vmclarity.gateway.name" . }}
+  name: {{ include "openclarity.gateway.name" . }}
   namespace: {{ .Release.Namespace | quote }}
-  labels: {{- include "vmclarity.gateway.labels.standard" . | nindent 4 }}
+  labels: {{- include "openclarity.gateway.labels.standard" . | nindent 4 }}
 spec:
   selector:
-    matchLabels: {{- include "vmclarity.gateway.labels.matchLabels" . | nindent 6 }}
+    matchLabels: {{- include "openclarity.gateway.labels.matchLabels" . | nindent 6 }}
   replicas: {{ .Values.gateway.replicaCount }}
   template:
     metadata:
-      labels: {{- include "vmclarity.gateway.labels.standard" . | nindent 8 }}
+      labels: {{- include "openclarity.gateway.labels.standard" . | nindent 8 }}
       annotations:
         checksum/configmap: {{ include (print $.Template.BasePath "/gateway/configmap.yaml") . | sha256sum }}
     spec:
@@ -28,7 +28,7 @@ spec:
       {{- end }}
       containers:
         - name: gateway
-          image: {{ include "vmclarity.images.image" ( dict "imageRoot" .Values.gateway.image "global" .Values.global ) }}
+          image: {{ include "openclarity.images.image" ( dict "imageRoot" .Values.gateway.image "global" .Values.global ) }}
           imagePullPolicy: {{ .Values.gateway.image.pullPolicy | quote }}
           volumeMounts:
             - name: gateway-config
@@ -50,9 +50,9 @@ spec:
       volumes:
         - name: gateway-config
           configMap:
-            name: {{ include "vmclarity.gateway.name" . }}
+            name: {{ include "openclarity.gateway.name" . }}
         - name: tmpfs-1
           emptyDir: {}
         - name: tmpfs-2
           emptyDir: {}
-      serviceAccountName: {{ include "vmclarity.gateway.serviceAccountName" . }}
+      serviceAccountName: {{ include "openclarity.gateway.serviceAccountName" . }}

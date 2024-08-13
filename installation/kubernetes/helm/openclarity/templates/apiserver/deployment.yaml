@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "vmclarity.apiserver.name" . }}
+  name: {{ include "openclarity.apiserver.name" . }}
   namespace: {{ .Release.Namespace | quote }}
-  labels: {{- include "vmclarity.apiserver.labels.standard" . | nindent 4 }}
+  labels: {{- include "openclarity.apiserver.labels.standard" . | nindent 4 }}
 spec:
   selector:
-    matchLabels: {{- include "vmclarity.apiserver.labels.matchLabels" . | nindent 6 }}
+    matchLabels: {{- include "openclarity.apiserver.labels.matchLabels" . | nindent 6 }}
   replicas: {{ .Values.apiserver.replicaCount }}
   template:
     metadata:
-      labels: {{- include "vmclarity.apiserver.labels.standard" . | nindent 8 }}
+      labels: {{- include "openclarity.apiserver.labels.standard" . | nindent 8 }}
     spec:
       {{- if .Values.apiserver.affinity }}
       affinity: {{- .Values.apiserver.affinity | toYaml | nindent 8 }}
@@ -24,10 +24,10 @@ spec:
       {{- if .Values.apiserver.tolerations }}
       tolerations: {{- .Values.apiserver.tolerations | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "vmclarity.apiserver.serviceAccountName" . }}
+      serviceAccountName: {{ include "openclarity.apiserver.serviceAccountName" . }}
       containers:
         - name: apiserver
-          image: {{ include "vmclarity.images.image" ( dict "imageRoot" .Values.apiserver.image "global" .Values.global ) }}
+          image: {{ include "openclarity.images.image" ( dict "imageRoot" .Values.apiserver.image "global" .Values.global ) }}
           imagePullPolicy: {{ .Values.apiserver.image.pullPolicy | quote }}
           args:
             - run

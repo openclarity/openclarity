@@ -6,9 +6,9 @@ all replicas instead of relying on kube-proxy to do it.
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "vmclarity.trivyServer.name" . }}
+  name: {{ include "openclarity.trivyServer.name" . }}
   namespace: {{ .Release.Namespace | quote }}
-  labels: {{- include "vmclarity.trivyServer.labels.standard" . | nindent 4 }}
+  labels: {{- include "openclarity.trivyServer.labels.standard" . | nindent 4 }}
 spec:
   type: ClusterIP
   ports:
@@ -16,4 +16,4 @@ spec:
       protocol: TCP
       port: 9992
       targetPort: 9992
-  selector: {{- include "vmclarity.trivyServer.labels.matchLabels" . | nindent 4 }}
+  selector: {{- include "openclarity.trivyServer.labels.matchLabels" . | nindent 4 }}

@@ -1,8 +1,8 @@
-# vmclarity
+# openclarity
 
 ![Version: 0.0.0](https://img.shields.io/badge/Version-0.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
-VMClarity is an open source tool for agentless detection and management of
+OpenClarity is an open source tool for agentless detection and management of
 Virtual Machine Software Bill Of Materials (SBOM) and security threats such
 as vulnerabilities, exploits, malware, rootkits, misconfigurations and leaked
 secrets.

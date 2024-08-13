@@ -6,9 +6,9 @@ all replicas instead of relying on kube-proxy to do it.
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "vmclarity.swaggerUI.name" . }}-hl
+  name: {{ include "openclarity.swaggerUI.name" . }}-hl
   namespace: {{ .Release.Namespace | quote }}
-  labels: {{- include "vmclarity.swaggerUI.labels.standard" . | nindent 4 }}
+  labels: {{- include "openclarity.swaggerUI.labels.standard" . | nindent 4 }}
 spec:
   type: ClusterIP
   clusterIP: None
@@ -17,4 +17,4 @@ spec:
       protocol: TCP
       port: 8080
       targetPort: 8080
-  selector: {{- include "vmclarity.swaggerUI.labels.matchLabels" . | nindent 4 }}
+  selector: {{- include "openclarity.swaggerUI.labels.matchLabels" . | nindent 4 }}

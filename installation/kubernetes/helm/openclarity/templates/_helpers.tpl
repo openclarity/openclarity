@@ -1,24 +1,24 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "vmclarity.names.name" -}}
+{{- define "openclarity.names.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "vmclarity.names.chart" -}}
+{{- define "openclarity.names.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Kubernetes standard labels
 */}}
-{{- define "vmclarity.labels.standard" -}}
-{{ include "vmclarity.labels.matchLabels" . }}
+{{- define "openclarity.labels.standard" -}}
+{{ include "openclarity.labels.matchLabels" . }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
-helm.sh/chart: {{ include "vmclarity.names.chart" . }}
+helm.sh/chart: {{ include "openclarity.names.chart" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -27,8 +27,8 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{/*
 Labels to use on deploy.spec.selector.matchLabels and svc.spec.selector
 */}}
-{{- define "vmclarity.labels.matchLabels" -}}
-app.kubernetes.io/name: {{ include "vmclarity.names.name" . }}
+{{- define "openclarity.labels.matchLabels" -}}
+app.kubernetes.io/name: {{ include "openclarity.names.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}
 
@@ -37,7 +37,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "vmclarity.names.fullname" -}}
+{{- define "openclarity.names.fullname" -}}
 {{- if .Values.fullnameOverride -}}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
@@ -52,9 +52,9 @@ If release name contains chart name it will be used as a full name.
 
 {{/*
 Return the proper image name
-{{ include "vmclarity.images.image" ( dict "imageRoot" .Values.path.to.the.image "global" .Values.global ) }}
+{{ include "openclarity.images.image" ( dict "imageRoot" .Values.path.to.the.image "global" .Values.global ) }}
 */}}
-{{- define "vmclarity.images.image" -}}
+{{- define "openclarity.images.image" -}}
 {{- $registryName := .imageRoot.registry -}}
 {{- $repositoryName := .imageRoot.repository -}}
 {{- $separator := ":" -}}

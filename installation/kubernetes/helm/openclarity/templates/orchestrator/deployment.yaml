@@ -1,15 +1,15 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "vmclarity.orchestrator.name" . }}
-  labels: {{- include "vmclarity.orchestrator.labels.standard" . | nindent 4 }}
+  name: {{ include "openclarity.orchestrator.name" . }}
+  labels: {{- include "openclarity.orchestrator.labels.standard" . | nindent 4 }}
 spec:
   selector:
-    matchLabels: {{- include "vmclarity.orchestrator.labels.matchLabels" . | nindent 6 }}
+    matchLabels: {{- include "openclarity.orchestrator.labels.matchLabels" . | nindent 6 }}
   replicas: {{ .Values.orchestrator.replicaCount }}
   template:
     metadata:
-      labels: {{- include "vmclarity.orchestrator.labels.standard" . | nindent 8 }}
+      labels: {{- include "openclarity.orchestrator.labels.standard" . | nindent 8 }}
     spec:
       {{- if .Values.orchestrator.affinity }}
       affinity: {{- .Values.orchestrator.affinity | toYaml | nindent 8 }}
@@ -23,10 +23,10 @@ spec:
       {{- if .Values.orchestrator.tolerations }}
       tolerations: {{- .Values.orchestrator.tolerations | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "vmclarity.orchestrator.serviceAccountName" . }}
+      serviceAccountName: {{ include "openclarity.orchestrator.serviceAccountName" . }}
       containers:
         - name: orchestrator
-          image: {{ include "vmclarity.images.image" ( dict "imageRoot" .Values.orchestrator.image "global" .Values.global ) }}
+          image: {{ include "openclarity.images.image" ( dict "imageRoot" .Values.orchestrator.image "global" .Values.global ) }}
           imagePullPolicy: {{ .Values.orchestrator.image.pullPolicy | quote }}
           {{- if .Values.orchestrator.containerSecurityContext.enabled }}
           securityContext: {{- omit .Values.orchestrator.containerSecurityContext "enabled" | toYaml | nindent 12 }}
@@ -60,23 +60,23 @@ spec:
             timeoutSeconds: 10
           env:
             - name: OPENCLARITY_ORCHESTRATOR_APISERVER_ADDRESS
-              value: {{ printf "http://%s:%s" (include "vmclarity.apiserver.name" .) "8888" }}
+              value: {{ printf "http://%s:%s" (include "openclarity.apiserver.name" .) "8888" }}
             - name: OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_DELETE_POLICY
               value: {{ .Values.orchestrator.deleteJobPolicy }}
             - name: OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_CONTAINER_IMAGE
-              value: {{ include "vmclarity.images.image" ( dict "imageRoot" .Values.orchestrator.scannerImage "global" .Values.global ) }}
+              value: {{ include "openclarity.images.image" ( dict "imageRoot" .Values.orchestrator.scannerImage "global" .Values.global ) }}
             - name: OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_APISERVER_ADDRESS
-              value: {{ .Values.orchestrator.scannerApiServerAddress | default (printf "http://%s:%s" (include "vmclarity.apiserver.name" .) "8888") }}
+              value: {{ .Values.orchestrator.scannerApiServerAddress | default (printf "http://%s:%s" (include "openclarity.apiserver.name" .) "8888") }}
             - name: OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_EXPLOITSDB_ADDRESS
-              value: {{ .Values.orchestrator.exploitsDBAddress | default (printf "http://%s:%s" (include "vmclarity.exploitDBServer.name" .) "1326") }}
+              value: {{ .Values.orchestrator.exploitsDBAddress | default (printf "http://%s:%s" (include "openclarity.exploitDBServer.name" .) "1326") }}
             - name: OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_TRIVY_SERVER_ADDRESS
-              value: {{ .Values.orchestrator.trivyServerAddress | default (printf "http://%s:%s" (include "vmclarity.trivyServer.name" .) "9992") }}
+              value: {{ .Values.orchestrator.trivyServerAddress | default (printf "http://%s:%s" (include "openclarity.trivyServer.name" .) "9992") }}
             - name: OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_GRYPE_SERVER_ADDRESS
-              value: {{ .Values.orchestrator.grypeServerAddress | default (printf "%s:%s" (include "vmclarity.grypeServer.name" .) "9991") }}
+              value: {{ .Values.orchestrator.grypeServerAddress | default (printf "%s:%s" (include "openclarity.grypeServer.name" .) "9991") }}
             - name: OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_FRESHCLAM_MIRROR
-              value: {{ .Values.orchestrator.freshclamMirrorAddress | default (printf "http://%s:%s" (include "vmclarity.freshclamMirror.name" .) "1000") }}
+              value: {{ .Values.orchestrator.freshclamMirrorAddress | default (printf "http://%s:%s" (include "openclarity.freshclamMirror.name" .) "1000") }}
             - name: OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_YARA_RULE_SERVER_ADDRESS
-              value: {{ .Values.orchestrator.yaraRuleServerAddress | default (printf "http://%s:%s" (include "vmclarity.yaraRuleServer.name" .) "9993") }}
+              value: {{ .Values.orchestrator.yaraRuleServerAddress | default (printf "http://%s:%s" (include "openclarity.yaraRuleServer.name" .) "9993") }}
             - name: OPENCLARITY_ORCHESTRATOR_PROVIDER
               value: {{ .Values.orchestrator.provider }}
 

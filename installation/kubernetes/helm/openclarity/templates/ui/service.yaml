@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "vmclarity.ui.name" . }}
+  name: {{ include "openclarity.ui.name" . }}
   namespace: {{ .Release.Namespace | quote }}
-  labels: {{- include "vmclarity.ui.labels.standard" . | nindent 4 }}
+  labels: {{- include "openclarity.ui.labels.standard" . | nindent 4 }}
 spec:
   type: ClusterIP
   ports:
@@ -11,4 +11,4 @@ spec:
       protocol: TCP
       port: 80
       targetPort: 80
-  selector: {{- include "vmclarity.ui.labels.matchLabels" . | nindent 4 }}
+  selector: {{- include "openclarity.ui.labels.matchLabels" . | nindent 4 }}
