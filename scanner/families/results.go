@@ -36,7 +36,7 @@ func (r *results) GetAllFamilyResults() []any {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
-	var ret []any
+	ret := make([]any, 0, len(r.results))
 	for _, result := range r.results {
 		ret = append(ret, result)
 	}

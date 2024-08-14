@@ -24,13 +24,13 @@ import (
 	"github.com/openclarity/openclarity/scanner/families"
 )
 
-// ConfigType define families.Scanner configuration type
+// ConfigType define families.Scanner configuration type.
 type ConfigType any
 
-// ResultType define families.Scanner scan result type
+// ResultType define families.Scanner scan result type.
 type ResultType any
 
-// NewScannerFunc defines a function that creates a new families.Scanner
+// NewScannerFunc defines a function that creates a new families.Scanner.
 type NewScannerFunc[CT ConfigType, RT ResultType] func(context.Context, string, CT) (families.Scanner[RT], error)
 
 type Factory[CT ConfigType, RT ResultType] struct {
