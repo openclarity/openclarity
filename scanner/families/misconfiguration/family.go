@@ -59,7 +59,7 @@ func (m Misconfiguration) Run(ctx context.Context, _ families.ResultStore) (*typ
 		if familiesutils.ShouldStripInputPath(scan.StripPathFromResult, m.conf.StripInputPaths) {
 			scan.Result = stripPathFromResult(scan.Result, scan.Input)
 		}
-		misconfigurations.Merge(scan.ScanInfo, scan.Result)
+		misconfigurations.Merge(scan.Info, scan.Result)
 	}
 
 	return misconfigurations, nil

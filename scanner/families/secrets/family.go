@@ -59,7 +59,7 @@ func (s Secrets) Run(ctx context.Context, _ families.ResultStore) (*types.Result
 		if familiesutils.ShouldStripInputPath(scan.StripPathFromResult, s.conf.StripInputPaths) {
 			scan.Result = stripPathFromResult(scan.Result, scan.Input)
 		}
-		secrets.Merge(scan.ScanInfo, scan.Result)
+		secrets.Merge(scan.Info, scan.Result)
 	}
 
 	return secrets, nil

@@ -59,7 +59,7 @@ func (i InfoFinder) Run(ctx context.Context, _ families.ResultStore) (*types.Res
 		if familiesutils.ShouldStripInputPath(scan.StripPathFromResult, i.conf.StripInputPaths) {
 			scan.Result = stripPathFromResult(scan.Result, scan.Input)
 		}
-		infos.Merge(scan.ScanInfo, scan.Result)
+		infos.Merge(scan.Info, scan.Result)
 	}
 
 	return infos, nil

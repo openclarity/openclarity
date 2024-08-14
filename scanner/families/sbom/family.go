@@ -89,7 +89,7 @@ func (s SBOM) Run(ctx context.Context, _ families.ResultStore) (*types.Result, e
 		logger.Infof("Merging result from %q", scan)
 
 		metadata.Merge(families.ScannerMetadata{
-			ScanInfo:      scan.ScanInfo,
+			ScanInfo:      scan.Info,
 			TotalFindings: scan.Result.GetTotalFindings(),
 		})
 		mergedResults = mergedResults.Merge(scan.Result)

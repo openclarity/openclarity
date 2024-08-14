@@ -59,7 +59,7 @@ func (r Rootkits) Run(ctx context.Context, _ families.ResultStore) (*types.Resul
 		if familiesutils.ShouldStripInputPath(scan.StripPathFromResult, r.conf.StripInputPaths) {
 			scan.Result = stripPathFromResult(scan.Result, scan.Input)
 		}
-		rootkits.Merge(scan.ScanInfo, scan.Result)
+		rootkits.Merge(scan.Info, scan.Result)
 	}
 
 	return rootkits, nil

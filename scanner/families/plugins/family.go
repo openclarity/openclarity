@@ -72,7 +72,7 @@ func (p *Plugins) Run(ctx context.Context, _ families.ResultStore) (*types.Resul
 	for _, scan := range scans {
 		logger.Infof("Merging result from %q", scan)
 
-		pluginsResults.Merge(scan.ScanInfo, scan.Result)
+		pluginsResults.Merge(scan.Info, scan.Result)
 	}
 
 	return pluginsResults, nil

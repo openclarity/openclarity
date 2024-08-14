@@ -33,12 +33,12 @@ import (
 // ScanResult is result of a successfully scanned input.
 type ScanResult[RT ResultType] struct {
 	common.ScanInput
-	common.ScanInfo
+	Info   common.ScanInfo
 	Result RT
 }
 
 func (r ScanResult[RT]) String() string {
-	return r.ScanInfo.String()
+	return r.Info.String()
 }
 
 // Manager allows parallelized scan of inputs for a single families.Family that
@@ -148,7 +148,7 @@ func (m *Manager[CT, RT]) scanInput(ctx context.Context, scannerName string, sca
 
 	return ScanResult[RT]{
 		ScanInput: input,
-		ScanInfo: common.ScanInfo{
+		Info: common.ScanInfo{
 			ScannerName: scannerName,
 			InputType:   input.InputType,
 			InputPath:   input.Input,
