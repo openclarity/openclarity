@@ -56,7 +56,7 @@ func (e *AWSEnv) prepareStack(ctx context.Context) error {
 		return fmt.Errorf("failed to create bucket: %w", err)
 	}
 
-	f, err := installation.AWSManifestBundle.Open("VmClarity.cfn")
+	f, err := installation.AWSManifestBundle.Open("OpenClarity.cfn")
 	if err != nil {
 		return fmt.Errorf("failed to read template file: %w", err)
 	}
@@ -188,7 +188,7 @@ func (e *AWSEnv) getServer(ctx context.Context) (*Server, error) {
 		return nil, fmt.Errorf("failed to list stack resources: %w", err)
 	}
 
-	// Get VMClarity Server EC2 instance ID
+	// Get OpenClarity Server EC2 instance ID
 	var serverInstanceID string
 	for _, resource := range resources.StackResourceSummaries {
 		if *resource.ResourceType == "AWS::EC2::Instance" {
@@ -231,11 +231,11 @@ func (e *AWSEnv) infrastructureReady(ctx context.Context) (bool, error) {
 		return false, nil
 	}
 
-	// Get VMClarity Server EC2 instance status
+	// Get OpenClarity Server EC2 instance status
 	// If the server status is not running, then the infrastructure are not ready
 	e.server, err = e.getServer(ctx)
 	if err != nil {
-		return false, fmt.Errorf("failed to get VMClarity server: %w", err)
+		return false, fmt.Errorf("failed to get OpenClarity server: %w", err)
 	}
 
 	ready, err = e.isEC2InstanceReady(ctx, e.server.InstanceID)

@@ -20,7 +20,7 @@ import (
 )
 
 const (
-	ApplicationName = "vmclarity"
+	ApplicationName = "openclarity"
 
 	ContainerStateRunning = "running"
 	ContainerStateExited  = "exited"

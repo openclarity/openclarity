@@ -1,6 +1,6 @@
 # E2E tests
 
-VMClarity's end-to-end tests use the [Ginkgo](https://onsi.github.io/ginkgo/) test framework and the [Gomega](https://onsi.github.io/gomega/) matcher/assertion library to leverage behavior driven testing (BDD).
+OpenClarity's end-to-end tests use the [Ginkgo](https://onsi.github.io/ginkgo/) test framework and the [Gomega](https://onsi.github.io/gomega/) matcher/assertion library to leverage behavior driven testing (BDD).
 
 This test module is composed by:
 

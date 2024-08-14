@@ -68,7 +68,7 @@ func (e *DockerHelper) Services(ctx context.Context) (envtypes.Services, error) 
 	containerFilters := filters.NewArgs([]filters.KeyValuePair{
 		{
 			Key:   "label",
-			Value: api.ProjectLabel + "=vmclarity",
+			Value: api.ProjectLabel + "=openclarity",
 		},
 	}...)
 	containers, err := e.client.ContainerList(ctx, container.ListOptions{

@@ -231,18 +231,18 @@ func TestConfig(t *testing.T) {
 						},
 					},
 					AWS: &awsenv.Config{
-						EnvName:        "vmclarity-testenv",
+						EnvName:        "openclarity-testenv",
 						Region:         "eu-central-1",
 						PrivateKeyFile: "",
 						PublicKeyFile:  "",
 					},
 					GCP: &gcpenv.Config{
-						EnvName:        "vmclarity-testenv",
+						EnvName:        "openclarity-testenv",
 						PrivateKeyFile: "",
 						PublicKeyFile:  "",
 					},
 					Azure: &azureenv.Config{
-						EnvName:        "vmclarity-testenv",
+						EnvName:        "openclarity-testenv",
 						Region:         "eastus",
 						PrivateKeyFile: "",
 						PublicKeyFile:  "",

@@ -62,7 +62,7 @@ func checkAzureEnvVars() error {
 }
 
 func (e *AzureEnv) createAzureResources(ctx context.Context) error {
-	templateFile, err := installation.AzureManifestBundle.ReadFile("vmclarity.json")
+	templateFile, err := installation.AzureManifestBundle.ReadFile("openclarity.json")
 	if err != nil {
 		return fmt.Errorf("failed to read template file: %w", err)
 	}
@@ -128,7 +128,7 @@ func (e *AzureEnv) createTestParams() map[string]interface{} {
 }
 
 func (e *AzureEnv) setServerConnection(ctx context.Context) error {
-	// get the public IP address of the VMClarity server
+	// get the public IP address of the OpenClarity server
 	serverPublicIP, err := e.publicIPAddressesClient.Get(ctx, fmt.Sprintf(bicepFileResourcesFormat, e.postfix), fmt.Sprintf(bicepFileResourcesFormat, "server-public-ip"), &armnetwork.PublicIPAddressesClientGetOptions{})
 	if err != nil {
 		return fmt.Errorf("failed to get the public IP address of the server: %w", err)

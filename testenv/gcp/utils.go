@@ -30,26 +30,26 @@ import (
 )
 
 const (
-	FileVMClarityInstallScriptSchema = "components/vmclarity_install_script.py.schema"
-	FileVMClarityServerSchema        = "components/vmclarity-server.py.schema"
-	FileVMClaritySchema              = "vmclarity.py.schema"
-	FileVMClarity                    = "vmclarity.py"
-	FileVMClarityInstallScript       = "components/vmclarity_install_script.py"
-	FileVMClarityInstall             = "components/vmclarity-install.sh"
-	FileVMClarityServer              = "components/vmclarity-server.py"
-	FileNetwork                      = "components/network.py"
-	FileFirewallRules                = "components/firewall-rules.py"
-	FileStaticIP                     = "components/static-ip.py"
-	FileServiceAccount               = "components/service-account.py"
-	FileRoles                        = "components/roles.py"
-	FileCloudRouter                  = "components/cloud-router.py"
+	FileOpenClarityInstallScriptSchema = "components/openclarity_install_script.py.schema"
+	FileOpenClarityServerSchema        = "components/openclarity-server.py.schema"
+	FileOpenClaritySchema              = "openclarity.py.schema"
+	FileOpenClarity                    = "openclarity.py"
+	FileOpenClarityInstallScript       = "components/openclarity_install_script.py"
+	FileOpenClarityInstall             = "components/openclarity-install.sh"
+	FileOpenClarityServer              = "components/openclarity-server.py"
+	FileNetwork                        = "components/network.py"
+	FileFirewallRules                  = "components/firewall-rules.py"
+	FileStaticIP                       = "components/static-ip.py"
+	FileServiceAccount                 = "components/service-account.py"
+	FileRoles                          = "components/roles.py"
+	FileCloudRouter                    = "components/cloud-router.py"
 )
 
 func (e *GCPEnv) afterSetUp(ctx context.Context) error {
 	req := &computepb.GetInstanceRequest{
 		Project:  ProjectID,
 		Zone:     Zone,
-		Instance: "vmclarity-" + e.envName + "-server",
+		Instance: "openclarity-" + e.envName + "-server",
 	}
 	server, err := e.instancesClient.Get(ctx, req)
 	if err != nil {
@@ -95,23 +95,23 @@ func (e *GCPEnv) afterSetUp(ctx context.Context) error {
 }
 
 func (e *GCPEnv) createExample() (string, error) {
-	vmclarityConfigExampleYaml, err := installation.GCPManifestBundle.ReadFile("vmclarity-config.example.yaml")
+	openclarityConfigExampleYaml, err := installation.GCPManifestBundle.ReadFile("openclarity-config.example.yaml")
 	if err != nil {
 		return "", fmt.Errorf("failed to read file: %w", err)
 	}
-	return strings.Replace(string(vmclarityConfigExampleYaml), "<SSH Public Key>", string(e.sshKeyPair.PublicKey), -1), nil
+	return strings.Replace(string(openclarityConfigExampleYaml), "<SSH Public Key>", string(e.sshKeyPair.PublicKey), -1), nil
 }
 
 func createDeploymentImports() ([]*deploymentmanager.ImportFile, error) {
-	vmclarityPy, err := installation.GCPManifestBundle.ReadFile(FileVMClarity)
+	openclarityPy, err := installation.GCPManifestBundle.ReadFile(FileOpenClarity)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
-	vmclarityPySchema, err := installation.GCPManifestBundle.ReadFile(FileVMClaritySchema)
+	openclarityPySchema, err := installation.GCPManifestBundle.ReadFile(FileOpenClaritySchema)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
-	vmclarityServerPy, err := installation.GCPManifestBundle.ReadFile(FileVMClarityServer)
+	openclarityServerPy, err := installation.GCPManifestBundle.ReadFile(FileOpenClarityServer)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
@@ -139,35 +139,35 @@ func createDeploymentImports() ([]*deploymentmanager.ImportFile, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
-	vmclarityInstallScriptPy, err := installation.GCPManifestBundle.ReadFile(FileVMClarityInstallScript)
+	openclarityInstallScriptPy, err := installation.GCPManifestBundle.ReadFile(FileOpenClarityInstallScript)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
-	vmclarityInstallSh, err := installation.GCPManifestBundle.ReadFile(FileVMClarityInstall)
+	openclarityInstallSh, err := installation.GCPManifestBundle.ReadFile(FileOpenClarityInstall)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
-	vmclarityServerPySchema, err := installation.GCPManifestBundle.ReadFile(FileVMClarityServerSchema)
+	openclarityServerPySchema, err := installation.GCPManifestBundle.ReadFile(FileOpenClarityServerSchema)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
-	vmclarityInstallScriptPySchema, err := installation.GCPManifestBundle.ReadFile(FileVMClarityInstallScriptSchema)
+	openclarityInstallScriptPySchema, err := installation.GCPManifestBundle.ReadFile(FileOpenClarityInstallScriptSchema)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
 
 	return []*deploymentmanager.ImportFile{
 		{
-			Content: string(vmclarityPy),
-			Name:    FileVMClarity,
+			Content: string(openclarityPy),
+			Name:    FileOpenClarity,
 		},
 		{
-			Content: string(vmclarityPySchema),
-			Name:    FileVMClaritySchema,
+			Content: string(openclarityPySchema),
+			Name:    FileOpenClaritySchema,
 		},
 		{
-			Content: string(vmclarityServerPy),
-			Name:    FileVMClarityServer,
+			Content: string(openclarityServerPy),
+			Name:    FileOpenClarityServer,
 		},
 		{
 			Content: string(networkPy),
@@ -194,20 +194,20 @@ func createDeploymentImports() ([]*deploymentmanager.ImportFile, error) {
 			Name:    FileCloudRouter,
 		},
 		{
-			Content: string(vmclarityInstallScriptPy),
-			Name:    filepath.Base(FileVMClarityInstallScript),
+			Content: string(openclarityInstallScriptPy),
+			Name:    filepath.Base(FileOpenClarityInstallScript),
 		},
 		{
-			Content: string(vmclarityInstallSh),
-			Name:    filepath.Base(FileVMClarityInstall),
+			Content: string(openclarityInstallSh),
+			Name:    filepath.Base(FileOpenClarityInstall),
 		},
 		{
-			Content: string(vmclarityServerPySchema),
-			Name:    FileVMClarityServerSchema,
+			Content: string(openclarityServerPySchema),
+			Name:    FileOpenClarityServerSchema,
 		},
 		{
-			Content: string(vmclarityInstallScriptPySchema),
-			Name:    FileVMClarityInstallScriptSchema,
+			Content: string(openclarityInstallScriptPySchema),
+			Name:    FileOpenClarityInstallScriptSchema,
 		},
 	}, nil
 }
