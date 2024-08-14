@@ -45,7 +45,7 @@ func (s SBOM) GetType() families.FamilyType {
 }
 
 // nolint:cyclop
-func (s SBOM) Run(ctx context.Context, _ *families.Results) (*types.Result, error) {
+func (s SBOM) Run(ctx context.Context, _ families.ResultStore) (*types.Result, error) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	if len(s.conf.Inputs) == 0 {
@@ -69,7 +69,7 @@ func (s SBOM) Run(ctx context.Context, _ *families.Results) (*types.Result, erro
 
 	// Run all scanners using scan manager
 	manager := scan_manager.New(s.conf.AnalyzersList, s.conf, Factory)
-	results, err := manager.Scan(ctx, s.conf.Inputs)
+	scans, err := manager.Scan(ctx, s.conf.Inputs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to process inputs for sbom: %w", err)
 	}
@@ -81,15 +81,18 @@ func (s SBOM) Run(ctx context.Context, _ *families.Results) (*types.Result, erro
 	}
 
 	// Create result
-	metadata := families.ScanMetadata{}
+	metadata := families.FamilyMetadata{}
 	mergedResults := newMergedResults(s.conf.Inputs[0].InputType, hash)
 
 	// Merge results
-	for _, result := range results {
-		logger.Infof("Merging result from %q", result.Metadata)
+	for _, scan := range scans {
+		logger.Infof("Merging result from %q", scan)
 
-		metadata.Merge(result.Metadata)
-		mergedResults = mergedResults.Merge(result.ScanResult)
+		metadata.Merge(families.ScannerMetadata{
+			ScanInfo:      scan.ScanInfo,
+			TotalFindings: scan.Result.GetTotalFindings(),
+		})
+		mergedResults = mergedResults.Merge(scan.Result)
 	}
 
 	for i, with := range s.conf.MergeWith {
@@ -101,10 +104,13 @@ func (s SBOM) Run(ctx context.Context, _ *families.Results) (*types.Result, erro
 		results := types.CreateScannerResult(cdxBOMBytes, name, with.SbomPath, common.SBOM)
 		logger.Infof("Merging result from %q", with.SbomPath)
 
-		metadata.Merge(families.ScanInputMetadata{
-			ScannerName: name,
-			InputType:   common.SBOM,
-			InputPath:   with.SbomPath,
+		metadata.Merge(families.ScannerMetadata{
+			ScanInfo: common.ScanInfo{
+				ScannerName: name,
+				InputType:   common.SBOM,
+				InputPath:   with.SbomPath,
+			},
+			TotalFindings: results.GetTotalFindings(),
 		})
 		mergedResults = mergedResults.Merge(results)
 	}

@@ -45,3 +45,11 @@ func CreateScannerResult(sbomBytes *cdx.BOM, analyzerName, userInput string, src
 		},
 	}
 }
+
+func (r *ScannerResult) GetTotalFindings() int {
+	if r == nil || r.Sbom == nil || r.Sbom.Components == nil {
+		return 0
+	}
+
+	return len(*r.Sbom.Components)
+}

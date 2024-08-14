@@ -40,7 +40,7 @@ func (p *Plugins) GetType() families.FamilyType {
 	return families.Plugins
 }
 
-func (p *Plugins) Run(ctx context.Context, _ *families.Results) (*types.Result, error) {
+func (p *Plugins) Run(ctx context.Context, _ families.ResultStore) (*types.Result, error) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	// Register plugins dynamically instead of creating a public factory. Users that
@@ -61,7 +61,7 @@ func (p *Plugins) Run(ctx context.Context, _ *families.Results) (*types.Result, 
 	}
 
 	manager := scan_manager.New(p.conf.ScannersList, p.conf.ScannersConfig, factory)
-	results, err := manager.Scan(ctx, p.conf.Inputs)
+	scans, err := manager.Scan(ctx, p.conf.Inputs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to process inputs for plugins: %w", err)
 	}
@@ -69,9 +69,10 @@ func (p *Plugins) Run(ctx context.Context, _ *families.Results) (*types.Result, 
 	pluginsResults := types.NewResult()
 
 	// Merge results
-	for _, result := range results {
-		logger.Infof("Merging result from %q", result.Metadata.ScannerName)
-		pluginsResults.Merge(result.Metadata, result.ScanResult)
+	for _, scan := range scans {
+		logger.Infof("Merging result from %q", scan)
+
+		pluginsResults.Merge(scan.ScanInfo, scan.Result)
 	}
 
 	return pluginsResults, nil

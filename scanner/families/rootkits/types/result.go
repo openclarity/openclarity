@@ -16,12 +16,13 @@
 package types
 
 import (
+	"github.com/openclarity/openclarity/scanner/common"
 	"github.com/openclarity/openclarity/scanner/families"
 )
 
 type Result struct {
-	Metadata families.ScanMetadata `json:"Metadata"`
-	Rootkits []Rootkit             `json:"Rootkits"`
+	Metadata families.FamilyMetadata `json:"Metadata"`
+	Rootkits []Rootkit               `json:"Rootkits"`
 }
 
 func NewResult() *Result {
@@ -30,8 +31,11 @@ func NewResult() *Result {
 	}
 }
 
-func (r *Result) Merge(meta families.ScanInputMetadata, rootkits []Rootkit) {
-	r.Metadata.Merge(meta)
+func (r *Result) Merge(scan common.ScanInfo, rootkits []Rootkit) {
+	r.Metadata.Merge(families.ScannerMetadata{
+		ScanInfo:      scan,
+		TotalFindings: len(rootkits),
+	})
 
 	r.Rootkits = append(r.Rootkits, rootkits...)
 }

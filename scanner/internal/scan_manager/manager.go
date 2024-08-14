@@ -30,20 +30,26 @@ import (
 	familiesutils "github.com/openclarity/openclarity/scanner/families/utils"
 )
 
-type InputScanResult[T any] struct {
-	Metadata   families.ScanInputMetadata
-	ScanInput  common.ScanInput
-	ScanResult T
+// ScanResult is result of a successfully scanned input.
+type ScanResult[RT ResultType] struct {
+	common.ScanInput
+	common.ScanInfo
+	Result RT
 }
 
-// Manager allows parallelized scan of inputs for a single family scanner factory.
-type Manager[CT, RT any] struct {
+func (r ScanResult[RT]) String() string {
+	return r.ScanInfo.String()
+}
+
+// Manager allows parallelized scan of inputs for a single families.Family that
+// consists of multiple families.Scanner.
+type Manager[CT ConfigType, RT ResultType] struct {
 	config   CT
 	scanners []string
 	factory  *Factory[CT, RT]
 }
 
-func New[CT, RT any](scanners []string, config CT, factory *Factory[CT, RT]) *Manager[CT, RT] {
+func New[CT ConfigType, RT ResultType](scanners []string, config CT, factory *Factory[CT, RT]) *Manager[CT, RT] {
 	return &Manager[CT, RT]{
 		config:   config,
 		scanners: scanners,
@@ -51,7 +57,7 @@ func New[CT, RT any](scanners []string, config CT, factory *Factory[CT, RT]) *Ma
 	}
 }
 
-func (m *Manager[CT, RT]) Scan(ctx context.Context, inputs []common.ScanInput) ([]InputScanResult[RT], error) {
+func (m *Manager[CT, RT]) Scan(ctx context.Context, inputs []common.ScanInput) ([]ScanResult[RT], error) {
 	logger := log.GetLoggerFromContextOrDefault(ctx)
 	logger.WithField("inputs", inputs).Infof("Scanning inputs in progress...")
 
@@ -71,7 +77,7 @@ func (m *Manager[CT, RT]) Scan(ctx context.Context, inputs []common.ScanInput) (
 
 	// Create worker pool and schedule all scan jobs. Do not cancel on error. Do not
 	// limit the number of parallel workers.
-	workerPool := pool.NewWithResults[InputScanResult[RT]]().WithContext(ctx)
+	workerPool := pool.NewWithResults[ScanResult[RT]]().WithContext(ctx)
 
 	for _, scannerName := range m.scanners {
 		// Override context with scanner params
@@ -80,7 +86,7 @@ func (m *Manager[CT, RT]) Scan(ctx context.Context, inputs []common.ScanInput) (
 		})
 
 		// Create scanner, skip scheduling scan tasks if we cannot create the scanner itself.
-		scanner, err := m.factory.createScanner(ctx, scannerName, m.config)
+		scanner, err := m.factory.newScanner(ctx, scannerName, m.config)
 		if err != nil {
 			logger.WithError(err).Errorf("Failed to create scanner %s", scannerName)
 			scanErrs = append(scanErrs, fmt.Errorf("failed to create scanner %s: %w", scannerName, err))
@@ -89,30 +95,33 @@ func (m *Manager[CT, RT]) Scan(ctx context.Context, inputs []common.ScanInput) (
 
 		// Submit scanner job for each input pair
 		for _, input := range inputs {
-			workerPool.Go(func(ctx context.Context) (InputScanResult[RT], error) {
+			workerPool.Go(func(ctx context.Context) (ScanResult[RT], error) {
 				return m.scanInput(ctx, scannerName, scanner, input)
 			})
 		}
 	}
 
 	// Start workers and collect results and errs
-	results, err := workerPool.Wait()
+	scans, err := workerPool.Wait()
 	if err != nil {
 		scanErrs = append(scanErrs, err)
 	}
 
 	// Return error if all jobs failed to return results.
 	// TODO: should it be configurable? allow the user to decide failure threshold?
-	if len(results) == 0 {
-		return nil, errors.Join(scanErrs...) // nolint:wrapcheck
+	if len(scans) == 0 {
+		err := errors.Join(scanErrs...)
+		logger.WithError(err).Errorf("Scanning inputs failed with %d errors", len(scanErrs))
+
+		return nil, err // nolint:wrapcheck
 	}
 
 	logger.Infof("Scanning inputs finished with success")
 
-	return results, nil
+	return scans, nil
 }
 
-func (m *Manager[CT, RT]) scanInput(ctx context.Context, scannerName string, scanner families.Scanner[RT], input common.ScanInput) (InputScanResult[RT], error) {
+func (m *Manager[CT, RT]) scanInput(ctx context.Context, scannerName string, scanner families.Scanner[RT], input common.ScanInput) (ScanResult[RT], error) {
 	// Override context with scan request params
 	ctx, logger := log.NewContextLoggerOrDefault(ctx, map[string]interface{}{
 		"scanner": scannerName,
@@ -125,27 +134,28 @@ func (m *Manager[CT, RT]) scanInput(ctx context.Context, scannerName string, sca
 
 	// Run scan
 	startTime := time.Now()
-	scanResult, scanErr := scanner.Scan(ctx, input.InputType, input.Input)
+	result, err := scanner.Scan(ctx, input.InputType, input.Input)
+	if err != nil {
+		logger.WithError(err).Warnf("Scan job %q for input %s failed", scannerName, input)
 
-	// Create scan metadata
-	endTime := time.Now()
-	inputSize, _ := familiesutils.GetInputSize(input)
-	metadata := families.NewScanInputMetadata(scannerName, startTime, endTime, inputSize, input)
-
-	// Log and handle scan result
-	if scanErr != nil {
-		logger.WithError(scanErr).WithField("metadata", metadata).
-			Warnf("Scan job %q for input %s failed", scannerName, input)
-
-		return InputScanResult[RT]{}, fmt.Errorf("scan job %q for input %s failed, reason: %w", scannerName, input, scanErr)
+		return ScanResult[RT]{}, fmt.Errorf("scan job %q failed for input %s, reason: %w", scannerName, input, err)
 	}
 
-	logger.WithField("metadata", metadata).
-		Infof("Scan job %q for input %s succeeded", scannerName, input)
+	logger.Infof("Scan job %q for input %s succeeded", scannerName, input)
 
-	return InputScanResult[RT]{
-		Metadata:   metadata,
-		ScanInput:  input,
-		ScanResult: scanResult,
+	// Fetch input size
+	inputSize, _ := familiesutils.GetInputSize(input)
+
+	return ScanResult[RT]{
+		ScanInput: input,
+		ScanInfo: common.ScanInfo{
+			ScannerName: scannerName,
+			InputType:   input.InputType,
+			InputPath:   input.Input,
+			InputSize:   inputSize,
+			StartTime:   startTime,
+			EndTime:     time.Now(),
+		},
+		Result: result,
 	}, nil
 }

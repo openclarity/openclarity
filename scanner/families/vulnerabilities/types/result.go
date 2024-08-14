@@ -21,6 +21,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	apitypes "github.com/openclarity/openclarity/api/types"
+	"github.com/openclarity/openclarity/scanner/common"
 	"github.com/openclarity/openclarity/scanner/families"
 	"github.com/openclarity/openclarity/scanner/utils/image_helper"
 )
@@ -33,7 +34,7 @@ type Source struct {
 }
 
 type Result struct {
-	Metadata             families.ScanMetadata              `json:"Metadata"`
+	Metadata             families.FamilyMetadata            `json:"Metadata"`
 	Source               Source                             `json:"Source"`
 	VulnerabilitiesByKey map[VulnerabilityKey]Vulnerability `json:"VulnerabilitiesByKey"`
 }
@@ -84,13 +85,15 @@ func (r *Result) ToSlice() []Vulnerability {
 	return ret
 }
 
-func (r *Result) Merge(meta families.ScanInputMetadata, result *ScannerResult) {
-	r.Metadata.Merge(meta)
-
-	// Skip further merge if scanner result is empty
+func (r *Result) Merge(scan common.ScanInfo, result *ScannerResult) {
 	if result == nil {
 		return
 	}
+
+	r.Metadata.Merge(families.ScannerMetadata{
+		ScanInfo:      scan,
+		TotalFindings: len(result.Vulnerabilities),
+	})
 
 	for _, vulnerability := range result.Vulnerabilities {
 		key := NewVulnerabilityKey(vulnerability)

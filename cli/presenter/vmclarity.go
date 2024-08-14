@@ -221,22 +221,23 @@ func (v *VMClarityPresenter) ExportSecretsResult(ctx context.Context, res famili
 	return nil
 }
 
-func getInputScanStats(metadata families.ScanMetadata) *[]apitypes.AssetScanInputScanStats {
-	if len(metadata.Inputs) == 0 {
+func getInputScanStats(metadata families.FamilyMetadata) *[]apitypes.AssetScanInputScanStats {
+	if len(metadata.Scans) == 0 {
 		return nil
 	}
 
-	ret := make([]apitypes.AssetScanInputScanStats, 0, len(metadata.Inputs))
-	for i := range metadata.Inputs {
-		scan := metadata.Inputs[i]
+	ret := make([]apitypes.AssetScanInputScanStats, 0, len(metadata.Scans))
+	for _, scan := range metadata.Scans {
 		ret = append(ret, apitypes.AssetScanInputScanStats{
-			Path: &scan.InputPath,
+			Scanner:       &scan.ScannerName,
+			Path:          &scan.InputPath,
+			Type:          to.Ptr[string](string(scan.InputType)),
+			Size:          &scan.InputSize,
+			FindingsCount: &scan.TotalFindings,
 			ScanTime: &apitypes.AssetScanScanTime{
 				EndTime:   &scan.EndTime,
 				StartTime: &scan.StartTime,
 			},
-			Size: &scan.InputSize,
-			Type: to.Ptr[string](string(scan.InputType)),
 		})
 	}
 
@@ -551,7 +552,7 @@ func (v *VMClarityPresenter) ExportPluginsResult(ctx context.Context, res famili
 			)
 			assetScan.Plugins.FindingInfos = &pluginResults.Findings
 			// TODO Total plugins should be split by type
-			assetScan.Summary.TotalPlugins = to.Ptr(pluginResults.TotalFindings())
+			assetScan.Summary.TotalPlugins = to.Ptr(len(pluginResults.Findings))
 			assetScan.Stats.Plugins = getInputScanStats(pluginResults.Metadata)
 		}
 	}

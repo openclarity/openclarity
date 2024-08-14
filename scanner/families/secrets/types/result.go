@@ -16,20 +16,24 @@
 package types
 
 import (
+	"github.com/openclarity/openclarity/scanner/common"
 	"github.com/openclarity/openclarity/scanner/families"
 )
 
 type Result struct {
-	Metadata families.ScanMetadata `json:"Metadata"`
-	Findings []Finding             `json:"Findings"`
+	Metadata families.FamilyMetadata `json:"Metadata"`
+	Findings []Finding               `json:"Findings"`
 }
 
 func NewResult() *Result {
 	return &Result{}
 }
 
-func (r *Result) Merge(meta families.ScanInputMetadata, findings []Finding) {
-	r.Metadata.Merge(meta)
+func (r *Result) Merge(scan common.ScanInfo, findings []Finding) {
+	r.Metadata.Merge(families.ScannerMetadata{
+		ScanInfo:      scan,
+		TotalFindings: len(findings),
+	})
 
 	r.Findings = append(r.Findings, findings...)
 }

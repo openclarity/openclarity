@@ -18,11 +18,12 @@ package types
 import (
 	apitypes "github.com/openclarity/openclarity/api/types"
 	plugintypes "github.com/openclarity/openclarity/plugins/sdk-go/types"
+	"github.com/openclarity/openclarity/scanner/common"
 	"github.com/openclarity/openclarity/scanner/families"
 )
 
 type Result struct {
-	Metadata      families.ScanMetadata         `json:"Metadata"`
+	Metadata      families.FamilyMetadata       `json:"Metadata"`
 	Findings      []apitypes.FindingInfo        `json:"Findings"`
 	PluginOutputs map[string]plugintypes.Result `json:"PluginOutputs"`
 }
@@ -33,15 +34,16 @@ func NewResult() *Result {
 	}
 }
 
-func (r *Result) TotalFindings() int {
-	return len(r.Findings)
-}
-
-func (r *Result) Merge(meta families.ScanInputMetadata, result *ScannerResult) {
-	r.Metadata.Merge(meta)
-
-	if result != nil {
-		r.Findings = append(r.Findings, result.Findings...)
-		r.PluginOutputs[meta.ScannerName] = result.Output
+func (r *Result) Merge(scan common.ScanInfo, result *ScannerResult) {
+	if result == nil {
+		return
 	}
+
+	r.Metadata.Merge(families.ScannerMetadata{
+		ScanInfo:      scan,
+		TotalFindings: len(result.Findings),
+	})
+
+	r.Findings = append(r.Findings, result.Findings...)
+	r.PluginOutputs[scan.ScannerName] = result.Output
 }
