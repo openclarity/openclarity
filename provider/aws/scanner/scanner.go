@@ -40,15 +40,17 @@ import (
 var _ provider.Scanner = &Scanner{}
 
 type Scanner struct {
-	Kind                apitypes.CloudProvider
-	ScannerRegion       string
-	BlockDeviceName     string
-	ScannerImage        string
-	ScannerInstanceType string
-	SecurityGroupID     string
-	SubnetID            string
-	KeyPairName         string
-	Ec2Client           *ec2.Client
+	Kind                        apitypes.CloudProvider
+	ScannerRegion               string
+	BlockDeviceName             string
+	ScannerImageNameFilter      string
+	ScannerImageOwners          []string
+	ScannerInstanceType         string
+	ScannerInstanceArchitecture string
+	SecurityGroupID             string
+	SubnetID                    string
+	KeyPairName                 string
+	Ec2Client                   *ec2.Client
 }
 
 // nolint:cyclop,gocognit,maintidx,wrapcheck
@@ -478,37 +480,17 @@ func (s *Scanner) createInstance(ctx context.Context, region string, config *pro
 	}
 	userDataBase64 := base64.StdEncoding.EncodeToString([]byte(userData))
 
-	// Determine the architecture used for creating Scanner instance
-	var architecture string
-	if config.InstanceArchToUse != "" {
-		architecture = config.InstanceArchToUse
-	} else {
-		vmInfo, err := config.TargetInfo.AsVMInfo()
-		if err != nil {
-			return nil, FatalError{Err: err}
-		}
-		architecture = *vmInfo.Architecture
-	}
-
 	// Find AMI for Scanner instance based on the architecture
-	imageID, err := c.imageIDByArchitectureType(ctx, architecture)
+	imageID, err := s.imageIDByArchitectureType(ctx, s.ScannerInstanceArchitecture)
 	if err != nil {
-		return nil, FatalError{Err: err}
-	}
-
-	// Find architecture specific InstanceType for Scanner instance
-	instanceType, ok := c.config.InstanceTypeMapping[architecture]
-	if !ok {
-		return nil, FatalError{
-			Err: fmt.Errorf("failed to find instance type for architecture. Arch=%s", architecture),
-		}
+		return nil, fmt.Errorf("failed to find AMI for architecture. Arch=%s: %w", s.ScannerInstanceArchitecture, err)
 	}
 
 	runParams := &ec2.RunInstancesInput{
 		MaxCount:     to.Ptr[int32](1),
 		MinCount:     to.Ptr[int32](1),
 		ImageId:      to.Ptr(imageID),
-		InstanceType: ec2types.InstanceType(instanceType),
+		InstanceType: ec2types.InstanceType(s.ScannerInstanceType),
 		TagSpecifications: []ec2types.TagSpecification{
 			{
 				ResourceType: ec2types.ResourceTypeInstance,
@@ -752,28 +734,28 @@ func getSecurityGroupsFromEC2GroupIdentifiers(identifiers []ec2types.GroupIdenti
 	return ret
 }
 
-func (c *Client) imageIDByArchitectureType(ctx context.Context, archType string) (string, error) {
+func (s *Scanner) imageIDByArchitectureType(ctx context.Context, archType string) (string, error) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	opts := func(options *ec2.Options) {
-		options.Region = c.config.ScannerRegion
+		options.Region = s.ScannerRegion
 	}
 
 	filters := []ec2types.Filter{
 		{
-			Name:   utils.PointerTo(ArchitectureFilterName),
+			Name:   to.Ptr(types.ArchitectureFilterName),
 			Values: []string{archType},
 		},
 		{
-			Name:   utils.PointerTo(ENASupportFilterName),
+			Name:   to.Ptr(types.ENASupportFilterName),
 			Values: []string{"true"},
 		},
 		{
-			Name:   utils.PointerTo(AMINameFilterName),
-			Values: []string{c.config.ImageNameFilter},
+			Name:   to.Ptr(types.AMINameFilterName),
+			Values: []string{s.ScannerImageNameFilter},
 		},
 		{
-			Name:   utils.PointerTo(VirtualizationTypeFilterName),
+			Name:   to.Ptr(types.VirtualizationTypeFilterName),
 			Values: []string{"hvm"},
 		},
 	}
@@ -781,14 +763,14 @@ func (c *Client) imageIDByArchitectureType(ctx context.Context, archType string)
 	imagesParams := &ec2.DescribeImagesInput{
 		ExecutableUsers:   []string{"all"},
 		Filters:           filters,
-		IncludeDeprecated: utils.PointerTo(false),
-		Owners:            c.config.ImageOwners,
+		IncludeDeprecated: to.Ptr(false),
+		Owners:            s.ScannerImageOwners,
 	}
 
-	images, err := c.ec2Client.DescribeImages(ctx, imagesParams, opts)
+	images, err := s.Ec2Client.DescribeImages(ctx, imagesParams, opts)
 	if err != nil {
 		return "", fmt.Errorf("failed to fetch AMI for architecture type. ArchType=%s ImageNameFilter=%s: %w",
-			archType, c.config.ImageNameFilter, err)
+			archType, s.ScannerImageNameFilter, err)
 	}
 
 	// Find the latest image
@@ -811,7 +793,7 @@ func (c *Client) imageIDByArchitectureType(ctx context.Context, archType string)
 
 	if imageID == "" {
 		return imageID, fmt.Errorf("failed to find AMI for architecture type. ArchType=%s ImageNameFilter=%s",
-			archType, c.config.ImageNameFilter)
+			archType, s.ScannerImageNameFilter)
 	}
 
 	return imageID, nil

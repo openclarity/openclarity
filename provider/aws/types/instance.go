@@ -18,6 +18,7 @@ package types
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
@@ -29,6 +30,11 @@ import (
 	"github.com/openclarity/openclarity/core/to"
 	"github.com/openclarity/openclarity/provider"
 	"github.com/openclarity/openclarity/provider/aws/utils"
+)
+
+const (
+	AMD64 = "x86_64"
+	ARM64 = "arm64"
 )
 
 type Instance struct {
@@ -171,4 +177,29 @@ func (i *Instance) AttachVolume(ctx context.Context, volume *Volume, deviceName 
 	return utils.FatalError{
 		Err: fmt.Errorf("failed to find volume. VolumeID=%s", volume.ID),
 	}
+}
+
+type InstanceTypeMapping map[string]string
+
+func (m *InstanceTypeMapping) UnmarshalText(text []byte) error {
+	mapping := make(InstanceTypeMapping)
+	items := strings.Split(string(text), ",")
+
+	numOfParts := 2
+	for _, item := range items {
+		pair := strings.Split(item, ":")
+		if len(pair) != numOfParts {
+			continue
+		}
+
+		switch pair[0] {
+		case AMD64, ARM64:
+			mapping[pair[0]] = pair[1]
+		default:
+			return fmt.Errorf("unsupported architecture: %s", pair[0])
+		}
+	}
+	*m = mapping
+
+	return nil
 }

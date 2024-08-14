@@ -18,29 +18,28 @@ package aws
 import (
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
+
+	"github.com/openclarity/openclarity/provider/aws/types"
 )
 
 const (
-	DefaultEnvPrefix       = "OPENCLARITY_AWS"
-	DefaultImageNameFilter = "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-*"
-	DefaultBlockDeviceName = "xvdh"
-
-	AMD64 = "x86_64"
-	ARM64 = "arm64"
+	DefaultEnvPrefix                   = "OPENCLARITY_AWS"
+	DefaultScannerImageNameFilter      = "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-*"
+	DefaultScannerInstanceArchitecture = types.AMD64
+	DefaultBlockDeviceName             = "xvdh"
 )
 
 var (
-	DefaultImageOwners = []string{
+	DefaultScannerImageOwners = []string{
 		"099720109477", // Official Ubuntu Cloud account
 	}
 
-	DefaultInstanceTypeMapping = map[string]string{
-		AMD64: "t3.large",
-		ARM64: "t4g.large",
+	DefaultScannerInstanceTypeMapping = map[string]string{
+		types.AMD64: "t3.large",
+		types.ARM64: "t4g.large",
 	}
 )
 
@@ -52,18 +51,18 @@ type Config struct {
 	// SecurityGroupID which needs to be attached to the Scanner instance
 	SecurityGroupID string `mapstructure:"security_group_id"`
 	// KeyPairName is the name of the SSH KeyPair to use for Scanner instance launch
-	KeyPairName     string `mapstructure:"keypair_name"`
-	ImageNameFilter string `mapstructure:"image_filter_name"`
+	KeyPairName            string `mapstructure:"keypair_name"`
+	ScannerImageNameFilter string `mapstructure:"scanner_image_filter_name"`
 	// ImageOwners is a comma separated list of OwnerID(s)/OwnerAliases used as Owners filter for finding AMI
 	// to instantiate Scanner instance.
 	// See: https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeImages.html
-	ImageOwners []string `mapstructure:"image_owners"`
+	ScannerImageOwners []string `mapstructure:"scanner_image_owners"`
 	// InstanceTypeMapping contains Architecture:InstanceType pairs
-	InstanceTypeMapping InstanceTypeMapping `mapstructure:"instance_type_mapping"`
-	// InstanceArchToUse contains the architecture to be used for Scanner instance which prevents the Provider
+	ScannerInstanceTypeMapping types.InstanceTypeMapping `mapstructure:"scanner_instance_type_mapping"`
+	// ScannerInstanceArchitecture contains the architecture to be used for Scanner instance which prevents the Provider
 	// to dynamically determine it based on the Target architecture. The Provider will use this value to lookup
 	// for InstanceType in InstanceTypeMapping.
-	InstanceArchToUse string `mapstructure:"instance_arch_to_use"`
+	ScannerInstanceArchitecture string `mapstructure:"scanner_instance_architecture"`
 	// BlockDeviceName contains the block device name used for attaching Scanner volume to the Scanner instance
 	BlockDeviceName string `mapstructure:"block_device_name"`
 }
@@ -81,40 +80,9 @@ func (c *Config) Validate() error {
 		return errors.New("parameter SecurityGroupID must be provided")
 	}
 
-	switch c.InstanceArchToUse {
-	case AMD64, ARM64:
-		if _, ok := c.InstanceTypeMapping[c.InstanceArchToUse]; !ok {
-			return fmt.Errorf("invalid InstanceArchToUse: %s architecture is missing from InstanceTypeMapping", c.InstanceArchToUse)
-		}
-	case "":
-	default:
-		return fmt.Errorf("invalid InstanceArchToUse: %s is not supported", c.InstanceArchToUse)
+	if _, ok := c.ScannerInstanceTypeMapping[c.ScannerInstanceArchitecture]; !ok {
+		return fmt.Errorf("failed to find instance type for architecture. Arch=%s", c.ScannerInstanceArchitecture)
 	}
-
-	return nil
-}
-
-type InstanceTypeMapping map[string]string
-
-func (m *InstanceTypeMapping) UnmarshalText(text []byte) error {
-	mapping := make(InstanceTypeMapping)
-	items := strings.Split(string(text), ",")
-
-	numOfParts := 2
-	for _, item := range items {
-		pair := strings.Split(item, ":")
-		if len(pair) != numOfParts {
-			continue
-		}
-
-		switch pair[0] {
-		case AMD64, ARM64:
-			mapping[pair[0]] = pair[1]
-		default:
-			return fmt.Errorf("unsupported architecture: %s", pair[0])
-		}
-	}
-	*m = mapping
 
 	return nil
 }
@@ -131,18 +99,18 @@ func NewConfig() (*Config, error) {
 	_ = v.BindEnv("subnet_id")
 	_ = v.BindEnv("security_group_id")
 	_ = v.BindEnv("keypair_name")
-	_ = v.BindEnv("scanner_ami_id")
 
-	_ = v.BindEnv("image_filter_name")
-	v.SetDefault("image_filter_name", DefaultImageNameFilter)
+	_ = v.BindEnv("scanner_image_filter_name")
+	v.SetDefault("scanner_image_filter_name", DefaultScannerImageNameFilter)
 
-	_ = v.BindEnv("image_owners")
-	v.SetDefault("image_owners", DefaultImageOwners)
+	_ = v.BindEnv("scanner_image_owners")
+	v.SetDefault("scanner_image_owners", DefaultScannerImageOwners)
 
-	_ = v.BindEnv("instance_type_mapping")
-	v.SetDefault("instance_type_mapping", DefaultInstanceTypeMapping)
+	_ = v.BindEnv("scanner_instance_type_mapping")
+	v.SetDefault("scanner_instance_type_mapping", DefaultScannerInstanceTypeMapping)
 
-	_ = v.BindEnv("instance_arch_to_use")
+	_ = v.BindEnv("scanner_instance_architecture")
+	v.SetDefault("scanner_instance_architecture", DefaultScannerInstanceArchitecture)
 
 	_ = v.BindEnv("block_device_name")
 	v.SetDefault("block_device_name", DefaultBlockDeviceName)

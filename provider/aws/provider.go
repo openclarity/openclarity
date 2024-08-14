@@ -60,24 +60,32 @@ func New(ctx context.Context) (provider.Provider, error) {
 
 	ec2Client := ec2.NewFromConfig(cfg)
 
+	// Find architecture specific InstanceType for Scanner instance
+	scannerInstanceType, ok := config.ScannerInstanceTypeMapping[config.ScannerInstanceArchitecture]
+	if !ok {
+		return nil, fmt.Errorf("failed to find instance type for architecture. Arch=%s", config.ScannerInstanceArchitecture)
+	}
+
 	return &Provider{
 		Discoverer: &discoverer.Discoverer{
 			Ec2Client: ec2Client,
 		},
 		Scanner: &scanner.Scanner{
-			Kind:                apitypes.AWS,
-			ScannerRegion:       config.ScannerRegion,
-			BlockDeviceName:     config.BlockDeviceName,
-			ScannerImage:        config.ScannerImage,
-			ScannerInstanceType: config.ScannerInstanceType,
-			SecurityGroupID:     config.SecurityGroupID,
-			SubnetID:            config.SubnetID,
-			KeyPairName:         config.KeyPairName,
-			Ec2Client:           ec2Client,
+			Kind:                        apitypes.AWS,
+			ScannerRegion:               config.ScannerRegion,
+			BlockDeviceName:             config.BlockDeviceName,
+			ScannerImageNameFilter:      config.ScannerImageNameFilter,
+			ScannerImageOwners:          config.ScannerImageOwners,
+			ScannerInstanceType:         scannerInstanceType,
+			ScannerInstanceArchitecture: config.ScannerInstanceArchitecture,
+			SecurityGroupID:             config.SecurityGroupID,
+			SubnetID:                    config.SubnetID,
+			KeyPairName:                 config.KeyPairName,
+			Ec2Client:                   ec2Client,
 		},
 		Estimator: &estimator.Estimator{
 			ScannerRegion:       config.ScannerRegion,
-			ScannerInstanceType: config.ScannerInstanceType,
+			ScannerInstanceType: scannerInstanceType,
 			ScanEstimator:       scanestimation.New(pricing.NewFromConfig(cfg), ec2Client),
 			Ec2Client:           ec2Client,
 		},
