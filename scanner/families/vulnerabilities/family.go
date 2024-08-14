@@ -48,13 +48,13 @@ func (v Vulnerabilities) GetType() families.FamilyType {
 	return families.Vulnerabilities
 }
 
-func (v Vulnerabilities) Run(ctx context.Context, res *families.Results) (*types.Result, error) {
+func (v Vulnerabilities) Run(ctx context.Context, store families.ResultStore) (*types.Result, error) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	if v.conf.InputFromSbom {
 		logger.Infof("Using input from SBOM results")
 
-		sbomResults, err := families.GetFamilyResult[*sbomtypes.Result](res)
+		sbomResults, err := families.GetFamilyResultByType[*sbomtypes.Result](store)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get sbom results: %w", err)
 		}
@@ -81,7 +81,7 @@ func (v Vulnerabilities) Run(ctx context.Context, res *families.Results) (*types
 
 	// Run all scanners using scan manager
 	manager := scan_manager.New(v.conf.ScannersList, v.conf, Factory)
-	results, err := manager.Scan(ctx, v.conf.Inputs)
+	scans, err := manager.Scan(ctx, v.conf.Inputs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to process inputs for vulnerabilities: %w", err)
 	}
@@ -89,9 +89,10 @@ func (v Vulnerabilities) Run(ctx context.Context, res *families.Results) (*types
 	vulnerabilities := types.NewResult()
 
 	// Merge results
-	for _, result := range results {
-		logger.Infof("Merging result from %q", result.Metadata)
-		vulnerabilities.Merge(result.Metadata, result.ScanResult)
+	for _, scan := range scans {
+		logger.Infof("Merging result from %q", scan)
+
+		vulnerabilities.Merge(scan.Info, scan.Result)
 	}
 
 	// TODO:

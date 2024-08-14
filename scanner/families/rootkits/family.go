@@ -40,12 +40,12 @@ func (r Rootkits) GetType() families.FamilyType {
 	return families.Rootkits
 }
 
-func (r Rootkits) Run(ctx context.Context, _ *families.Results) (*types.Result, error) {
+func (r Rootkits) Run(ctx context.Context, _ families.ResultStore) (*types.Result, error) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	// Run all scanners using scan manager
 	manager := scan_manager.New(r.conf.ScannersList, r.conf.ScannersConfig, Factory)
-	results, err := manager.Scan(ctx, r.conf.Inputs)
+	scans, err := manager.Scan(ctx, r.conf.Inputs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to process inputs for rootkits: %w", err)
 	}
@@ -53,13 +53,13 @@ func (r Rootkits) Run(ctx context.Context, _ *families.Results) (*types.Result, 
 	rootkits := types.NewResult()
 
 	// Merge results
-	for _, result := range results {
-		logger.Infof("Merging result from %q", result.Metadata)
+	for _, scan := range scans {
+		logger.Infof("Merging result from %q", scan)
 
-		if familiesutils.ShouldStripInputPath(result.ScanInput.StripPathFromResult, r.conf.StripInputPaths) {
-			result.ScanResult = stripPathFromResult(result.ScanResult, result.ScanInput.Input)
+		if familiesutils.ShouldStripInputPath(scan.StripPathFromResult, r.conf.StripInputPaths) {
+			scan.Result = stripPathFromResult(scan.Result, scan.Input)
 		}
-		rootkits.Merge(result.Metadata, result.ScanResult)
+		rootkits.Merge(scan.Info, scan.Result)
 	}
 
 	return rootkits, nil

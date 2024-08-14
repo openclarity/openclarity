@@ -170,6 +170,9 @@ var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, mi
 				gomega.Expect(skipDBLockedErr(err)).NotTo(gomega.HaveOccurred())
 				return *findings.Count > 0
 			}, DefaultTimeout*2, DefaultPeriod).Should(gomega.BeTrue())
+
+			// TODO(ramizpolic): Add test that checks if AssetScanInputScanStats were updated.
+			// TODO(ramizpolic): AssetScanInputScanStats should be used to fetch benchmarking details.
 		})
 	})
 

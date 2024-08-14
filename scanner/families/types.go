@@ -17,8 +17,6 @@ package families
 
 import (
 	"context"
-	"fmt"
-	"time"
 
 	"github.com/openclarity/openclarity/scanner/common"
 )
@@ -37,20 +35,26 @@ const (
 	Plugins          FamilyType = "plugins"
 )
 
+// ResultStore manages family result data to enable cross-family runs.
+type ResultStore interface {
+	GetFamilyResult(family FamilyType) (any, bool)
+	GetAllFamilyResults() []any
+	SetFamilyResult(family FamilyType, result any)
+}
+
 // Family defines interface required to fully run a family.
 type Family[T any] interface {
 	GetType() FamilyType
-	Run(context.Context, *Results) (T, error)
+	Run(ctx context.Context, store ResultStore) (T, error)
 }
 
-// Scanner defines implementation of a family scanner. It should be
-// concurrently-safe as Scan can be called concurrently.
+// Scanner defines implementation of a family scanner.
+// Should be safe for concurrent use.
 type Scanner[T any] interface {
 	Scan(ctx context.Context, sourceType common.InputType, userInput string) (T, error)
 }
 
-// FamilyResult defines an object that FamilyNotifier receives on successful
-// Family.Run.
+// FamilyResult defines an object that FamilyNotifier receives on finished Family.Run.
 type FamilyResult struct {
 	FamilyType FamilyType
 	Result     any
@@ -58,52 +62,38 @@ type FamilyResult struct {
 }
 
 // FamilyNotifier is used to subscribe to family scanning progress.
-// Implementation should be concurrently-safe.
+// Should be safe for concurrent use.
 type FamilyNotifier interface {
-	FamilyStarted(context.Context, FamilyType) error
-	FamilyFinished(context.Context, FamilyResult) error
+	FamilyStarted(ctx context.Context, familyType FamilyType) error
+	FamilyFinished(ctx context.Context, resp FamilyResult) error
 }
 
-// ScanInputMetadata is metadata about a single input scan for a specific Family.
-type ScanInputMetadata struct {
-	ScannerName string           `json:"scanner_name" yaml:"scanner_name" mapstructure:"scanner_name"`
-	InputType   common.InputType `json:"input_type" yaml:"input_type" mapstructure:"input_type"`
-	InputPath   string           `json:"input_path" yaml:"input_path" mapstructure:"input_path"`
-	InputSize   int64            `json:"input_size" yaml:"input_size" mapstructure:"input_size"`
-	StartTime   time.Time        `json:"start_time" yaml:"start_time" mapstructure:"start_time"`
-	EndTime     time.Time        `json:"end_time" yaml:"end_time" mapstructure:"end_time"`
+// FamilyMetadataObject is an interface to interact with FamilyMetadata.
+type FamilyMetadataObject interface {
+	GetAnnotations() map[string]string
+	GetScans() []ScannerMetadata
+	SetAnnotations(annotations map[string]string)
+	SetScans(scans []ScannerMetadata)
+	Merge(scan ScannerMetadata)
 }
 
-func NewScanInputMetadata(scannerName string, startTime, endTime time.Time, inputSize int64, input common.ScanInput) ScanInputMetadata {
-	return ScanInputMetadata{
-		ScannerName: scannerName,
-		InputType:   input.InputType,
-		InputPath:   input.Input,
-		InputSize:   inputSize,
-		StartTime:   startTime,
-		EndTime:     endTime,
-	}
+// ScannerMetadataObject is an interface to interact with ScannerMetadata.
+type ScannerMetadataObject interface {
+	GetScanInfo() common.ScanInfo
+	GetTotalFindings() int
+	SetScanInfo(scanInfo common.ScanInfo)
+	SetTotalFindings(findings int)
 }
 
-func (m ScanInputMetadata) String() string {
-	return fmt.Sprintf("Scanner=%s Input=%s:%s InputSize=%d MB", m.ScannerName, m.InputType, m.InputPath, m.InputSize)
+// FamilyMetadata defines common family-specific result metadata.
+type FamilyMetadata struct {
+	Annotations map[string]string `json:"annotations"`
+	Scans       []ScannerMetadata `json:"scans"`
 }
 
-// ScanMetadata is metadata about multiple input scans for a specific Family.
-type ScanMetadata struct {
-	Inputs    []ScanInputMetadata `json:"inputs" yaml:"inputs" mapstructure:"inputs"`
-	StartTime time.Time           `json:"start_time" yaml:"start_time" mapstructure:"start_time"`
-	EndTime   time.Time           `json:"end_time" yaml:"end_time" mapstructure:"end_time"`
-}
+// ScannerMetadata defines common (family) scanner-specific result metadata.
+type ScannerMetadata struct {
+	common.ScanInfo `json:"info"` // embed scan info
 
-func (s *ScanMetadata) Merge(meta ScanInputMetadata) {
-	s.Inputs = append(s.Inputs, meta)
-
-	if s.StartTime.IsZero() || s.StartTime.After(meta.StartTime) {
-		s.StartTime = meta.StartTime
-	}
-
-	if s.EndTime.IsZero() || s.EndTime.Before(meta.EndTime) {
-		s.EndTime = meta.EndTime
-	}
+	TotalFindings int `json:"total_findings"`
 }

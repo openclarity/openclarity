@@ -40,12 +40,12 @@ func (i InfoFinder) GetType() families.FamilyType {
 	return families.InfoFinder
 }
 
-func (i InfoFinder) Run(ctx context.Context, _ *families.Results) (*types.Result, error) {
+func (i InfoFinder) Run(ctx context.Context, _ families.ResultStore) (*types.Result, error) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	// Run all scanners using scan manager
 	manager := scan_manager.New(i.conf.ScannersList, i.conf.ScannersConfig, Factory)
-	results, err := manager.Scan(ctx, i.conf.Inputs)
+	scans, err := manager.Scan(ctx, i.conf.Inputs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to process inputs for infofinders: %w", err)
 	}
@@ -53,13 +53,13 @@ func (i InfoFinder) Run(ctx context.Context, _ *families.Results) (*types.Result
 	infos := types.NewResult()
 
 	// Merge results
-	for _, result := range results {
-		logger.Infof("Merging result from %q", result.Metadata)
+	for _, scan := range scans {
+		logger.Infof("Merging result from %q", scan)
 
-		if familiesutils.ShouldStripInputPath(result.ScanInput.StripPathFromResult, i.conf.StripInputPaths) {
-			result.ScanResult = stripPathFromResult(result.ScanResult, result.ScanInput.Input)
+		if familiesutils.ShouldStripInputPath(scan.StripPathFromResult, i.conf.StripInputPaths) {
+			scan.Result = stripPathFromResult(scan.Result, scan.Input)
 		}
-		infos.Merge(result.Metadata, result.ScanResult)
+		infos.Merge(scan.Info, scan.Result)
 	}
 
 	return infos, nil

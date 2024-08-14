@@ -2922,16 +2922,22 @@ components:
       type: object
       description: Statistics per asset scan input.
       properties:
-        type:
-          description: The input type (ROOTFS, DIR, IMAGE etc.)
+        scanner:
+          description: Name of the scanner that performed this scan.
           type: string
         path:
           description: The input path (/mnt/snapshot for ex.)
+          type: string
+        type:
+          description: The input type (ROOTFS, DIR, IMAGE etc.)
           type: string
         size:
           description: The input size in MB.
           type: integer
           format: int64
+        findingsCount:
+          description: Total number of findings discovered by the scan.
+          type: integer
         scanTime:
           $ref: '#/components/schemas/AssetScanScanTime'
 

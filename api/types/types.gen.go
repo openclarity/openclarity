@@ -464,9 +464,15 @@ type AssetScanGeneralStats struct {
 
 // AssetScanInputScanStats Statistics per asset scan input.
 type AssetScanInputScanStats struct {
+	// FindingsCount Total number of findings discovered by the scan.
+	FindingsCount *int `json:"findingsCount,omitempty"`
+
 	// Path The input path (/mnt/snapshot for ex.)
 	Path     *string            `json:"path,omitempty"`
 	ScanTime *AssetScanScanTime `json:"scanTime,omitempty"`
+
+	// Scanner Name of the scanner that performed this scan.
+	Scanner *string `json:"scanner,omitempty"`
 
 	// Size The input size in MB.
 	Size *int64 `json:"size,omitempty"`

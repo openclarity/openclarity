@@ -32,7 +32,7 @@ func New[T any](family families.Family[T]) *Runner[T] {
 	return &Runner[T]{family: family}
 }
 
-func (r *Runner[T]) Run(ctx context.Context, notifier families.FamilyNotifier, results *families.Results) []error {
+func (r *Runner[T]) Run(ctx context.Context, notifier families.FamilyNotifier, store families.ResultStore) []error {
 	var errs []error
 
 	// Override context with family params
@@ -50,7 +50,7 @@ func (r *Runner[T]) Run(ctx context.Context, notifier families.FamilyNotifier, r
 	}
 
 	// Run family
-	result, err := r.family.Run(ctx, results)
+	result, err := r.family.Run(ctx, store)
 	familyResult := families.FamilyResult{
 		Result:     result,
 		FamilyType: familyType,
@@ -72,7 +72,7 @@ func (r *Runner[T]) Run(ctx context.Context, notifier families.FamilyNotifier, r
 		logger.Infof("Family %q finished with success", familyType)
 
 		// Set result in shared object for the family
-		results.SetFamilyResult(result)
+		store.SetFamilyResult(familyType, result)
 	}
 
 	// Notify about finish

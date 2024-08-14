@@ -25,11 +25,11 @@ import (
 )
 
 type Result struct {
-	Metadata families.ScanMetadata `json:"Metadata"`
-	SBOM     *cdx.BOM              `json:"sbom"`
+	Metadata families.FamilyMetadata `json:"Metadata"`
+	SBOM     *cdx.BOM                `json:"sbom"`
 }
 
-func NewResult(metadata families.ScanMetadata, sbom *cdx.BOM) *Result {
+func NewResult(metadata families.FamilyMetadata, sbom *cdx.BOM) *Result {
 	return &Result{
 		Metadata: metadata,
 		SBOM:     sbom,

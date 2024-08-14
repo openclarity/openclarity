@@ -22,6 +22,7 @@ import (
 
 	apitypes "github.com/openclarity/openclarity/api/types"
 	"github.com/openclarity/openclarity/core/to"
+	"github.com/openclarity/openclarity/scanner/common"
 	"github.com/openclarity/openclarity/scanner/families"
 )
 
@@ -30,7 +31,7 @@ func Test_getInputScanStats(t *testing.T) {
 	startTime := timeNow.Add(-5 * time.Second)
 	startTime2 := timeNow.Add(-10 * time.Second)
 	type args struct {
-		metadata families.ScanMetadata
+		metadata families.FamilyMetadata
 	}
 	tests := []struct {
 		name string
@@ -40,8 +41,8 @@ func Test_getInputScanStats(t *testing.T) {
 		{
 			name: "no input scans",
 			args: args{
-				metadata: families.ScanMetadata{
-					Inputs: []families.ScanInputMetadata{},
+				metadata: families.FamilyMetadata{
+					Scans: nil,
 				},
 			},
 			want: nil,
@@ -49,70 +50,88 @@ func Test_getInputScanStats(t *testing.T) {
 		{
 			name: "one input scans",
 			args: args{
-				metadata: families.ScanMetadata{
-					Inputs: []families.ScanInputMetadata{
+				metadata: families.FamilyMetadata{
+					Scans: []families.ScannerMetadata{
 						{
-							InputType: "rootfs",
-							InputPath: "/mnt/snap",
-							InputSize: 450,
-							StartTime: startTime,
-							EndTime:   timeNow,
+							ScanInfo: common.ScanInfo{
+								ScannerName: "scanner",
+								InputType:   "rootfs",
+								InputPath:   "/mnt/snap",
+								InputSize:   450,
+								StartTime:   startTime,
+								EndTime:     timeNow,
+							},
+							TotalFindings: 123,
 						},
 					},
 				},
 			},
 			want: &[]apitypes.AssetScanInputScanStats{
 				{
-					Path: to.Ptr("/mnt/snap"),
+					FindingsCount: to.Ptr(123),
+					Path:          to.Ptr("/mnt/snap"),
 					ScanTime: &apitypes.AssetScanScanTime{
 						EndTime:   &timeNow,
 						StartTime: &startTime,
 					},
-					Size: to.Ptr(int64(450)),
-					Type: to.Ptr("rootfs"),
+					Scanner: to.Ptr("scanner"),
+					Size:    to.Ptr(int64(450)),
+					Type:    to.Ptr("rootfs"),
 				},
 			},
 		},
 		{
 			name: "two input scans",
 			args: args{
-				metadata: families.ScanMetadata{
-					Inputs: []families.ScanInputMetadata{
+				families.FamilyMetadata{
+					Scans: []families.ScannerMetadata{
 						{
-							InputType: "rootfs",
-							InputPath: "/mnt/snap",
-							InputSize: 450,
-							StartTime: startTime,
-							EndTime:   timeNow,
+							ScanInfo: common.ScanInfo{
+								ScannerName: "scanner1",
+								InputType:   "rootfs",
+								InputPath:   "/mnt/snap",
+								InputSize:   450,
+								StartTime:   startTime,
+								EndTime:     timeNow,
+							},
+							TotalFindings: 100,
 						},
 						{
-							InputType: "dir",
-							InputPath: "/mnt/snap2",
-							InputSize: 30,
-							StartTime: startTime2,
-							EndTime:   timeNow,
+							ScanInfo: common.ScanInfo{
+								ScannerName: "scanner2",
+								InputType:   "dir",
+								InputPath:   "/mnt/snap2",
+								InputSize:   30,
+								StartTime:   startTime2,
+								EndTime:     timeNow,
+							},
+							TotalFindings: 200,
 						},
 					},
 				},
 			},
 			want: &[]apitypes.AssetScanInputScanStats{
 				{
-					Path: to.Ptr("/mnt/snap"),
+					FindingsCount: to.Ptr(100),
+					Path:          to.Ptr("/mnt/snap"),
 					ScanTime: &apitypes.AssetScanScanTime{
 						EndTime:   &timeNow,
 						StartTime: &startTime,
 					},
-					Size: to.Ptr(int64(450)),
-					Type: to.Ptr("rootfs"),
+					Scanner: to.Ptr("scanner1"),
+					Size:    to.Ptr(int64(450)),
+					Type:    to.Ptr("rootfs"),
 				},
 				{
-					Path: to.Ptr("/mnt/snap2"),
+					FindingsCount: to.Ptr(200),
+					Path:          to.Ptr("/mnt/snap2"),
 					ScanTime: &apitypes.AssetScanScanTime{
 						EndTime:   &timeNow,
 						StartTime: &startTime2,
 					},
-					Size: to.Ptr(int64(30)),
-					Type: to.Ptr("dir"),
+					Scanner: to.Ptr("scanner2"),
+					Size:    to.Ptr(int64(30)),
+					Type:    to.Ptr("dir"),
 				},
 			},
 		},
