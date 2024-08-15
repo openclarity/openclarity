@@ -1,6 +1,5 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useFetch } from "hooks";
 import Title from "components/Title";
 import Button from "components/Button";
 import Loader from "components/Loader";
@@ -11,8 +10,10 @@ import {
   setFilters,
   FILTER_TYPES,
 } from "context/FiltersProvider";
+import { useQuery } from "@tanstack/react-query";
+import { openClarityApi } from "../../../api/openClarityApi";
 
-export const AssetScansDisplay = ({ assetName, assetId }) => {
+export function AssetScansDisplay({ assetName, assetId }) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const filtersDispatch = useFilterDispatch();
@@ -29,19 +30,16 @@ export const AssetScansDisplay = ({ assetName, assetId }) => {
     navigate(ROUTES.ASSET_SCANS);
   };
 
-  const [{ loading, data, error }] = useFetch(APIS.ASSET_SCANS, {
-    queryParams: {
-      $filter: filter,
-      $count: true,
-      $select: "count",
-    },
+  const { data, isLoading, isError } = useQuery({
+    queryKey: [APIS.ASSET_SCANS, filter],
+    queryFn: () => openClarityApi.getAssetScans(filter, "count", true, 1),
   });
 
-  if (error) {
+  if (isError) {
     return null;
   }
 
-  if (loading) {
+  if (isLoading) {
     return <Loader absolute={false} small />;
   }
 
@@ -50,7 +48,7 @@ export const AssetScansDisplay = ({ assetName, assetId }) => {
       <Title medium>Asset scans</Title>
       <Button
         onClick={onAssetScansClick}
-      >{`See all asset scans (${formatNumber(data?.count || 0)})`}</Button>
+      >{`See all asset scans (${formatNumber(data.data.count || 0)})`}</Button>
     </>
   );
-};
+}

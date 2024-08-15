@@ -1,35 +1,41 @@
 import React from "react";
-import { useFetch } from "hooks";
 import { isUndefined } from "lodash";
 import TitleValueDisplay, {
   TitleValueDisplayRow,
 } from "components/TitleValueDisplay";
 import Loader from "components/Loader";
-import { APIS } from "utils/systemConsts";
 import { formatNumber } from "utils/utils";
+import { useQuery } from "@tanstack/react-query";
+import { openClarityApi } from "../../api/openClarityApi";
+import QUERY_KEYS from "../../api/constants";
 
 const AssetCountDisplay = (findingId) => {
   const filter = `finding/id eq '${findingId}'`;
-  const [{ loading, data, error }] = useFetch(APIS.ASSET_FINDINGS, {
-    queryParams: {
-      $expand: "asset",
-      $filter: filter,
-      $count: true,
-      $select: "count,asset/terminatedOn",
-    },
+
+  const { data, isError, isLoading } = useQuery({
+    queryKey: [QUERY_KEYS.assetFindings, filter],
+    queryFn: () =>
+      openClarityApi.getAssetFindings(
+        filter,
+        "count,asset/terminatedOn",
+        true,
+        undefined,
+        undefined,
+        "asset",
+      ),
   });
 
-  if (error) {
+  if (isError) {
     return null;
   }
 
-  if (loading) {
+  if (isLoading) {
     return <Loader absolute={false} small />;
   }
 
   let notTerminated = 0;
-  if (data && data.items) {
-    data.items.forEach((item) => {
+  if (data && data.data.items) {
+    data.data.items.forEach((item) => {
       if (isUndefined(item.asset.terminatedOn)) {
         notTerminated++;
       }
@@ -39,7 +45,7 @@ const AssetCountDisplay = (findingId) => {
   return (
     <TitleValueDisplayRow>
       <TitleValueDisplay title="Asset count">
-        {formatNumber(notTerminated)} ({formatNumber(data?.count || 0)})
+        {formatNumber(notTerminated)} ({formatNumber(data.data.count || 0)})
       </TitleValueDisplay>
     </TitleValueDisplayRow>
   );

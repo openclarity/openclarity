@@ -53,7 +53,7 @@
   },
   "scripts": {
     "start": "vite",
-    "build": "tsc  && vite build",
+    "build": "tsc && vite build",
     "preview": "vite preview",
     "prettier:format": "prettier --log-level warn --write .",
     "prettier:check": "prettier --check .",

@@ -1,6 +1,5 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useFetch } from "hooks";
 import { TitleValueDisplayColumn } from "components/TitleValueDisplay";
 import DoublePaneDisplay from "components/DoublePaneDisplay";
 import Button from "components/Button";
@@ -14,8 +13,10 @@ import {
   setFilters,
   FILTER_TYPES,
 } from "context/FiltersProvider";
+import { useQuery } from "@tanstack/react-query";
+import { openClarityApi } from "../../../../api/openClarityApi";
 
-const ConfigurationScansDisplay = ({ configId, configName }) => {
+function ConfigurationScansDisplay({ configId, configName }) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const filtersDispatch = useFilterDispatch();
@@ -37,15 +38,16 @@ const ConfigurationScansDisplay = ({ configId, configName }) => {
     navigate(ROUTES.SCANS);
   };
 
-  const [{ loading, data, error }] = useFetch(APIS.SCANS, {
-    queryParams: { $filter: scansFilter, $count: true, $select: "count" },
+  const { data, isError, isLoading } = useQuery({
+    queryKey: [APIS.SCANS, scansFilter],
+    queryFn: () => openClarityApi.getScans(scansFilter, "count", true, 1),
   });
 
-  if (error) {
+  if (isError) {
     return null;
   }
 
-  if (loading) {
+  if (isLoading) {
     return <Loader absolute={false} small />;
   }
 
@@ -54,10 +56,10 @@ const ConfigurationScansDisplay = ({ configId, configName }) => {
       <Title medium>Configuration's scans</Title>
       <Button
         onClick={onScansClick}
-      >{`See all scans (${formatNumber(data?.count || 0)})`}</Button>
+      >{`See all scans (${formatNumber(data.data.count || 0)})`}</Button>
     </>
   );
-};
+}
 
 const TabConfiguration = ({ data }) => {
   const { id, name } = data || {};

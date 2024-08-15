@@ -29,7 +29,7 @@ import {
   FILTER_TYPES,
 } from "context/FiltersProvider";
 import { ROUTES } from "utils/systemConsts";
-import Dashboard from "layout/Dashboard";
+import Dashboard from "layout/Dashboard/index.jsx";
 import Scans from "layout/Scans";
 import Findings from "layout/Findings";
 import Assets from "layout/Assets";
