@@ -64,6 +64,18 @@ var FullScanFamiliesConfig = &apitypes.ScanFamiliesConfig{
 		Enabled:  to.Ptr(true),
 		Scanners: &[]string{"lynis", "cisdocker"},
 	},
+	// TODO: Enable plugins to full scan once it has been verified
+	// and working correctly with the orchestrator
+	// Plugins: &apitypes.PluginsConfig{
+	// 	Enabled:      to.Ptr(true),
+	// 	ScannersList: &[]string{"kics"},
+	// 	ScannersConfig: &map[string]apitypes.PluginScannerConfig{
+	// 		"kics": {
+	// 			Config:    to.Ptr(""),
+	// 			ImageName: to.Ptr("ghcr.io/openclarity/openclarity-plugin-kics:latest"),
+	// 		},
+	// 	},
+	// },
 	Rootkits: &apitypes.RootkitsConfig{
 		Enabled:  to.Ptr(true),
 		Scanners: &[]string{"chkrootkit"},
