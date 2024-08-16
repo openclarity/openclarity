@@ -24,23 +24,43 @@ import (
 )
 
 const (
+	AMD64 = "x86_64"
+	ARM64 = "arm64"
+
 	DefaultEnvPrefix = "OPENCLARITY_GCP"
 
-	projectID           = "project_id"
-	scannerZone         = "scanner_zone"
-	scannerSubnetwork   = "scanner_subnetwork"
-	scannerMachineType  = "scanner_machine_type"
-	scannerSourceImage  = "scanner_source_image"
-	scannerSSHPublicKey = "scanner_ssh_public_key"
+	projectID                  = "project_id"
+	scannerZone                = "scanner_zone"
+	scannerSubnetwork          = "scanner_subnetwork"
+	scannerMachineTypeMapping  = "scanner_machine_type_mapping"
+	scannerMachineArchitecture = "scanner_machine_architecture"
+	scannerSourceImagePrefix   = "scanner_source_image_prefix"
+	scannerSourceImageMapping  = "scanner_source_image_mapping"
+	scannerSSHPublicKey        = "scanner_ssh_public_key"
+)
+
+var (
+	DefaultScannerMachineTypeMapping = Mapping{
+		AMD64: "e2-standard-2",
+		ARM64: "t2a-standard-2",
+	}
+
+	DefaultScannerSourceImagePrefix  = "projects/ubuntu-os-cloud/global/images/"
+	DefaultScannerSourceImageMapping = Mapping{
+		AMD64: "ubuntu-2204-jammy-v20230630",
+		ARM64: "ubuntu-2204-jammy-arm64-v20230630",
+	}
 )
 
 type Config struct {
-	ProjectID           string `mapstructure:"project_id"`
-	ScannerZone         string `mapstructure:"scanner_zone"`
-	ScannerSubnetwork   string `mapstructure:"scanner_subnetwork"`
-	ScannerMachineType  string `mapstructure:"scanner_machine_type"`
-	ScannerSourceImage  string `mapstructure:"scanner_source_image"`
-	ScannerSSHPublicKey string `mapstructure:"scanner_ssh_public_key"`
+	ProjectID                  string  `mapstructure:"project_id"`
+	ScannerZone                string  `mapstructure:"scanner_zone"`
+	ScannerSubnetwork          string  `mapstructure:"scanner_subnetwork"`
+	ScannerMachineTypeMapping  Mapping `mapstructure:"scanner_machine_type_mapping"`
+	ScannerMachineArchitecture string  `mapstructure:"scanner_machine_architecture"`
+	ScannerSourceImagePrefix   string  `mapstructure:"scanner_source_image_prefix"`
+	ScannerSourceImageMapping  Mapping `mapstructure:"scanner_source_image_mapping"`
+	ScannerSSHPublicKey        string  `mapstructure:"scanner_ssh_public_key"`
 }
 
 func NewConfig() (*Config, error) {
@@ -54,8 +74,18 @@ func NewConfig() (*Config, error) {
 	_ = v.BindEnv(projectID)
 	_ = v.BindEnv(scannerZone)
 	_ = v.BindEnv(scannerSubnetwork)
-	_ = v.BindEnv(scannerMachineType)
-	_ = v.BindEnv(scannerSourceImage)
+
+	_ = v.BindEnv(scannerMachineTypeMapping)
+	v.SetDefault(scannerMachineTypeMapping, DefaultScannerMachineTypeMapping)
+
+	_ = v.BindEnv(scannerMachineArchitecture)
+
+	_ = v.BindEnv(scannerSourceImagePrefix)
+	v.SetDefault(scannerSourceImagePrefix, DefaultScannerSourceImagePrefix)
+
+	_ = v.BindEnv(scannerSourceImageMapping)
+	v.SetDefault(scannerSourceImageMapping, DefaultScannerSourceImageMapping)
+
 	_ = v.BindEnv(scannerSSHPublicKey)
 
 	config := &Config{}
@@ -79,13 +109,46 @@ func (c Config) Validate() error {
 		return fmt.Errorf("parameter ScannerSubnetwork must be provided by setting %v_%v environment variable", DefaultEnvPrefix, strings.ToUpper(scannerSubnetwork))
 	}
 
-	if c.ScannerMachineType == "" {
-		return fmt.Errorf("parameter ScannerMachineType must be provided by setting %v_%v environment variable", DefaultEnvPrefix, strings.ToUpper(scannerMachineType))
+	if c.ScannerMachineArchitecture == "" {
+		return fmt.Errorf("parameter ScannerMachineArchitecture must be provided by setting %v_%v environment variable", DefaultEnvPrefix, strings.ToUpper(scannerMachineArchitecture))
 	}
 
-	if c.ScannerSourceImage == "" {
-		return fmt.Errorf("parameter ScannerSourceImage must be provided by setting %v_%v environment variable", DefaultEnvPrefix, strings.ToUpper(scannerSourceImage))
+	if _, ok := c.ScannerMachineTypeMapping[c.ScannerMachineArchitecture]; !ok {
+		return fmt.Errorf("failed to find machine type for architecture %s", c.ScannerMachineArchitecture)
 	}
+
+	if c.ScannerSourceImagePrefix == "" {
+		return fmt.Errorf("parameter ScannerSourceImageMappingPrefix must be provided by setting %v_%v environment variable", DefaultEnvPrefix, strings.ToUpper(scannerSourceImagePrefix))
+	}
+
+	if _, ok := c.ScannerSourceImageMapping[c.ScannerMachineArchitecture]; !ok {
+		return fmt.Errorf("failed to find source image for architecture %s", c.ScannerMachineArchitecture)
+	}
+
+	return nil
+}
+
+type Mapping map[string]string
+
+func (m *Mapping) UnmarshalText(text []byte) error {
+	mapping := make(Mapping)
+	items := strings.Split(string(text), ",")
+
+	numOfParts := 2
+	for _, item := range items {
+		pair := strings.Split(item, ":")
+		if len(pair) != numOfParts {
+			continue
+		}
+
+		switch pair[0] {
+		case AMD64, ARM64:
+			mapping[pair[0]] = pair[1]
+		default:
+			return fmt.Errorf("unsupported architecture: %s", pair[0])
+		}
+	}
+	*m = mapping
 
 	return nil
 }

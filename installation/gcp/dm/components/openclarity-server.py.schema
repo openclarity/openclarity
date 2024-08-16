@@ -39,14 +39,22 @@ properties:
     description: The service account to use for OpenClarity
 
   # Properties with defaults
-  scannerMachineType:
-    type: string 
-    description: Machine type to use for the Scanner instances
-    default: e2-standard-2
-  scannerSourceImage:
+  scannerMachineArchitecture:
     type: string
-    description: Source image to use for the Scanner instances
-    default: "projects/ubuntu-os-cloud/global/images/ubuntu-2204-jammy-v20230630"
+    description: Machine architecture to use for the Scanner instances
+    default: x86_64
+  scannerMachineTypeMapping:
+    type: string 
+    description: Machine architecture to machine type mapping for the Scanner instances. Comma separated list of architecture:machine_type pairs
+    default: x86_64:e2-standard-2,arm64:t2a-standard-2
+  scannerSourceImagePrefix:
+    type: string
+    description: Source image prefix to use for the Scanner instances
+    default: "projects/ubuntu-os-cloud/global/images/"
+  scannerSourceImageMapping:
+    type: string
+    description: Machine architecture to source image mapping for the Scanner instances. Comma separated list of architecture:source_image pairs
+    default: x86_64:ubuntu-2204-jammy-v20230630,arm64:ubuntu-2204-jammy-arm64-v20230630
   databaseToUse:
     type: string
     default: SQLite

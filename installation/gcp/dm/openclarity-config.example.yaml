@@ -9,6 +9,10 @@ resources:
     zone: us-central1-f
     machineType: e2-standard-2
     sshPublicKey: <SSH Public Key>
+    scannerMachineArchitecture: x86_64
+    scannerMachineTypeMapping: x86_64:e2-standard-2,arm64:t2a-standard-2
+    scannerSourceImagePrefix: "projects/ubuntu-os-cloud/global/images/"
+    scannerSourceImageMapping: x86_64:ubuntu-2204-jammy-v20230630,arm64:ubuntu-2204-jammy-arm64-v20230630
 
 outputs:
   - name: openclarity-ip

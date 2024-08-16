@@ -107,10 +107,14 @@ spec:
               value: {{ .scannerZone }}
             - name: OPENCLARITY_GCP_SCANNER_SUBNETWORK
               value: {{ .scannerSubnet }}
-            - name: OPENCLARITY_GCP_SCANNER_MACHINE_TYPE
-              value: {{ .scannerMachineType }}
-            - name: OPENCLARITY_GCP_SCANNER_SOURCE_IMAGE
-              value: {{ .scannerSourceImage }}
+            - name: OPENCLARITY_GCP_SCANNER_MACHINE_TYPE_MAPPING
+              value: {{ .scannerMachineTypeMapping }}
+            - name: OPENCLARITY_GCP_SCANNER_MACHINE_ARCHITECTURE
+              value: {{ .scannerMachineArchitecture }}
+            - name: OPENCLARITY_GCP_SCANNER_SOURCE_IMAGE_PREFIX
+              value: {{ .scannerSourceImagePrefix }}
+            - name: OPENCLARITY_GCP_SCANNER_SOURCE_IMAGE_MAPPING
+              value: {{ .scannerSourceImageMapping }}
             {{- end -}}
             {{- end }}
 

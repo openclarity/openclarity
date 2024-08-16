@@ -196,8 +196,10 @@ secrets.
 | orchestrator.exploitsDBAddress | string | `""` | Address that scanners can use to reach back to the Exploits server |
 | orchestrator.freshclamMirrorAddress | string | `""` | Address that scanners can use to reach the freshclam mirror |
 | orchestrator.gcp.projectId | string | `""` | Project ID for discovery and scanning |
-| orchestrator.gcp.scannerMachineType | string | `""` | Scanner Machine type |
-| orchestrator.gcp.scannerSourceImage | string | `""` | Scanner source image |
+| orchestrator.gcp.scannerMachineArchitecture | string | `""` | Scanner Machine architecture |
+| orchestrator.gcp.scannerMachineTypeMapping | string | `""` | Scanner Machine type mapping |
+| orchestrator.gcp.scannerSourceImageMapping | string | `""` | Scanner source image mapping |
+| orchestrator.gcp.scannerSourceImagePrefix | string | `""` | Scanner source image prefix |
 | orchestrator.gcp.scannerSubnet | string | `""` | Subnet where to run the scanner instances |
 | orchestrator.gcp.scannerZone | string | `""` | Zone to where the scanner instances should run |
 | orchestrator.grypeServerAddress | string | `""` | Address that scanners can use to reach the grype server |

@@ -187,10 +187,14 @@ orchestrator:
     scannerZone: ""
     # -- Subnet where to run the scanner instances
     scannerSubnet: ""
-    # -- Scanner Machine type
-    scannerMachineType: ""
-    # -- Scanner source image
-    scannerSourceImage: ""
+    # -- Scanner Machine type mapping
+    scannerMachineTypeMapping: ""
+    # -- Scanner Machine architecture
+    scannerMachineArchitecture: ""
+    # -- Scanner source image prefix
+    scannerSourceImagePrefix: ""
+    # -- Scanner source image mapping
+    scannerSourceImageMapping: ""
 
   azure:
     # -- Subscription ID for discovery and scanning
