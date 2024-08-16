@@ -17,24 +17,15 @@ package e2e
 
 import (
 	"fmt"
-	"os"
-	"strconv"
 	"strings"
 	"time"
 
-	"github.com/fbiville/markdown-table-formatter/pkg/markdown"
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 
 	apitypes "github.com/openclarity/openclarity/api/types"
 	"github.com/openclarity/openclarity/core/to"
 	uitypes "github.com/openclarity/openclarity/uibackend/types"
-)
-
-const (
-	markDownFilePathDocker = "/tmp/scanner-benchmark=docker.md"
-	markDownFilePathK8S    = "/tmp/scanner-benchmark=k8s.md"
-	tableHeader            = "# 🚀 Benchmark results"
 )
 
 var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, misconfigurations, rootkits, SBOM, secrets and vulnerabilities)", func() {
@@ -197,97 +188,3 @@ var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, mi
 		}
 	})
 })
-
-// generateMarkdownTable generates a markdown table using the provided scan stats
-// and writes it to a file, that will be displayed in github summary during CI run.
-func generateMarkdownTable(scanStats *apitypes.AssetScanStats) string {
-	families := []struct {
-		name  string
-		stats *[]apitypes.AssetScanInputScanStats
-	}{
-		{"Info finders", scanStats.InfoFinder},
-		{"Malware", scanStats.Malware},
-		{"Misconfigurations", scanStats.Misconfigurations},
-		{"Plugins", scanStats.Plugins},
-		{"Rootkits", scanStats.Rootkits},
-		{"SBOM", scanStats.Sbom},
-		{"Secrets", scanStats.Secrets},
-		{"Vulnerabilities", scanStats.Vulnerabilities},
-	}
-
-	// update rows with stats for each family
-	familyPerScannerRows := [][]string{}
-	summaryRows := [][]string{{"", "", "", "", ""}}
-	totalFindingsCount := 0
-	for _, family := range families {
-		totalFindingsCount += updateRowsWithStats(family.stats, &familyPerScannerRows, &summaryRows, family.name)
-	}
-
-	// append the summary
-	summaryRows = append(summaryRows, []string{
-		"_Scan summary_",
-		fmt.Sprintf("_%s_", scanStats.General.ScanTime.StartTime.Format(time.DateTime)),
-		fmt.Sprintf("_%s_", scanStats.General.ScanTime.EndTime.Format(time.DateTime)),
-		fmt.Sprintf("_%d_", totalFindingsCount),
-		fmt.Sprintf("_%s_", scanStats.General.ScanTime.EndTime.Sub(*scanStats.General.ScanTime.StartTime).Round(time.Second).String()),
-	})
-
-	// merge rows
-	familyPerScannerRows = append(familyPerScannerRows, summaryRows...)
-
-	tableBody, err := markdown.NewTableFormatterBuilder().
-		WithPrettyPrint().
-		Build("Family/Scanner", "Start time", "End time", "Findings", "Total time").
-		Format(familyPerScannerRows)
-	gomega.Expect(err).NotTo(gomega.HaveOccurred())
-
-	return tableHeader + "\n\n" + tableBody
-}
-
-func updateRowsWithStats(scannerStats *[]apitypes.AssetScanInputScanStats, familyPerScannerRows *[][]string, summaryRows *[][]string, family string) int {
-	if scannerStats == nil {
-		return 0
-	}
-
-	earliestStartTime := time.Time{}
-	latestEndTime := time.Time{}
-	totalFindingsCount := 0
-	for _, scanner := range *scannerStats {
-		if earliestStartTime.IsZero() || scanner.ScanTime.StartTime.Before(earliestStartTime) {
-			earliestStartTime = *scanner.ScanTime.StartTime
-		}
-		if latestEndTime.IsZero() || scanner.ScanTime.EndTime.After(latestEndTime) {
-			latestEndTime = *scanner.ScanTime.EndTime
-		}
-		totalFindingsCount += *scanner.FindingsCount
-
-		*familyPerScannerRows = append(*familyPerScannerRows, []string{
-			fmt.Sprintf("%s/%s", family, *scanner.Scanner),
-			scanner.ScanTime.StartTime.Format(time.DateTime),
-			scanner.ScanTime.EndTime.Format(time.DateTime),
-			strconv.Itoa(*scanner.FindingsCount),
-			scanner.ScanTime.EndTime.Sub(*scanner.ScanTime.StartTime).Round(time.Second).String(),
-		})
-	}
-
-	*summaryRows = append(*summaryRows, []string{
-		family + "/*",
-		earliestStartTime.Format(time.DateTime),
-		latestEndTime.Format(time.DateTime),
-		strconv.Itoa(totalFindingsCount),
-		latestEndTime.Sub(earliestStartTime).Round(time.Second).String(),
-	})
-
-	return totalFindingsCount
-}
-
-func writeMarkdownTableToFile(mdTable string) {
-	switch cfg.TestEnvConfig.Platform {
-	case "docker":
-		err := os.WriteFile(markDownFilePathDocker, []byte(mdTable), 0o600)
-		gomega.Expect(err).NotTo(gomega.HaveOccurred())
-	case "kubernetes":
-		err := os.WriteFile(markDownFilePathK8S, []byte(mdTable), 0o600)
-		gomega.Expect(err).NotTo(gomega.HaveOccurred())
-	}
-}
