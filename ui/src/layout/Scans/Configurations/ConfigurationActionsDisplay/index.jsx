@@ -1,16 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { isNull } from "lodash";
-import { useDelete, usePrevious, useFetch, FETCH_METHODS } from "hooks";
 import { ICON_NAMES } from "components/Icon";
 import IconWithTooltip from "components/IconWithTooltip";
 import Modal from "components/Modal";
 import { BoldText } from "utils/utils";
-import { APIS } from "utils/systemConsts";
 import {
   useModalDisplayDispatch,
   MODAL_DISPLAY_ACTIONS,
 } from "layout/Scans/ScanConfigWizardModal/ModalDisplayProvider";
-
+import { useMutation } from "@tanstack/react-query";
+import { openClarityApi } from "../../../../api/openClarityApi";
 import "./configuration-actions-display.scss";
 
 const ConfigurationActionsDisplay = ({ data, onDelete, onUpdate }) => {
@@ -30,25 +29,26 @@ const ConfigurationActionsDisplay = ({ data, onDelete, onUpdate }) => {
   const [deleteConfirmationData, setDeleteConfirmationData] = useState(null);
   const closeDeleteConfirmation = () => setDeleteConfirmationData(null);
 
-  const [{ deleting }, deleteConfiguration] = useDelete(APIS.SCAN_CONFIGS);
-  const prevDeleting = usePrevious(deleting);
-
-  const [{ loading, error }, fetchScanConfig] = useFetch(APIS.SCAN_CONFIGS, {
-    loadOnMount: false,
-  });
-  const prevLoading = usePrevious(loading);
-
-  useEffect(() => {
-    if (prevDeleting && !deleting) {
+  const scanConfigDeleteMutation = useMutation({
+    mutationFn: () => openClarityApi.deleteScanConfigsScanConfigID(id),
+    onSettled: () => {
       onDelete();
-    }
-  }, [prevDeleting, deleting, onDelete]);
+    },
+  });
 
-  useEffect(() => {
-    if (!!onUpdate && prevLoading && !loading && !error) {
+  const scanConfigPatchMutation = useMutation({
+    mutationFn: () =>
+      openClarityApi.patchScanConfigsScanConfigID(id, {
+        scheduled: {
+          ...scheduled,
+          operationTime: new Date().toISOString(),
+        },
+        disabled: false,
+      }),
+    onSettled: () => {
       onUpdate();
-    }
-  }, [prevLoading, loading, error, onUpdate]);
+    },
+  });
 
   return (
     <>
@@ -65,17 +65,7 @@ const ConfigurationActionsDisplay = ({ data, onDelete, onUpdate }) => {
             event.stopPropagation();
             event.preventDefault();
 
-            fetchScanConfig({
-              method: FETCH_METHODS.PATCH,
-              submitData: {
-                scheduled: {
-                  ...scheduled,
-                  operationTime: new Date().toISOString(),
-                },
-                disabled: false,
-              },
-              formatUrl: (url) => `${url}/${id}`,
-            });
+            scanConfigPatchMutation.mutate();
           }}
           disabled={disableStartScan}
         />
@@ -122,7 +112,8 @@ const ConfigurationActionsDisplay = ({ data, onDelete, onUpdate }) => {
           height={250}
           doneTitle="Delete"
           onDone={() => {
-            deleteConfiguration(deleteConfirmationData.id);
+            scanConfigDeleteMutation.mutate();
+
             closeDeleteConfirmation();
           }}
         >
