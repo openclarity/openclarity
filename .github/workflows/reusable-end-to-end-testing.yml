@@ -105,3 +105,13 @@ jobs:
           else
             echo "Invalid platform"
           fi
+
+      - name: Post benchmark results to GitHub Summary
+        run: |
+          if [[ "${{ inputs.platform }}" == "kubernetes" ]]; then
+            cat "/tmp/scanner-benchmark-k8s.md" >> "$GITHUB_STEP_SUMMARY"
+          elif [[ "${{ inputs.platform }}" == "docker" ]]; then
+            cat "/tmp/scanner-benchmark-docker.md" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Invalid platform"
+          fi
