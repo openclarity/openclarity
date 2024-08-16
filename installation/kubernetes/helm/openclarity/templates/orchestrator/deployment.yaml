@@ -130,14 +130,16 @@ spec:
               value: .scannerSubnetId
             - name: OPENCLARITY_AZURE_SCANNER_PUBLIC_KEY
               value: .scannerPublicKey
-            - name: OPENCLARITY_AZURE_SCANNER_VM_SIZE
-              value: .scannerVmSize
+            - name: OPENCLARITY_AZURE_SCANNER_VM_SIZE_MAPPING
+              value: .scannerVmSizeMapping
+            - name: OPENCLARITY_AZURE_SCANNER_VM_ARCHITECTURE
+              value: .scannerVmArchitecture
             - name: OPENCLARITY_AZURE_SCANNER_IMAGE_PUBLISHER
               value: .scannerImagePublisher
             - name: OPENCLARITY_AZURE_SCANNER_IMAGE_OFFER
               value: .scannerImageOffer
-            - name: OPENCLARITY_AZURE_SCANNER_IMAGE_SKU
-              value: .scannerImageSku
+            - name: OPENCLARITY_AZURE_SCANNER_IMAGE_SKU_MAPPING
+              value: .scannerImageSkuMapping
             - name: OPENCLARITY_AZURE_SCANNER_IMAGE_VERSION
               value: .scannerImageVersion
             - name: OPENCLARITY_AZURE_SCANNER_SECURITY_GROUP

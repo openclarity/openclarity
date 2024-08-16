@@ -13,8 +13,15 @@ param adminSSHKey string
 @description('The size of the OpenClarity Server VM')
 param serverVmSize string = 'Standard_D2s_v3'
 
-@description('The size of the Scanner VMs')
-param scannerVmSize string = 'Standard_D2s_v3'
+@description('The architecture to VM size mapping of the Scanner VMs')
+param scannerVmSizeMapping string = 'x86_64:Standard_D2s_v3,arm64:Standard_D2ps_v5'
+
+@description('The architecture of the Scanner VMs')
+@allowed([
+  'x86_64'
+  'arm64'
+])
+param scannerVmArchitecture string = 'x86_64'
 
 @description('Security Type of the VMClartiy Server VM')
 @allowed([
@@ -137,7 +144,8 @@ module openClarityDeploy 'openclarityDeployModule.bicep' = {
     adminSSHKey: adminSSHKey
     adminUsername: adminUsername
     serverVmSize: serverVmSize
-    scannerVmSize: scannerVmSize
+    scannerVmSizeMapping: scannerVmSizeMapping
+    scannerVmArchitecture: scannerVmArchitecture
     securityType: securityType
     openClarityIdentityID: openClarityManagedIdentity.outputs.openClarityIdentityId
     principalID: openClarityManagedIdentity.outputs.openClarityIdentityPrincipalId

@@ -172,7 +172,7 @@ secrets.
 | orchestrator.aws.subnetId | string | `""` | Subnet where the scanners will be created |
 | orchestrator.azure.scannerImageOffer | string | `""` | Scanner VM source image offer |
 | orchestrator.azure.scannerImagePublisher | string | `""` | Scanner VM source image publisher |
-| orchestrator.azure.scannerImageSku | string | `""` | Scanner VM source image sku |
+| orchestrator.azure.scannerImageSkuMapping | string | `""` | Scanner VM source image sku mapping |
 | orchestrator.azure.scannerImageVersion | string | `""` | Scanner VM source image version |
 | orchestrator.azure.scannerLocation | string | `""` | Location where the scanner instances will be run |
 | orchestrator.azure.scannerPublicKey | string | `""` | SSH RSA Public Key to configure the scanner instances with |
@@ -181,7 +181,8 @@ secrets.
 | orchestrator.azure.scannerStorageAccountName | string | `""` | Storage account to use for transfering snapshots between regions |
 | orchestrator.azure.scannerStorageContainerName | string | `""` | Storage container to use for transfering snapshots between regions |
 | orchestrator.azure.scannerSubnetId | string | `""` | Subnet ID where the scanner instances will be run |
-| orchestrator.azure.scannerVmSize | string | `""` | Scanner VM size |
+| orchestrator.azure.scannerVmArchitecture | string | `""` | Scanner architecture |
+| orchestrator.azure.scannerVmSizeMapping | string | `""` | Scanner architecture to VM size mapping |
 | orchestrator.azure.subscriptionId | string | `""` | Subscription ID for discovery and scanning |
 | orchestrator.containerSecurityContext.allowPrivilegeEscalation | bool | `false` | Force the child process to run as non-privileged |
 | orchestrator.containerSecurityContext.capabilities.drop | list | `["ALL"]` | List of capabilities to be dropped |

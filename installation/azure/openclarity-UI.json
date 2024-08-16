@@ -112,30 +112,44 @@
                             "osPlatform": "Linux"
                         },
                         {
-                            "name": "scannerVmSize",
-                            "type": "Microsoft.Compute.SizeSelector",
-                            "label": "OpenClarity Scanner VMs Size",
-                            "toolTip": "The size of the OpenClarity Scanner VMs",
-                            "recommendedSizes": [
-                                "Standard_D2s_v3"
-                            ],
+                            "name": "scannerVmArchitecture",
+                            "type": "Microsoft.Common.DropDown",
+                            "label": "Scanner VM Architecture",
+                            "subLabel": "",
+                            "defaultValue": "x86_64",
+                            "toolTip": "Architecture of the OpenClarity Scanner VM.",
+                            "constraints": {
+                                "required": false,
+                                "allowedValues": [
+                                    {
+                                        "label": "x86_64",
+                                        "value": "x86_64"
+                                    },
+                                    {
+                                        "label": "arm64",
+                                        "value": "arm64"
+                                    }
+                                ],
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "scannerVmSizeMapping",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Scanner VM Architecture to Machine Size Mapping",
+                            "subLabel": "",
+                            "defaultValue": "x86_64:Standard_D2s_v3,arm64:Standard_D2ps_v5",
+                            "toolTip": "Mapping of Scanner VM Architecture to Machine Size. Format: <architecture>:<size>,<architecture>:<size>...",
                             "constraints": {
                                 "required": true,
-                                "allowedSizes": [
-                                    "Standard_D2s_v3"
-                                ]
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
                             },
-                            "imageReference": {
-                                "publisher": "Canonical",
-                                "offer": "0001-com-ubuntu-server-focal",
-                                "sku": "20_04-lts-gen2"
-                            },
-                            "visible": true,
-                            "scope": {
-                                "subscriptionId": "[steps('basics').resourceScope.subscription.subscriptionId]",
-                                "location": "[steps('basics').resourceScope.location.name]"
-                            },
-                            "osPlatform": "Linux"
+                            "infoMessages": [],
+                            "visible": true
                         },
                         {
                             "name": "securityType",
@@ -525,7 +539,8 @@
                 "adminUsername": "[steps('basics').adminUsername]",
                 "adminSSHKey": "[steps('basics').adminSSHKey.sshPublicKey]",
                 "serverVmSize": "[steps('basics').serverVmSize]",
-                "scannerVmSize": "[steps('basics').scannerVmSize]",
+                "scannerVmSizeMapping": "[steps('basics').scannerVmSizeMapping]",
+                "scannerVmArchitecture": "[steps('basics').scannerVmArchitecture]",
                 "securityType": "[steps('basics').securityType]",
                 "deploypostfix": "[steps('basics').deploypostfix]",
                 "orchestratorContainerImage": "[steps('advanced').orchestratorContainerImage]",

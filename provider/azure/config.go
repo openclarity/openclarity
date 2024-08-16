@@ -19,14 +19,29 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/go-viper/mapstructure/v2"
 	"github.com/spf13/viper"
 )
 
 const (
-	DefaultEnvPrefix = "OPENCLARITY_AZURE"
+	AMD64 = "x86_64"
+	ARM64 = "arm64"
+
+	DefaultEnvPrefix             = "OPENCLARITY_AZURE"
+	DefaultScannerVMArchitecture = AMD64
 )
+
+var DefaultScannerVMSizeMapping = Mapping{
+	AMD64: "Standard_D2s_v3",
+	ARM64: "Standard_D2ps_v5",
+}
+
+var DefaultScannerImageSKUMapping = Mapping{
+	AMD64: "20_04-lts-gen2",
+	ARM64: "20_04-lts-arm64",
+}
 
 type AzurePublicKey string
 
@@ -47,14 +62,15 @@ type Config struct {
 	ScannerResourceGroup        string         `mapstructure:"scanner_resource_group"`
 	ScannerSubnet               string         `mapstructure:"scanner_subnet_id"`
 	ScannerPublicKey            AzurePublicKey `mapstructure:"scanner_public_key"`
-	ScannerVMSize               string         `mapstructure:"scanner_vm_size"`
 	ScannerImagePublisher       string         `mapstructure:"scanner_image_publisher"`
 	ScannerImageOffer           string         `mapstructure:"scanner_image_offer"`
-	ScannerImageSKU             string         `mapstructure:"scanner_image_sku"`
+	ScannerImageSKUMapping      Mapping        `mapstructure:"scanner_image_sku_mapping"`
 	ScannerImageVersion         string         `mapstructure:"scanner_image_version"`
 	ScannerSecurityGroup        string         `mapstructure:"scanner_security_group"`
 	ScannerStorageAccountName   string         `mapstructure:"scanner_storage_account_name"`
 	ScannerStorageContainerName string         `mapstructure:"scanner_storage_container_name"`
+	ScannerVMSizeMapping        Mapping        `mapstructure:"scanner_vm_size_mapping"`
+	ScannerVMArchitecture       string         `mapstructure:"scanner_vm_architecture"`
 }
 
 func NewConfig() (*Config, error) {
@@ -70,14 +86,21 @@ func NewConfig() (*Config, error) {
 	_ = v.BindEnv("scanner_resource_group")
 	_ = v.BindEnv("scanner_subnet_id")
 	_ = v.BindEnv("scanner_public_key")
-	_ = v.BindEnv("scanner_vm_size")
 	_ = v.BindEnv("scanner_image_publisher")
 	_ = v.BindEnv("scanner_image_offer")
-	_ = v.BindEnv("scanner_image_sku")
+
+	_ = v.BindEnv("scanner_image_sku_mapping")
+	v.SetDefault("scanner_image_sku_mapping", DefaultScannerImageSKUMapping)
+
 	_ = v.BindEnv("scanner_image_version")
 	_ = v.BindEnv("scanner_security_group")
 	_ = v.BindEnv("scanner_storage_account_name")
 	_ = v.BindEnv("scanner_storage_container_name")
+
+	_ = v.BindEnv("scanner_vm_size_mapping")
+	v.SetDefault("scanner_vm_size_mapping", DefaultScannerVMSizeMapping)
+
+	_ = v.BindEnv("scanner_vm_architecture")
 
 	config := &Config{}
 	if err := v.Unmarshal(&config, viper.DecodeHook(mapstructure.TextUnmarshallerHookFunc())); err != nil {
@@ -104,8 +127,12 @@ func (c Config) Validate() error {
 		return errors.New("parameter ScannerSubnet must be provided")
 	}
 
-	if c.ScannerVMSize == "" {
-		return errors.New("parameter ScannerVMSize must be provided")
+	if c.ScannerVMArchitecture == "" {
+		return errors.New("parameter ScannerVmArchitecture must be provided")
+	}
+
+	if _, ok := c.ScannerVMSizeMapping[c.ScannerVMArchitecture]; !ok {
+		return fmt.Errorf("failed to find vm size for architecture %s", c.ScannerVMArchitecture)
 	}
 
 	if c.ScannerImagePublisher == "" {
@@ -116,8 +143,8 @@ func (c Config) Validate() error {
 		return errors.New("parameter ScannerImageOffer must be provided")
 	}
 
-	if c.ScannerImageSKU == "" {
-		return errors.New("parameter ScannerImageSKU must be provided")
+	if _, ok := c.ScannerImageSKUMapping[c.ScannerVMArchitecture]; !ok {
+		return fmt.Errorf("failed to find image sku for architecture %s", c.ScannerVMArchitecture)
 	}
 
 	if c.ScannerImageVersion == "" {
@@ -135,6 +162,31 @@ func (c Config) Validate() error {
 	if c.ScannerStorageContainerName == "" {
 		return errors.New("parameter ScannerStorageContainerName must be provided")
 	}
+
+	return nil
+}
+
+type Mapping map[string]string
+
+func (m *Mapping) UnmarshalText(text []byte) error {
+	mapping := make(Mapping)
+	items := strings.Split(string(text), ",")
+
+	numOfParts := 2
+	for _, item := range items {
+		pair := strings.Split(item, ":")
+		if len(pair) != numOfParts {
+			continue
+		}
+
+		switch pair[0] {
+		case AMD64, ARM64:
+			mapping[pair[0]] = pair[1]
+		default:
+			return fmt.Errorf("unsupported architecture: %s", pair[0])
+		}
+	}
+	*m = mapping
 
 	return nil
 }
