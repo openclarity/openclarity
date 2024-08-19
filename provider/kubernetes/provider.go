@@ -32,7 +32,7 @@ import (
 
 var crDiscovererLabels = map[string]string{
 	"app.kubernetes.io/component": "cr-discovery-server",
-	"app.kubernetes.io/name":      "vmclarity",
+	"app.kubernetes.io/name":      "openclarity",
 }
 
 var _ provider.Provider = &Provider{}

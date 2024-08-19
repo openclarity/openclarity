@@ -1,0 +1,15 @@
+imports:
+- path: openclarity.py
+
+resources:
+- name: openclarity
+  type: openclarity.py
+  properties:
+    region: us-central1
+    zone: us-central1-f
+    machineType: e2-standard-2
+    sshPublicKey: <SSH Public Key>
+
+outputs:
+  - name: openclarity-ip
+    value: $(ref.openclarity.ip)

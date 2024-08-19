@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "openclarity.gateway.name" . }}-hl
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "openclarity.gateway.labels.standard" . | nindent 4 }}
+  {{- if (not (empty .Values.gateway.service.annotations)) }}
+  annotations: {{ .Values.gateway.service.annotations }}
+  {{- end }}
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: http
+      protocol: TCP
+      port: {{ .Values.gateway.service.ports.http }}
+      targetPort: gateway-http
+  selector: {{- include "openclarity.gateway.labels.matchLabels" . | nindent 4 }}

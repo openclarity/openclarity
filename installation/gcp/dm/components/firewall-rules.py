@@ -19,7 +19,7 @@
 def GenerateConfig(context):
     """Creates the firewall"""
 
-    prefix = f"vmclarity-{context.env['deployment']}"
+    prefix = f"openclarity-{context.env['deployment']}"
 
     resources = [
         {
@@ -44,7 +44,7 @@ def GenerateConfig(context):
                 "network": "$(ref." + context.properties["network"] + ".selfLink)",
                 "direction": "INGRESS",
                 "sourceRanges": ["10.128.0.0/9"],
-                "targetTags": ["vmclarity-control-plane"],
+                "targetTags": ["openclarity-control-plane"],
                 "allowed": [
                     {
                         "IPProtocol": "TCP",

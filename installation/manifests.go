@@ -57,11 +57,11 @@ var GCPManifestBundle = &manifest.Bundle{
 	Matcher: manifest.DefaultMatcher,
 }
 
-//go:embed all:kubernetes/helm/vmclarity
+//go:embed all:kubernetes/helm/openclarity
 var helmManifestFS embed.FS
 
 var HelmManifestBundle = &manifest.Bundle{
-	Prefix:  "kubernetes/helm/vmclarity",
+	Prefix:  "kubernetes/helm/openclarity",
 	FS:      helmManifestFS,
 	Matcher: manifest.DefaultMatcher,
 }

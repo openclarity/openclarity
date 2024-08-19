@@ -21,7 +21,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var HelmChartDir = "../../../installation/kubernetes/helm/vmclarity"
+var HelmChartDir = "../../../installation/kubernetes/helm/openclarity"
 
 func TestLoader(t *testing.T) {
 	tests := []struct {
@@ -42,7 +42,7 @@ func TestLoader(t *testing.T) {
 				StorageDriver:  "secret",
 				KubeConfigPath: "kubeconfig",
 			},
-			ExpectedChartName: "vmclarity",
+			ExpectedChartName: "openclarity",
 		},
 		{
 			Name:    "Load chart from dir",
@@ -54,7 +54,7 @@ func TestLoader(t *testing.T) {
 				StorageDriver:  "secret",
 				KubeConfigPath: "kubeconfig",
 			},
-			ExpectedChartName: "vmclarity",
+			ExpectedChartName: "openclarity",
 		},
 	}
 

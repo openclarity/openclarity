@@ -40,13 +40,13 @@ type ContextKeyType string
 const (
 	GCPClientContextKey                 ContextKeyType = "GCPClient"
 	PollInterval                                       = 5 * time.Second
-	DiscovererSnapshotterRoleNameFormat                = "projects/%s/roles/vmclarity_%s_discoverer_snapshotter"
-	ScannerRoleNameFormat                              = "projects/%s/roles/vmclarity_%s_scanner"
+	DiscovererSnapshotterRoleNameFormat                = "projects/%s/roles/openclarity_%s_discoverer_snapshotter"
+	ScannerRoleNameFormat                              = "projects/%s/roles/openclarity_%s_scanner"
 
-	DefaultRemoteUser = "vmclarity"
+	DefaultRemoteUser = "openclarity"
 	ProjectID         = "gcp-osedev-nprd-52462"
 	Zone              = "us-central1-f"
-	TestAssetName     = "vmclarity-test-asset"
+	TestAssetName     = "openclarity-test-asset"
 )
 
 type GCPEnv struct {

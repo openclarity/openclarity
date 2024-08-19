@@ -107,7 +107,7 @@ var _ = ginkgo.Describe("Running KICS scan", func() {
 
 var _ = ginkgo.Describe("Running a KICS scan", func() {
 	ginkgo.Context("which scans an openapi.yaml file and has report-formats set to sarif", func() {
-		ginkgo.It("should finish successfully, and output both JSON and Sarif format as well as VMClarity output", func(ctx ginkgo.SpecContext) {
+		ginkgo.It("should finish successfully, and output both JSON and Sarif format as well as OpenClarity output", func(ctx ginkgo.SpecContext) {
 			if cfg.TestEnvConfig.Images.PluginKics == "" {
 				ginkgo.Skip("KICS plugin image not provided")
 			}

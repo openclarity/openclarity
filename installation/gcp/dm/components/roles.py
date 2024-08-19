@@ -22,7 +22,7 @@ def GenerateConfig(context):
     """Creates the custom roles"""
 
     deployment_name_hash = sha1(context.env["deployment"].encode("utf8")).hexdigest()[:10]
-    prefix = f"vmclarity-{deployment_name_hash}"
+    prefix = f"openclarity-{deployment_name_hash}"
 
     discoverer_role_name = f"{prefix}-discoverer-snapshotter"
     discoverer_role_id = discoverer_role_name.replace("-", "_")
@@ -39,11 +39,11 @@ def GenerateConfig(context):
                 "roleId": discoverer_role_id,
                 "role": {
                     "title": (
-                        f"VMClarity {context.env['deployment']} "
+                        f"OpenClarity {context.env['deployment']} "
                         f"Discoverer Snapshotter"
                     ),
                     "description": (
-                        f"Role to allow vmclarity {context.env['deployment']} "
+                        f"Role to allow openclarity {context.env['deployment']} "
                         f"to discover and snapshot instances in the project"
                     ),
                     "stage": "GA",
@@ -69,9 +69,9 @@ def GenerateConfig(context):
                 "parent": f"projects/{context.env['project']}",
                 "roleId": scanner_role_id,
                 "role": {
-                    "title": f"VMClarity {context.env['deployment']} Scanner",
+                    "title": f"OpenClarity {context.env['deployment']} Scanner",
                     "description": (
-                        f"Role to allow vmclarity {context.env['deployment']} "
+                        f"Role to allow openclarity {context.env['deployment']} "
                         f"to create and manage scanner instances"
                     ),
                     "stage": "GA",

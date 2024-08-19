@@ -25,13 +25,13 @@ import (
 )
 
 const (
-	virtualNetworkName     = "vmclarity-asset-net"
+	virtualNetworkName     = "openclarity-asset-net"
 	virtualNetworkAddress  = "10.1.0.0/16"
-	networkSubnetName      = "vmclarity-asset-subnet"
+	networkSubnetName      = "openclarity-asset-subnet"
 	networkSubnetAddress   = "10.1.0.0/24"
-	networkInterfaceName   = "vmclarity-asset-net-int"
-	osDiskName             = "vmclarity-asset-os-disk"
-	virtualMachineName     = "vmclarity-asset"
+	networkInterfaceName   = "openclarity-asset-net-int"
+	osDiskName             = "openclarity-asset-os-disk"
+	virtualMachineName     = "openclarity-asset"
 	virtualMachineUserName = "ubuntu"
 	virtualMachineSize     = "Standard_B1ls"
 )
@@ -178,7 +178,7 @@ func (e *AzureEnv) createVirtualMachine(ctx context.Context, location, resourceG
 				VMSize: to.Ptr(armcompute.VirtualMachineSizeTypes(virtualMachineSize)), // VM size include vCPUs,RAM,Data Disks,Temp storage.
 			},
 			OSProfile: &armcompute.OSProfile{ //
-				ComputerName:  to.Ptr("vmclarity-asset-compute"),
+				ComputerName:  to.Ptr("openclarity-asset-compute"),
 				AdminUsername: to.Ptr(virtualMachineUserName),
 				LinuxConfiguration: &armcompute.LinuxConfiguration{
 					DisablePasswordAuthentication: to.Ptr(true),

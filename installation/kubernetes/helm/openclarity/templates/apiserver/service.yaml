@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "openclarity.apiserver.name" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "openclarity.apiserver.labels.standard" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8888
+      targetPort: 8888
+  selector: {{- include "openclarity.apiserver.labels.matchLabels" . | nindent 4 }}

@@ -33,7 +33,7 @@ import (
 )
 
 const (
-	DefaultEnvName  = "vmclarity-testenv"
+	DefaultEnvName  = "openclarity-testenv"
 	DefaultPlatform = types.EnvironmentTypeDocker
 )
 
@@ -159,7 +159,7 @@ func withDefaultWorkDir() ConfigOptFn {
 	}
 }
 
-const TestEnvDataDir = "vmclarity-testenv"
+const TestEnvDataDir = "openclarity-testenv"
 
 func ConfigDir() (string, error) {
 	if dir := os.Getenv("XDG_CONFIG_HOME"); dir != "" {

@@ -41,7 +41,7 @@ func ProjectFromConfig(config *Config) (*types.Project, error) {
 	}
 
 	if len(config.ComposeFiles) == 0 {
-		// Unpack VMClarity Docker Bundle
+		// Unpack OpenClarity Docker Bundle
 		if err := utils.ExportFS(installation.DockerManifestBundle, config.WorkDir); err != nil {
 			return nil, fmt.Errorf("failed to unpack Docker manifest: %w", err)
 		}

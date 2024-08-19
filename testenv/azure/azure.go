@@ -36,9 +36,9 @@ import (
 )
 
 const (
-	bicepFileResourcesFormat                  = "vmclarity-%s"
+	bicepFileResourcesFormat                  = "openclarity-%s"
 	bicepFileDiscoverRoleDeploymentNameFormat = "%s-discover-role"
-	defaultRemoteUser                         = "vmclarity"
+	defaultRemoteUser                         = "openclarity"
 )
 
 var _ types.Environment = &AzureEnv{}
@@ -77,7 +77,7 @@ type AzureEnv struct {
 // * When infrastructure is ready, start SSH port forwarding and remote docker client.
 // Returns error if it fails to set up the environment.
 func (e *AzureEnv) SetUp(ctx context.Context) error {
-	// Create and validate VMClarity deployment
+	// Create and validate OpenClarity deployment
 	if err := e.createAzureResources(ctx); err != nil {
 		return fmt.Errorf("failed to create Azure resources: %w", err)
 	}
@@ -87,7 +87,7 @@ func (e *AzureEnv) SetUp(ctx context.Context) error {
 		return fmt.Errorf("failed to create asset VM: %w", err)
 	}
 
-	// Set connection with VMClarity server
+	// Set connection with OpenClarity server
 	if err := e.setServerConnection(ctx); err != nil {
 		return fmt.Errorf("failed to set server connection: %w", err)
 	}
@@ -105,10 +105,10 @@ func (e *AzureEnv) TearDown(ctx context.Context) error {
 
 	discoverRoleDeploymentName := fmt.Sprintf(bicepFileDiscoverRoleDeploymentNameFormat, fmt.Sprintf(bicepFileResourcesFormat, e.postfix))
 
-	// Cleanup VMClarity Discoverer Snapshotter role assignment and role definition
+	// Cleanup OpenClarity Discoverer Snapshotter role assignment and role definition
 	// They are at subscription scope so removing the resource group will not remove them
 	if err := e.cleanupDiscovererSnapshotterRole(ctx, discoverRoleDeploymentName); err != nil {
-		return fmt.Errorf("failed to cleanup VMClarity Discoverer Snapshotter role: %w", err)
+		return fmt.Errorf("failed to cleanup OpenClarity Discoverer Snapshotter role: %w", err)
 	}
 
 	// Cleanup resource group
@@ -226,7 +226,7 @@ func New(config *Config, opts ...ConfigOptFn) (*AzureEnv, error) {
 		publicIPAddressesClient: networkClientFactory.NewPublicIPAddressesClient(),
 		virtualMachinesClient:   computeClientFactory.NewVirtualMachinesClient(),
 		subscriptionID:          subscriptionID,
-		postfix:                 strings.TrimPrefix(config.EnvName, "vmclarity-"),
+		postfix:                 strings.TrimPrefix(config.EnvName, "openclarity-"),
 		location:                config.Region,
 		sshKeyPair:              sshKeyPair,
 		workDir:                 config.WorkDir,

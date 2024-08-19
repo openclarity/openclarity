@@ -304,7 +304,7 @@ func New(config *Config, opts ...ConfigOptFn) (*KubernetesEnv, error) {
 		assetInstaller, err := asset.NewAssetInstaller(&asset.Config{
 			KubeConfigPath: config.KubeConfigPath,
 			Namespace:      config.Namespace,
-			Name:           config.EnvName + "-vmclarity-asset",
+			Name:           config.EnvName + "-openclarity-asset",
 		})
 		if err != nil {
 			return nil, fmt.Errorf("failed to create Asset installer: %w", err)

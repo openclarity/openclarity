@@ -29,7 +29,7 @@ func NewDeploymentFromConfig(config *Config) (*appsv1.Deployment, error) {
 		ObjectMeta: metav1.ObjectMeta{
 			Name: config.Name,
 			Labels: map[string]string{
-				"app.kubernetes.io/name":       "vmclarity-asset",
+				"app.kubernetes.io/name":       "openclarity-asset",
 				"app.kubernetes.io/instance":   config.Name,
 				"app.kubernetes.io/component":  "asset",
 				"app.kubernetes.io/managed-by": "testenv",
@@ -40,7 +40,7 @@ func NewDeploymentFromConfig(config *Config) (*appsv1.Deployment, error) {
 			Replicas: to.Ptr[int32](1),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
-					"app.kubernetes.io/name":      "vmclarity-asset",
+					"app.kubernetes.io/name":      "openclarity-asset",
 					"app.kubernetes.io/instance":  config.Name,
 					"app.kubernetes.io/component": "asset",
 					"scanconfig":                  "test",
@@ -49,7 +49,7 @@ func NewDeploymentFromConfig(config *Config) (*appsv1.Deployment, error) {
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{
-						"app.kubernetes.io/name":       "vmclarity-asset",
+						"app.kubernetes.io/name":       "openclarity-asset",
 						"app.kubernetes.io/instance":   config.Name,
 						"app.kubernetes.io/component":  "asset",
 						"app.kubernetes.io/managed-by": "testenv",

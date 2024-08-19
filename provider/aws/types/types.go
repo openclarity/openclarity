@@ -33,13 +33,13 @@ const (
 	EC2TagKeyOwner         = "Owner"
 	EC2TagKeyName          = "Name"
 	EC2TagValueNamePattern = "vmclarity-scanner-%s"
-	EC2TagValueOwner       = "VMClarity"
-	EC2TagKeyScanID        = "VMClarity.ScanID"
-	EC2TagKeyAssetScanID   = "VMClarity.AssetScanID"
-	EC2TagKeyAssetID       = "VMClarity.AssetID"
-	EC2TagKeyAssetVolumeID = "VMClarity.AssetVolumeID"
+	EC2TagValueOwner       = "OpenClarity"
+	EC2TagKeyScanID        = "OpenClarity.ScanID"
+	EC2TagKeyAssetScanID   = "OpenClarity.AssetScanID"
+	EC2TagKeyAssetID       = "OpenClarity.AssetID"
+	EC2TagKeyAssetVolumeID = "OpenClarity.AssetVolumeID"
 
-	EC2SnapshotDescription = "Volume snapshot created by VMClarity for scanning"
+	EC2SnapshotDescription = "Volume snapshot created by OpenClarity for scanning"
 )
 
 const (

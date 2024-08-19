@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "openclarity.gateway.name" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "openclarity.gateway.labels.standard" . | nindent 4 }}
+data:
+  nginx.conf: |
+    events {
+        worker_connections 1024;
+    }
+    
+    http {
+        upstream ui {
+            server {{ printf "%s" (include "openclarity.ui.name" .) }}:8080;
+        }
+    
+        upstream uibackend {
+            server {{ printf "%s" (include "openclarity.uibackend.name" .) }}:8890;
+        }
+    
+        upstream apiserver {
+            server {{ printf "%s" (include "openclarity.apiserver.name" .) }}:8888;
+        }
+
+        upstream swaggerui {
+          server {{ printf "%s" (include "openclarity.swaggerUI.name" .) }}:8080;
+        }
+    
+        server {
+            listen 8080;
+            absolute_redirect off;
+    
+            location / {
+                proxy_pass http://ui/;
+            }
+    
+            location /ui/api/ {
+                proxy_pass http://uibackend/;
+            }
+    
+            location /api/ {
+                proxy_set_header X-Forwarded-Host $http_host;
+                proxy_set_header X-Forwarded-Prefix /api;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_pass http://apiserver/;
+            }
+
+            location /apidocs/ {
+                proxy_pass http://swaggerui/;
+            }
+        }
+    }
