@@ -41,29 +41,27 @@ func TestConfig(t *testing.T) {
 				"OPENCLARITY_AWS_SUBNET_ID":                     "subnet-038f85dc621fd5b5d",
 				"OPENCLARITY_AWS_SECURITY_GROUP_ID":             "sg-02cfdc854e18664d4",
 				"OPENCLARITY_AWS_KEYPAIR_NAME":                  "vmclarity-ssh-key",
-				"OPENCLARITY_AWS_SCANNER_IMAGE_NAME_FILTER":     "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-*",
-				"OPENCLARITY_AWS_SCANNER_IMAGE_OWNERS":          "099720109477,amazon",
+				"OPENCLARITY_AWS_SCANNER_INSTANCE_ARCHITECTURE": "x86_64",
 				"OPENCLARITY_AWS_SCANNER_INSTANCE_TYPE_MAPPING": "x86_64:t3.large,arm64:t4g.large",
-				"OPENCLARITY_AWS_SCANNER_INSTANCE_ARCH_TO_USE":  "x86_64",
+				"OPENCLARITY_AWS_SCANNER_INSTANCE_AMI_MAPPING":  "x86_64:ami-03f1cc6c8b9c0b899,arm64:ami-06972d841707cc4cf",
 				"OPENCLARITY_AWS_BLOCK_DEVICE_NAME":             "xvdh",
 			},
 			ExpectedNewErrorMatcher: Not(HaveOccurred()),
 			ExpectedConfig: &Config{
-				ScannerRegion:          "eu-west-1",
-				SubnetID:               "subnet-038f85dc621fd5b5d",
-				SecurityGroupID:        "sg-02cfdc854e18664d4",
-				KeyPairName:            "vmclarity-ssh-key",
-				ScannerImageNameFilter: "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-*",
-				ScannerImageOwners: []string{
-					"099720109477",
-					"amazon",
-				},
-				ScannerInstanceTypeMapping: awstypes.InstanceTypeMapping{
+				ScannerRegion:               "eu-west-1",
+				SubnetID:                    "subnet-038f85dc621fd5b5d",
+				SecurityGroupID:             "sg-02cfdc854e18664d4",
+				KeyPairName:                 "vmclarity-ssh-key",
+				ScannerInstanceArchitecture: "x86_64",
+				ScannerInstanceTypeMapping: awstypes.Mapping{
 					"x86_64": "t3.large",
 					"arm64":  "t4g.large",
 				},
-				ScannerInstanceArchitecture: "x86_64",
-				BlockDeviceName:             "xvdh",
+				ScannerInstanceAMIMapping: awstypes.Mapping{
+					"x86_64": "ami-03f1cc6c8b9c0b899",
+					"arm64":  "ami-06972d841707cc4cf",
+				},
+				BlockDeviceName: "xvdh",
 			},
 			ExpectedValidateErrorMatcher: Not(HaveOccurred()),
 		},
@@ -96,14 +94,14 @@ func TestInstanceTypeMapping(t *testing.T) {
 		MappingText []byte
 
 		ExpectedErrorMatcher        types.GomegaMatcher
-		ExpectedInstanceTypeMapping *awstypes.InstanceTypeMapping
+		ExpectedInstanceTypeMapping *awstypes.Mapping
 	}{
 		{
 			Name:        "Valid instance type mapping",
 			MappingText: []byte("x86_64:t3.large,arm64:t4g.large"),
 
 			ExpectedErrorMatcher: Not(HaveOccurred()),
-			ExpectedInstanceTypeMapping: &awstypes.InstanceTypeMapping{
+			ExpectedInstanceTypeMapping: &awstypes.Mapping{
 				"x86_64": "t3.large",
 				"arm64":  "t4g.large",
 			},
@@ -114,7 +112,7 @@ func TestInstanceTypeMapping(t *testing.T) {
 		t.Run(test.Name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 
-			mapping := &awstypes.InstanceTypeMapping{}
+			mapping := &awstypes.Mapping{}
 			err := mapping.UnmarshalText(test.MappingText)
 
 			g.Expect(err).Should(test.ExpectedErrorMatcher)

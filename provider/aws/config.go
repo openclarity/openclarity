@@ -27,19 +27,18 @@ import (
 
 const (
 	DefaultEnvPrefix                   = "OPENCLARITY_AWS"
-	DefaultScannerImageNameFilter      = "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-*"
 	DefaultScannerInstanceArchitecture = types.AMD64
 	DefaultBlockDeviceName             = "xvdh"
 )
 
 var (
-	DefaultScannerImageOwners = []string{
-		"099720109477", // Official Ubuntu Cloud account
-	}
-
 	DefaultScannerInstanceTypeMapping = map[string]string{
 		types.AMD64: "t3.large",
 		types.ARM64: "t4g.large",
+	}
+	DefaultScannerInstanceAMIMapping = map[string]string{
+		types.AMD64: "ami-03f1cc6c8b9c0b899",
+		types.ARM64: "ami-06972d841707cc4cf",
 	}
 )
 
@@ -51,18 +50,15 @@ type Config struct {
 	// SecurityGroupID which needs to be attached to the Scanner instance
 	SecurityGroupID string `mapstructure:"security_group_id"`
 	// KeyPairName is the name of the SSH KeyPair to use for Scanner instance launch
-	KeyPairName            string `mapstructure:"keypair_name"`
-	ScannerImageNameFilter string `mapstructure:"scanner_image_filter_name"`
-	// ImageOwners is a comma separated list of OwnerID(s)/OwnerAliases used as Owners filter for finding AMI
-	// to instantiate Scanner instance.
-	// See: https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeImages.html
-	ScannerImageOwners []string `mapstructure:"scanner_image_owners"`
-	// InstanceTypeMapping contains Architecture:InstanceType pairs
-	ScannerInstanceTypeMapping types.InstanceTypeMapping `mapstructure:"scanner_instance_type_mapping"`
+	KeyPairName string `mapstructure:"keypair_name"`
 	// ScannerInstanceArchitecture contains the architecture to be used for Scanner instance which prevents the Provider
 	// to dynamically determine it based on the Target architecture. The Provider will use this value to lookup
 	// for InstanceType in InstanceTypeMapping.
 	ScannerInstanceArchitecture string `mapstructure:"scanner_instance_architecture"`
+	// InstanceTypeMapping contains Architecture:InstanceType pairs
+	ScannerInstanceTypeMapping types.Mapping `mapstructure:"scanner_instance_type_mapping"`
+	// ScannerInstanceAMIMapping contains Architecture:AMI pairs
+	ScannerInstanceAMIMapping types.Mapping `mapstructure:"scanner_instance_ami_mapping"`
 	// BlockDeviceName contains the block device name used for attaching Scanner volume to the Scanner instance
 	BlockDeviceName string `mapstructure:"block_device_name"`
 }
@@ -84,6 +80,10 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("failed to find instance type for architecture. Arch=%s", c.ScannerInstanceArchitecture)
 	}
 
+	if _, ok := c.ScannerInstanceAMIMapping[c.ScannerInstanceArchitecture]; !ok {
+		return fmt.Errorf("failed to find instance AMI for architecture. Arch=%s", c.ScannerInstanceArchitecture)
+	}
+
 	return nil
 }
 
@@ -100,17 +100,14 @@ func NewConfig() (*Config, error) {
 	_ = v.BindEnv("security_group_id")
 	_ = v.BindEnv("keypair_name")
 
-	_ = v.BindEnv("scanner_image_filter_name")
-	v.SetDefault("scanner_image_filter_name", DefaultScannerImageNameFilter)
-
-	_ = v.BindEnv("scanner_image_owners")
-	v.SetDefault("scanner_image_owners", DefaultScannerImageOwners)
+	_ = v.BindEnv("scanner_instance_architecture")
+	v.SetDefault("scanner_instance_architecture", DefaultScannerInstanceArchitecture)
 
 	_ = v.BindEnv("scanner_instance_type_mapping")
 	v.SetDefault("scanner_instance_type_mapping", DefaultScannerInstanceTypeMapping)
 
-	_ = v.BindEnv("scanner_instance_architecture")
-	v.SetDefault("scanner_instance_architecture", DefaultScannerInstanceArchitecture)
+	_ = v.BindEnv("scanner_instance_ami_mapping")
+	v.SetDefault("scanner_instance_ami_mapping", DefaultScannerInstanceAMIMapping)
 
 	_ = v.BindEnv("block_device_name")
 	v.SetDefault("block_device_name", DefaultBlockDeviceName)

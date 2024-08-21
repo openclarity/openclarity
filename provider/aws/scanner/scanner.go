@@ -21,7 +21,6 @@ import (
 	"errors"
 	"fmt"
 	"sync"
-	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
@@ -40,17 +39,15 @@ import (
 var _ provider.Scanner = &Scanner{}
 
 type Scanner struct {
-	Kind                        apitypes.CloudProvider
-	ScannerRegion               string
-	BlockDeviceName             string
-	ScannerImageNameFilter      string
-	ScannerImageOwners          []string
-	ScannerInstanceType         string
-	ScannerInstanceArchitecture string
-	SecurityGroupID             string
-	SubnetID                    string
-	KeyPairName                 string
-	Ec2Client                   *ec2.Client
+	Kind                apitypes.CloudProvider
+	ScannerRegion       string
+	BlockDeviceName     string
+	ScannerInstanceType string
+	ScannerInstanceAMI  string
+	SecurityGroupID     string
+	SubnetID            string
+	KeyPairName         string
+	Ec2Client           *ec2.Client
 }
 
 // nolint:cyclop,gocognit,maintidx,wrapcheck
@@ -480,16 +477,10 @@ func (s *Scanner) createInstance(ctx context.Context, region string, config *pro
 	}
 	userDataBase64 := base64.StdEncoding.EncodeToString([]byte(userData))
 
-	// Find AMI for Scanner instance based on the architecture
-	imageID, err := s.imageIDByArchitectureType(ctx, s.ScannerInstanceArchitecture)
-	if err != nil {
-		return nil, fmt.Errorf("failed to find AMI for architecture. Arch=%s: %w", s.ScannerInstanceArchitecture, err)
-	}
-
 	runParams := &ec2.RunInstancesInput{
 		MaxCount:     to.Ptr[int32](1),
 		MinCount:     to.Ptr[int32](1),
-		ImageId:      to.Ptr(imageID),
+		ImageId:      to.Ptr(s.ScannerInstanceAMI),
 		InstanceType: ec2types.InstanceType(s.ScannerInstanceType),
 		TagSpecifications: []ec2types.TagSpecification{
 			{
@@ -732,69 +723,4 @@ func getSecurityGroupsFromEC2GroupIdentifiers(identifiers []ec2types.GroupIdenti
 	}
 
 	return ret
-}
-
-func (s *Scanner) imageIDByArchitectureType(ctx context.Context, archType string) (string, error) {
-	logger := log.GetLoggerFromContextOrDiscard(ctx)
-
-	opts := func(options *ec2.Options) {
-		options.Region = s.ScannerRegion
-	}
-
-	filters := []ec2types.Filter{
-		{
-			Name:   to.Ptr(types.ArchitectureFilterName),
-			Values: []string{archType},
-		},
-		{
-			Name:   to.Ptr(types.ENASupportFilterName),
-			Values: []string{"true"},
-		},
-		{
-			Name:   to.Ptr(types.AMINameFilterName),
-			Values: []string{s.ScannerImageNameFilter},
-		},
-		{
-			Name:   to.Ptr(types.VirtualizationTypeFilterName),
-			Values: []string{"hvm"},
-		},
-	}
-
-	imagesParams := &ec2.DescribeImagesInput{
-		ExecutableUsers:   []string{"all"},
-		Filters:           filters,
-		IncludeDeprecated: to.Ptr(false),
-		Owners:            s.ScannerImageOwners,
-	}
-
-	images, err := s.Ec2Client.DescribeImages(ctx, imagesParams, opts)
-	if err != nil {
-		return "", fmt.Errorf("failed to fetch AMI for architecture type. ArchType=%s ImageNameFilter=%s: %w",
-			archType, s.ScannerImageNameFilter, err)
-	}
-
-	// Find the latest image
-	var imageID string
-	var imageCreation time.Time
-	for _, image := range images.Images {
-		if image.ImageId != nil && image.CreationDate != nil {
-			creation, err := time.Parse(time.RFC3339, *image.CreationDate)
-			if err != nil {
-				logger.Errorf("Failed to parse creation date of AMI. Date=%s: %v", *image.CreationDate, err)
-				continue
-			}
-
-			if creation.After(imageCreation) {
-				imageID = *image.ImageId
-				imageCreation = creation
-			}
-		}
-	}
-
-	if imageID == "" {
-		return imageID, fmt.Errorf("failed to find AMI for architecture type. ArchType=%s ImageNameFilter=%s",
-			archType, s.ScannerImageNameFilter)
-	}
-
-	return imageID, nil
 }

@@ -179,10 +179,10 @@ func (i *Instance) AttachVolume(ctx context.Context, volume *Volume, deviceName 
 	}
 }
 
-type InstanceTypeMapping map[string]string
+type Mapping map[string]string
 
-func (m *InstanceTypeMapping) UnmarshalText(text []byte) error {
-	mapping := make(InstanceTypeMapping)
+func (m *Mapping) UnmarshalText(text []byte) error {
+	mapping := make(Mapping)
 	items := strings.Split(string(text), ",")
 
 	numOfParts := 2

@@ -561,22 +561,20 @@ Resources:
                     OPENCLARITY_AWS_SECURITY_GROUP_ID=${OpenClarityScannerSecurityGroup}
                     # Name of the SSH KeyPair to use for Scanner instance launch
                     OPENCLARITY_AWS_KEYPAIR_NAME=${KeyName}
-                    # ImageNameFilter contains the Name filter used for finding AMI to instantiate Scanner instance
-                    OPENCLARITY_AWS_SCANNER_IMAGE_NAME_FILTER=${ScannerAMINameFilter}
-                    # Comma separated list of OwnerID(s)/OwnerAliases used as Owners filter for finding AMI
-                    # to instantiate Scanner instance.
-                    OPENCLARITY_AWS_SCANNER_IMAGE_OWNERS=${ScannerAMIOwnersFilter}
+                    # Architecture for Scanner instance. Make sure that there is a valid mapping defined in OPENCLARITY_AWS_INSTANCE_TYPE_MAPPING and OPENCLARITY_AWS_INSTANCE_AMI_MAPPING
+                    # for this architecture. 
+                    OPENCLARITY_AWS_SCANNER_INSTANCE_ARCHITECTURE=${ScannerInstanceArchitecture}
                     # Comma separated list of architecture:instance_type pairs used by the Provider to determine the instance type
                     # for the Scanner instance based on the Targets architecture.
                     OPENCLARITY_AWS_SCANNER_INSTANCE_TYPE_MAPPING=${ScannerInstanceTypeMapping}
-                    # Optional. Always use this architcecture for Scanner instance. Make sure that there is a valid mapping defined in OPENCLARITY_AWS_INSTANCE_TYPE_MAPPING
-                    # for this architecture. 
-                    OPENCLARITY_AWS_SCANNER_INSTANCE_ARCHITECTURE=${ScannerInstanceArchitecture}
+                    # Comma separated list of architecture:ami pairs used by the Provider to determine the instance AMI
+                    # for the Scanner instance based on the Targets architecture.
+                    OPENCLARITY_AWS_SCANNER_INSTANCE_AMI_MAPPING=${ScannerInstanceAMIMapping}
                     # Block device name used for attaching Scanner volume to the Scanner instance
                     #OPENCLARITY_AWS_BLOCK_DEVICE_NAME=xvhd
                   - ScannerContainerImage: !If [ScannerContainerImageOverridden, !Ref ScannerContainerImageOverride, "ghcr.io/openclarity/vmclarity-cli:latest"]
                     ScannerInstanceTypeMapping: !Join [",", !Ref ScannerInstanceTypeMapping]
-                    ScannerAMIOwnersFilter: !Join [",", !Ref ScannerAMIOwnersFilter]
+                    ScannerInstanceAMIMapping: !Join [",", !Ref ScannerInstanceAMIMapping]
               mode: "000644"
 
             "/etc/vmclarity/trivy-server.env":
@@ -1116,6 +1114,14 @@ Parameters:
     Default: 'x86_64:t2.large,arm64:t4g.large'
     AllowedPattern: '(?:((?:x86_64|arm64):[a-z0-9\.]*),?)'
     ConstraintDescription: must be a valid InstanceTypeMapping format.
+  ScannerInstanceAMIMapping:
+    Description: >
+      Comma separated list of architecture:ami pairs used for OpenClarity Scanner instance.
+      "x86_64:ami-03f1cc6c8b9c0b899,arm64:ami-06972d841707cc4cf" will be used if not overridden.
+    Type: CommaDelimitedList
+    Default: 'x86_64:ami-03f1cc6c8b9c0b899,arm64:ami-06972d841707cc4cf'
+    AllowedPattern: '(?:((?:x86_64|arm64):[a-z0-9\-]*),?)'
+    ConstraintDescription: must be a valid InstanceAMIMapping format.
   KeyName:
     Description: Name of an EC2 KeyPair to enable SSH access to the instance.
     Type: "AWS::EC2::KeyPair::KeyName"
@@ -1248,18 +1254,6 @@ Parameters:
       - ''
       - x86_64
       - arm64
-  ScannerAMINameFilter:
-    Description: >
-      The Name filter used for finding AMI for instantiating Scanner instance.
-      See: https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeImages.html
-    Type: String
-    Default: 'ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-*'
-  ScannerAMIOwnersFilter:
-    Description: >
-      List of OwnerID(s)/OwnerAliases used as Owners filter for finding AMI for instantiating Scanner instance.
-      See: https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeImages.html
-    Type: CommaDelimitedList
-    Default: '099720109477'
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
@@ -1270,8 +1264,7 @@ Metadata:
           - InstanceType
           - ScannerInstanceArchitecture
           - ScannerInstanceTypeMapping
-          - ScannerAMINameFilter
-          - ScannerAMIOwnersFilter
+          - ScannerInstanceAMIMapping
       - Label:
           default: Network Configuration
         Parameters:
@@ -1346,10 +1339,6 @@ Metadata:
         default: External DB Password
       ScannerInstanceArchitecture:
         default: VMClarity Scanner instance architecture
-      ScannerAMINameFilter:
-        default: VMClarity Scanner AMI Name filter
-      ScannerAMIOwnersFilter:
-        default: VMClarity Scanner AMI Owners filter
 Mappings:
   # For every type we want AWS hardware virtualisation on amd64 (HVMAMD64) or arm64 (HVMARM64)
   AWSInstanceType2Arch:

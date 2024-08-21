@@ -66,22 +66,26 @@ func New(ctx context.Context) (provider.Provider, error) {
 		return nil, fmt.Errorf("failed to find instance type for architecture. Arch=%s", config.ScannerInstanceArchitecture)
 	}
 
+	// Find architecture specific AMI for Scanner instance
+	scannerInstanceAMI, ok := config.ScannerInstanceAMIMapping[config.ScannerInstanceArchitecture]
+	if !ok {
+		return nil, fmt.Errorf("failed to find AMI for architecture. Arch=%s", config.ScannerInstanceArchitecture)
+	}
+
 	return &Provider{
 		Discoverer: &discoverer.Discoverer{
 			Ec2Client: ec2Client,
 		},
 		Scanner: &scanner.Scanner{
-			Kind:                        apitypes.AWS,
-			ScannerRegion:               config.ScannerRegion,
-			BlockDeviceName:             config.BlockDeviceName,
-			ScannerImageNameFilter:      config.ScannerImageNameFilter,
-			ScannerImageOwners:          config.ScannerImageOwners,
-			ScannerInstanceType:         scannerInstanceType,
-			ScannerInstanceArchitecture: config.ScannerInstanceArchitecture,
-			SecurityGroupID:             config.SecurityGroupID,
-			SubnetID:                    config.SubnetID,
-			KeyPairName:                 config.KeyPairName,
-			Ec2Client:                   ec2Client,
+			Kind:                apitypes.AWS,
+			ScannerRegion:       config.ScannerRegion,
+			BlockDeviceName:     config.BlockDeviceName,
+			ScannerInstanceType: scannerInstanceType,
+			ScannerInstanceAMI:  scannerInstanceAMI,
+			SecurityGroupID:     config.SecurityGroupID,
+			SubnetID:            config.SubnetID,
+			KeyPairName:         config.KeyPairName,
+			Ec2Client:           ec2Client,
 		},
 		Estimator: &estimator.Estimator{
 			ScannerRegion:       config.ScannerRegion,
