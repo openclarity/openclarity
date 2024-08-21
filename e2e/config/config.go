@@ -25,6 +25,7 @@ import (
 
 	apitypes "github.com/openclarity/openclarity/api/types"
 	"github.com/openclarity/openclarity/core/to"
+	"github.com/openclarity/openclarity/e2e/benchmark"
 	"github.com/openclarity/openclarity/testenv"
 	"github.com/openclarity/openclarity/testenv/aws"
 	azureenv "github.com/openclarity/openclarity/testenv/azure"
@@ -144,6 +145,8 @@ type Config struct {
 	TestEnvConfig testenv.Config `mapstructure:",squash"`
 	// TestSuiteParams contains test parameters for each environment.
 	TestSuiteParams *TestSuiteParams
+	// BenchmarkConfig contains the configuration for benchmarking.
+	BenchmarkConfig benchmark.Config `mapstructure:"benchmark"`
 }
 
 func NewConfig() (*Config, error) {
@@ -264,6 +267,15 @@ func NewConfig() (*Config, error) {
 
 	_ = v.BindEnv("azure.public_key_file")
 	_ = v.BindEnv("azure.private_key_file")
+
+	//
+	// Benchmark configuration
+	//
+
+	_ = v.BindEnv("benchmark.enabled")
+	v.SetDefault("benchmark.enabled", benchmark.DefaultEnabledFlag)
+	_ = v.BindEnv("benchmark.output_file_path")
+	v.SetDefault("benchmark.output_file_path", benchmark.DefaultOutputFilePath)
 
 	decodeHooks := mapstructure.ComposeDecodeHookFunc(
 		// TextUnmarshallerHookFunc is needed to decode custom types

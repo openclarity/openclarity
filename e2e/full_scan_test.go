@@ -25,6 +25,7 @@ import (
 
 	apitypes "github.com/openclarity/openclarity/api/types"
 	"github.com/openclarity/openclarity/core/to"
+	"github.com/openclarity/openclarity/e2e/benchmark"
 	uitypes "github.com/openclarity/openclarity/uibackend/types"
 )
 
@@ -171,13 +172,19 @@ var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, mi
 				return *findings.Count > 0
 			}, DefaultTimeout*2, DefaultPeriod).Should(gomega.BeTrue())
 
-			ginkgo.By("writing benchmark results to markdown file")
-			assetScans, err := client.GetAssetScans(ctx, apitypes.GetAssetScansParams{
-				Top: to.Ptr(1),
-			})
-			gomega.Expect(err).NotTo(gomega.HaveOccurred())
+			if cfg.BenchmarkConfig.Enabled {
+				ginkgo.By("writing benchmark results to markdown file")
+				assetScans, err := client.GetAssetScans(ctx, apitypes.GetAssetScansParams{
+					Top: to.Ptr(1),
+				})
+				gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
-			writeMarkdownTableToFile(generateMarkdownTable((*assetScans.Items)[0].Stats))
+				b, err := benchmark.NewBenchmarkExtractor((*assetScans.Items)[0].Stats)
+				gomega.Expect(err).NotTo(gomega.HaveOccurred())
+
+				err = b.ExportAsMarkdown(cfg.BenchmarkConfig.OutputFilePath)
+				gomega.Expect(err).NotTo(gomega.HaveOccurred())
+			}
 		})
 	})
 

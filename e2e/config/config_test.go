@@ -23,6 +23,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/types"
 
+	"github.com/openclarity/openclarity/e2e/benchmark"
 	"github.com/openclarity/openclarity/testenv"
 	awsenv "github.com/openclarity/openclarity/testenv/aws"
 	azureenv "github.com/openclarity/openclarity/testenv/azure"
@@ -81,6 +82,9 @@ func TestConfig(t *testing.T) {
 				"OPENCLARITY_E2E_AZURE_REGION":           "polandcentral",
 				"OPENCLARITY_E2E_AZURE_PRIVATE_KEY_FILE": "/home/openclarity/.ssh/id_rsa",
 				"OPENCLARITY_E2E_AZURE_PUBLIC_KEY_FILE":  "/home/openclarity/.ssh/id_rsa.pub",
+				// Benchmark configuration
+				"OPENCLARITY_E2E_BENCHMARK_ENABLED":          "false",
+				"OPENCLARITY_E2E_BENCHMARK_OUTPUT_FILE_PATH": "/home/openclarity/scanner-benchmark.md",
 			},
 			ExpectedNewErrorMatcher: Not(HaveOccurred()),
 			ExpectedConfig: &Config{
@@ -165,6 +169,10 @@ func TestConfig(t *testing.T) {
 					ScanTimeout:          5 * time.Minute,
 					Scope:                "assetInfo/labels/any(t: t/key eq 'scanconfig' and t/value eq 'test') and assetInfo/containerName eq 'alpine'",
 					FamiliesConfig:       kubernetesFamiliesConfig,
+				},
+				BenchmarkConfig: benchmark.Config{
+					Enabled:        false,
+					OutputFilePath: "/home/openclarity/scanner-benchmark.md",
 				},
 			},
 		},
@@ -253,6 +261,10 @@ func TestConfig(t *testing.T) {
 					ScanTimeout:          5 * time.Minute,
 					Scope:                "assetInfo/labels/any(t: t/key eq 'scanconfig' and t/value eq 'test')",
 					FamiliesConfig:       FullScanFamiliesConfig,
+				},
+				BenchmarkConfig: benchmark.Config{
+					Enabled:        true,
+					OutputFilePath: "/tmp/scanner-benchmark.md",
 				},
 			},
 		},
