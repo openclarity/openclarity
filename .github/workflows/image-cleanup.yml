@@ -46,7 +46,7 @@ jobs:
           cut-off: 1s
           timestamp-to-use: created_at
           account: openclarity
-          token: ${{ secrets.PAT }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           image-tags: "${{ format( 'pr{0}-*', github.event.pull_request.number) }}"
           dry-run: false
 
@@ -62,7 +62,7 @@ jobs:
           cut-off: 7days
           timestamp-to-use: created_at
           account: openclarity
-          token: ${{ secrets.PAT }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           tag-selection: both
           dry-run: false
 
@@ -78,6 +78,6 @@ jobs:
           cut-off: ${{ inputs.cut-off }}
           timestamp-to-use: created_at
           account: openclarity
-          token: ${{ secrets.PAT }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           tag-selection: both
           dry-run: ${{ inputs.dry-run }}
