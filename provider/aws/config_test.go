@@ -22,7 +22,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/types"
 
-	awstypes "github.com/openclarity/openclarity/provider/aws/types"
+	apitypes "github.com/openclarity/openclarity/api/types"
 )
 
 func TestConfig(t *testing.T) {
@@ -52,14 +52,14 @@ func TestConfig(t *testing.T) {
 				SubnetID:                    "subnet-038f85dc621fd5b5d",
 				SecurityGroupID:             "sg-02cfdc854e18664d4",
 				KeyPairName:                 "vmclarity-ssh-key",
-				ScannerInstanceArchitecture: "x86_64",
-				ScannerInstanceTypeMapping: awstypes.Mapping{
-					"x86_64": "t3.large",
-					"arm64":  "t4g.large",
+				ScannerInstanceArchitecture: apitypes.Amd64,
+				ScannerInstanceTypeMapping: apitypes.FromArchitectureMapping{
+					apitypes.Amd64: "t3.large",
+					apitypes.Arm64: "t4g.large",
 				},
-				ScannerInstanceAMIMapping: awstypes.Mapping{
-					"x86_64": "ami-03f1cc6c8b9c0b899",
-					"arm64":  "ami-06972d841707cc4cf",
+				ScannerInstanceAMIMapping: apitypes.FromArchitectureMapping{
+					apitypes.Amd64: "ami-03f1cc6c8b9c0b899",
+					apitypes.Arm64: "ami-06972d841707cc4cf",
 				},
 				BlockDeviceName: "xvdh",
 			},
@@ -94,16 +94,16 @@ func TestInstanceTypeMapping(t *testing.T) {
 		MappingText []byte
 
 		ExpectedErrorMatcher        types.GomegaMatcher
-		ExpectedInstanceTypeMapping *awstypes.Mapping
+		ExpectedInstanceTypeMapping *apitypes.FromArchitectureMapping
 	}{
 		{
 			Name:        "Valid instance type mapping",
 			MappingText: []byte("x86_64:t3.large,arm64:t4g.large"),
 
 			ExpectedErrorMatcher: Not(HaveOccurred()),
-			ExpectedInstanceTypeMapping: &awstypes.Mapping{
-				"x86_64": "t3.large",
-				"arm64":  "t4g.large",
+			ExpectedInstanceTypeMapping: &apitypes.FromArchitectureMapping{
+				apitypes.Amd64: "t3.large",
+				apitypes.Arm64: "t4g.large",
 			},
 		},
 	}
@@ -112,7 +112,7 @@ func TestInstanceTypeMapping(t *testing.T) {
 		t.Run(test.Name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 
-			mapping := &awstypes.Mapping{}
+			mapping := &apitypes.FromArchitectureMapping{}
 			err := mapping.UnmarshalText(test.MappingText)
 
 			g.Expect(err).Should(test.ExpectedErrorMatcher)

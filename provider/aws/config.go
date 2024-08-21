@@ -22,23 +22,24 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 
-	"github.com/openclarity/openclarity/provider/aws/types"
+	apitypes "github.com/openclarity/openclarity/api/types"
 )
 
 const (
 	DefaultEnvPrefix                   = "OPENCLARITY_AWS"
-	DefaultScannerInstanceArchitecture = types.AMD64
+	DefaultScannerInstanceArchitecture = apitypes.Amd64
 	DefaultBlockDeviceName             = "xvdh"
 )
 
 var (
-	DefaultScannerInstanceTypeMapping = map[string]string{
-		types.AMD64: "t3.large",
-		types.ARM64: "t4g.large",
+	DefaultScannerInstanceTypeMapping = apitypes.FromArchitectureMapping{
+		apitypes.Amd64: "t3.large",
+		apitypes.Arm64: "t4g.large",
 	}
-	DefaultScannerInstanceAMIMapping = map[string]string{
-		types.AMD64: "ami-03f1cc6c8b9c0b899",
-		types.ARM64: "ami-06972d841707cc4cf",
+
+	DefaultScannerInstanceAMIMapping = apitypes.FromArchitectureMapping{
+		apitypes.Amd64: "ami-03f1cc6c8b9c0b899",
+		apitypes.Arm64: "ami-06972d841707cc4cf",
 	}
 )
 
@@ -54,11 +55,11 @@ type Config struct {
 	// ScannerInstanceArchitecture contains the architecture to be used for Scanner instance which prevents the Provider
 	// to dynamically determine it based on the Target architecture. The Provider will use this value to lookup
 	// for InstanceType in InstanceTypeMapping.
-	ScannerInstanceArchitecture string `mapstructure:"scanner_instance_architecture"`
+	ScannerInstanceArchitecture apitypes.VMInfoArchitecture `mapstructure:"scanner_instance_architecture"`
 	// InstanceTypeMapping contains Architecture:InstanceType pairs
-	ScannerInstanceTypeMapping types.Mapping `mapstructure:"scanner_instance_type_mapping"`
+	ScannerInstanceTypeMapping apitypes.FromArchitectureMapping `mapstructure:"scanner_instance_type_mapping"`
 	// ScannerInstanceAMIMapping contains Architecture:AMI pairs
-	ScannerInstanceAMIMapping types.Mapping `mapstructure:"scanner_instance_ami_mapping"`
+	ScannerInstanceAMIMapping apitypes.FromArchitectureMapping `mapstructure:"scanner_instance_ami_mapping"`
 	// BlockDeviceName contains the block device name used for attaching Scanner volume to the Scanner instance
 	BlockDeviceName string `mapstructure:"block_device_name"`
 }
@@ -113,7 +114,7 @@ func NewConfig() (*Config, error) {
 	v.SetDefault("block_device_name", DefaultBlockDeviceName)
 
 	decodeHooks := mapstructure.ComposeDecodeHookFunc(
-		// TextUnmarshallerHookFunc is needed to decode InstanceTypeMapping
+		// TextUnmarshallerHookFunc is needed to decode the custom types
 		mapstructure.TextUnmarshallerHookFunc(),
 		// Default decoders
 		mapstructure.StringToTimeDurationHookFunc(),

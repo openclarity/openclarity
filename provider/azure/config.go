@@ -19,28 +19,26 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/go-viper/mapstructure/v2"
 	"github.com/spf13/viper"
+
+	apitypes "github.com/openclarity/openclarity/api/types"
 )
 
 const (
-	AMD64 = "x86_64"
-	ARM64 = "arm64"
-
 	DefaultEnvPrefix             = "OPENCLARITY_AZURE"
-	DefaultScannerVMArchitecture = AMD64
+	DefaultScannerVMArchitecture = apitypes.Amd64
 )
 
-var DefaultScannerVMSizeMapping = Mapping{
-	AMD64: "Standard_D2s_v3",
-	ARM64: "Standard_D2ps_v5",
+var DefaultScannerVMSizeMapping = apitypes.FromArchitectureMapping{
+	apitypes.Amd64: "Standard_D2s_v3",
+	apitypes.Arm64: "Standard_D2ps_v5",
 }
 
-var DefaultScannerImageSKUMapping = Mapping{
-	AMD64: "20_04-lts-gen2",
-	ARM64: "20_04-lts-arm64",
+var DefaultScannerImageSKUMapping = apitypes.FromArchitectureMapping{
+	apitypes.Amd64: "20_04-lts-gen2",
+	apitypes.Arm64: "20_04-lts-arm64",
 }
 
 type AzurePublicKey string
@@ -57,20 +55,20 @@ func (a *AzurePublicKey) UnmarshalText(text []byte) error {
 }
 
 type Config struct {
-	SubscriptionID              string         `mapstructure:"subscription_id"`
-	ScannerLocation             string         `mapstructure:"scanner_location"`
-	ScannerResourceGroup        string         `mapstructure:"scanner_resource_group"`
-	ScannerSubnet               string         `mapstructure:"scanner_subnet_id"`
-	ScannerPublicKey            AzurePublicKey `mapstructure:"scanner_public_key"`
-	ScannerImagePublisher       string         `mapstructure:"scanner_image_publisher"`
-	ScannerImageOffer           string         `mapstructure:"scanner_image_offer"`
-	ScannerImageSKUMapping      Mapping        `mapstructure:"scanner_image_sku_mapping"`
-	ScannerImageVersion         string         `mapstructure:"scanner_image_version"`
-	ScannerSecurityGroup        string         `mapstructure:"scanner_security_group"`
-	ScannerStorageAccountName   string         `mapstructure:"scanner_storage_account_name"`
-	ScannerStorageContainerName string         `mapstructure:"scanner_storage_container_name"`
-	ScannerVMSizeMapping        Mapping        `mapstructure:"scanner_vm_size_mapping"`
-	ScannerVMArchitecture       string         `mapstructure:"scanner_vm_architecture"`
+	SubscriptionID              string                           `mapstructure:"subscription_id"`
+	ScannerLocation             string                           `mapstructure:"scanner_location"`
+	ScannerResourceGroup        string                           `mapstructure:"scanner_resource_group"`
+	ScannerSubnet               string                           `mapstructure:"scanner_subnet_id"`
+	ScannerPublicKey            AzurePublicKey                   `mapstructure:"scanner_public_key"`
+	ScannerImagePublisher       string                           `mapstructure:"scanner_image_publisher"`
+	ScannerImageOffer           string                           `mapstructure:"scanner_image_offer"`
+	ScannerImageSKUMapping      apitypes.FromArchitectureMapping `mapstructure:"scanner_image_sku_mapping"`
+	ScannerImageVersion         string                           `mapstructure:"scanner_image_version"`
+	ScannerSecurityGroup        string                           `mapstructure:"scanner_security_group"`
+	ScannerStorageAccountName   string                           `mapstructure:"scanner_storage_account_name"`
+	ScannerStorageContainerName string                           `mapstructure:"scanner_storage_container_name"`
+	ScannerVMSizeMapping        apitypes.FromArchitectureMapping `mapstructure:"scanner_vm_size_mapping"`
+	ScannerVMArchitecture       apitypes.VMInfoArchitecture      `mapstructure:"scanner_vm_architecture"`
 }
 
 func NewConfig() (*Config, error) {
@@ -162,31 +160,6 @@ func (c Config) Validate() error {
 	if c.ScannerStorageContainerName == "" {
 		return errors.New("parameter ScannerStorageContainerName must be provided")
 	}
-
-	return nil
-}
-
-type Mapping map[string]string
-
-func (m *Mapping) UnmarshalText(text []byte) error {
-	mapping := make(Mapping)
-	items := strings.Split(string(text), ",")
-
-	numOfParts := 2
-	for _, item := range items {
-		pair := strings.Split(item, ":")
-		if len(pair) != numOfParts {
-			continue
-		}
-
-		switch pair[0] {
-		case AMD64, ARM64:
-			mapping[pair[0]] = pair[1]
-		default:
-			return fmt.Errorf("unsupported architecture: %s", pair[0])
-		}
-	}
-	*m = mapping
 
 	return nil
 }

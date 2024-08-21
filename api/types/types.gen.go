@@ -202,6 +202,13 @@ const (
 	ScannerStatusStateSkipped    ScannerStatusState = "Skipped"
 )
 
+// Defines values for VMInfoArchitecture.
+const (
+	Amd64   VMInfoArchitecture = "amd64"
+	Arm64   VMInfoArchitecture = "arm64"
+	Unknown VMInfoArchitecture = "unknown"
+)
+
 // Defines values for VulnerabilitySeverity.
 const (
 	CRITICAL   VulnerabilitySeverity = "CRITICAL"
@@ -1746,21 +1753,24 @@ type Tag struct {
 
 // VMInfo defines model for VMInfo.
 type VMInfo struct {
-	Architecture     *string        `json:"architecture,omitempty"`
-	Image            string         `json:"image"`
-	InstanceID       string         `json:"instanceID"`
-	InstanceProvider *CloudProvider `json:"instanceProvider,omitempty"`
-	InstanceType     string         `json:"instanceType"`
-	LaunchTime       time.Time      `json:"launchTime"`
-	Location         string         `json:"location"`
-	ObjectType       string         `json:"objectType"`
-	Platform         string         `json:"platform"`
+	Architecture     *VMInfoArchitecture `json:"architecture,omitempty"`
+	Image            string              `json:"image"`
+	InstanceID       string              `json:"instanceID"`
+	InstanceProvider *CloudProvider      `json:"instanceProvider,omitempty"`
+	InstanceType     string              `json:"instanceType"`
+	LaunchTime       time.Time           `json:"launchTime"`
+	Location         string              `json:"location"`
+	ObjectType       string              `json:"objectType"`
+	Platform         string              `json:"platform"`
 
 	// RootVolume Information about VM root volume
 	RootVolume     RootVolume       `json:"rootVolume"`
 	SecurityGroups *[]SecurityGroup `json:"securityGroups"`
 	Tags           *[]Tag           `json:"tags"`
 }
+
+// VMInfoArchitecture defines model for VMInfo.Architecture.
+type VMInfoArchitecture string
 
 // VulnerabilitiesConfig defines model for VulnerabilitiesConfig.
 type VulnerabilitiesConfig struct {

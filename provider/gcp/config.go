@@ -21,12 +21,11 @@ import (
 
 	"github.com/go-viper/mapstructure/v2"
 	"github.com/spf13/viper"
+
+	apitypes "github.com/openclarity/openclarity/api/types"
 )
 
 const (
-	AMD64 = "x86_64"
-	ARM64 = "arm64"
-
 	DefaultEnvPrefix = "OPENCLARITY_GCP"
 
 	projectID                  = "project_id"
@@ -40,27 +39,27 @@ const (
 )
 
 var (
-	DefaultScannerMachineTypeMapping = Mapping{
-		AMD64: "e2-standard-2",
-		ARM64: "t2a-standard-2",
+	DefaultScannerMachineTypeMapping = apitypes.FromArchitectureMapping{
+		apitypes.Amd64: "e2-standard-2",
+		apitypes.Arm64: "t2a-standard-2",
 	}
 
 	DefaultScannerSourceImagePrefix  = "projects/ubuntu-os-cloud/global/images/"
-	DefaultScannerSourceImageMapping = Mapping{
-		AMD64: "ubuntu-2204-jammy-v20230630",
-		ARM64: "ubuntu-2204-jammy-arm64-v20230630",
+	DefaultScannerSourceImageMapping = apitypes.FromArchitectureMapping{
+		apitypes.Amd64: "ubuntu-2204-jammy-v20230630",
+		apitypes.Arm64: "ubuntu-2204-jammy-arm64-v20230630",
 	}
 )
 
 type Config struct {
-	ProjectID                  string  `mapstructure:"project_id"`
-	ScannerZone                string  `mapstructure:"scanner_zone"`
-	ScannerSubnetwork          string  `mapstructure:"scanner_subnetwork"`
-	ScannerMachineTypeMapping  Mapping `mapstructure:"scanner_machine_type_mapping"`
-	ScannerMachineArchitecture string  `mapstructure:"scanner_machine_architecture"`
-	ScannerSourceImagePrefix   string  `mapstructure:"scanner_source_image_prefix"`
-	ScannerSourceImageMapping  Mapping `mapstructure:"scanner_source_image_mapping"`
-	ScannerSSHPublicKey        string  `mapstructure:"scanner_ssh_public_key"`
+	ProjectID                  string                           `mapstructure:"project_id"`
+	ScannerZone                string                           `mapstructure:"scanner_zone"`
+	ScannerSubnetwork          string                           `mapstructure:"scanner_subnetwork"`
+	ScannerMachineTypeMapping  apitypes.FromArchitectureMapping `mapstructure:"scanner_machine_type_mapping"`
+	ScannerMachineArchitecture apitypes.VMInfoArchitecture      `mapstructure:"scanner_machine_architecture"`
+	ScannerSourceImagePrefix   string                           `mapstructure:"scanner_source_image_prefix"`
+	ScannerSourceImageMapping  apitypes.FromArchitectureMapping `mapstructure:"scanner_source_image_mapping"`
+	ScannerSSHPublicKey        string                           `mapstructure:"scanner_ssh_public_key"`
 }
 
 func NewConfig() (*Config, error) {
@@ -124,31 +123,6 @@ func (c Config) Validate() error {
 	if _, ok := c.ScannerSourceImageMapping[c.ScannerMachineArchitecture]; !ok {
 		return fmt.Errorf("failed to find source image for architecture %s", c.ScannerMachineArchitecture)
 	}
-
-	return nil
-}
-
-type Mapping map[string]string
-
-func (m *Mapping) UnmarshalText(text []byte) error {
-	mapping := make(Mapping)
-	items := strings.Split(string(text), ",")
-
-	numOfParts := 2
-	for _, item := range items {
-		pair := strings.Split(item, ":")
-		if len(pair) != numOfParts {
-			continue
-		}
-
-		switch pair[0] {
-		case AMD64, ARM64:
-			mapping[pair[0]] = pair[1]
-		default:
-			return fmt.Errorf("unsupported architecture: %s", pair[0])
-		}
-	}
-	*m = mapping
 
 	return nil
 }
