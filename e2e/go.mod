@@ -1,6 +1,6 @@
 module github.com/openclarity/openclarity/e2e
 
-go 1.22.4
+go 1.22.6
 
 require (
 	github.com/go-viper/mapstructure/v2 v2.0.0

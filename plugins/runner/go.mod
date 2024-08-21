@@ -1,6 +1,6 @@
 module github.com/openclarity/openclarity/plugins/runner
 
-go 1.22.4
+go 1.22.6
 
 require (
 	github.com/docker/docker v26.1.5+incompatible
@@ -68,7 +68,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/moby/docker-image-spec v1.3.1 // indirect
 	github.com/moby/locker v1.0.1 // indirect
-	github.com/moby/sys/mountinfo v0.7.1 // indirect
+	github.com/moby/sys/mountinfo v0.7.2 // indirect
 	github.com/moby/sys/sequential v0.5.0 // indirect
 	github.com/moby/sys/signal v0.7.0 // indirect
 	github.com/moby/sys/user v0.1.0 // indirect

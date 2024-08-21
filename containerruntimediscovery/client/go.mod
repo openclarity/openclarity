@@ -1,6 +1,6 @@
 module github.com/openclarity/openclarity/containerruntimediscovery/client
 
-go 1.22.4
+go 1.22.6
 
 require (
 	github.com/openclarity/openclarity/api/types v0.7.2

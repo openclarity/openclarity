@@ -1,6 +1,6 @@
 module github.com/openclarity/openclarity/api/types
 
-go 1.22.4
+go 1.22.6
 
 require (
 	github.com/oapi-codegen/oapi-codegen/v2 v2.3.0
