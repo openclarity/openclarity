@@ -1,11 +1,13 @@
 import React, { useCallback, useEffect } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
 import { isNull } from "lodash";
-import { useMountMultiFetch, usePrevious } from "hooks";
+import { usePrevious } from "hooks";
 import TabbedPage from "components/TabbedPage";
 import Loader from "components/Loader";
 import EmptyDisplay from "components/EmptyDisplay";
-import { APIS } from "utils/systemConsts";
+import { useQuery } from "@tanstack/react-query";
+import QUERY_KEYS from "../../api/constants";
+import { openClarityApi } from "../../api/openClarityApi";
 import ScanConfigWizardModal from "./ScanConfigWizardModal";
 import {
   ModalDisplayProvider,
@@ -46,32 +48,44 @@ const ScansTabbedPage = () => {
     }
   }, [prevOpenConfigForm, openConfigForm, openDisplayModal]);
 
-  const [{ data, error, loading }, fetchData] = useMountMultiFetch([
-    {
-      key: "scans",
-      url: APIS.SCANS,
-      queryParams: { $count: true, $select: "count" },
-    },
-    {
-      key: "scanConfigs",
-      url: APIS.SCAN_CONFIGS,
-      queryParams: { $count: true, $select: "count" },
-    },
-  ]);
+  const {
+    data: scansData,
+    isError: isScansError,
+    isLoading: isScansLoading,
+    refetch: refetchScans,
+    isRefetching: isScansRefetching,
+  } = useQuery({
+    queryKey: [QUERY_KEYS.scans],
+    queryFn: () => openClarityApi.getScans(undefined, "count", true, 1),
+  });
 
-  if (loading) {
+  const {
+    data: scanConfigsData,
+    isError: isScanConfigsError,
+    isLoading: isScanConfigsLoading,
+    refetch: refetchScanConfigs,
+    isRefetching: isScanConfigsRefetching,
+  } = useQuery({
+    queryKey: [QUERY_KEYS.scanConfigs],
+    queryFn: () => openClarityApi.getScanConfigs(undefined, "count", true, 1),
+  });
+
+  if (
+    isScansLoading ||
+    isScanConfigsLoading ||
+    isScansRefetching ||
+    isScanConfigsRefetching
+  ) {
     return <Loader />;
   }
 
-  if (error) {
+  if (isScansError || isScanConfigsError) {
     return null;
   }
 
-  const { scans, scanConfigs } = data;
-
   return (
     <>
-      {scans?.count === 0 && scanConfigs?.count === 0 ? (
+      {scansData.data.count === 0 && scanConfigsData.data.count === 0 ? (
         <EmptyDisplay
           message={
             <>
@@ -108,7 +122,8 @@ const ScansTabbedPage = () => {
           onClose={closeDisplayModal}
           onSubmitSuccess={() => {
             closeDisplayModal();
-            fetchData();
+            refetchScans();
+            refetchScanConfigs();
           }}
         />
       )}

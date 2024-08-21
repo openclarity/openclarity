@@ -10,20 +10,19 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-import { useFetch } from "hooks";
 import Loader from "components/Loader";
 import {
-  APIS,
   FINDINGS_MAPPING,
   VULNERABILITY_FINDINGS_ITEM,
 } from "utils/systemConsts";
 import { BoldText, formatNumber } from "utils/utils";
+import COLORS from "utils/scss_variables.module.scss";
+import { useQuery } from "@tanstack/react-query";
 import WidgetWrapper from "../WidgetWrapper";
 import ChartTooltip from "../ChartTooltip";
 import FindingsFilters from "../FindingsFilters";
-
-import COLORS from "utils/scss_variables.module.scss";
-
+import QUERY_KEYS from "../../../api/constants";
+import { openClarityUIBackend } from "../../../api/openClarityApi";
 import "./riskiest-regions-widget.scss";
 
 const BAR_STACK_ID = 1;
@@ -135,9 +134,10 @@ const WidgetContent = ({ data }) => {
   );
 };
 
-const RiskiestRegionsWidget = ({ className }) => {
-  const [{ data, error, loading }] = useFetch(APIS.DASHBOARD_RISKIEST_REGIONS, {
-    urlPrefix: "ui",
+function RiskiestRegionsWidget({ className }) {
+  const { data, isError, isLoading } = useQuery({
+    queryKey: [QUERY_KEYS.riskiestRegions],
+    queryFn: () => openClarityUIBackend.dashboardRiskiestRegionsGet(),
   });
 
   return (
@@ -145,13 +145,10 @@ const RiskiestRegionsWidget = ({ className }) => {
       className={classnames("riskiest-regions-widget", className)}
       title="Riskiest regions"
     >
-      {loading ? (
-        <Loader />
-      ) : error ? null : (
-        <WidgetContent data={data?.regions} />
-      )}
+      {isLoading && <Loader />}
+      {!isLoading && !isError && <WidgetContent data={data?.data.regions} />}
     </WidgetWrapper>
   );
-};
+}
 
 export default RiskiestRegionsWidget;

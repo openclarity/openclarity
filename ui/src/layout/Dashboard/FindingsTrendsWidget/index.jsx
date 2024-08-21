@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   LineChart,
   Line,
@@ -10,21 +10,20 @@ import {
 } from "recharts";
 import classnames from "classnames";
 import moment from "moment";
-import { useFetch } from "hooks";
 import Loader from "components/Loader";
 import DropdownSelect from "components/DropdownSelect";
 import {
-  APIS,
   FINDINGS_MAPPING,
   VULNERABILITY_FINDINGS_ITEM,
 } from "utils/systemConsts";
 import { formatDate } from "utils/utils";
+import COLORS from "utils/scss_variables.module.scss";
+import { useQuery } from "@tanstack/react-query";
+import { openClarityUIBackend } from "../../../api/openClarityApi";
 import WidgetWrapper from "../WidgetWrapper";
 import ChartTooltip from "../ChartTooltip";
 import FindingsFilters from "../FindingsFilters";
-
-import COLORS from "utils/scss_variables.module.scss";
-
+import QUERY_KEYS from "../../../api/constants";
 import "./findings-trends-widget.scss";
 
 const WIDGET_FINDINGS_ITEMS = [
@@ -153,25 +152,20 @@ const WidgetChart = ({ data, selectedFilters }) => {
 const FindingsTrendsWidget = ({ className }) => {
   const { value, label } = TIME_RANGES.WEEK;
   const [selectedRange, setSelectedRange] = useState({ value, label });
-
-  const [{ data, error, loading }, fetchData] = useFetch(
-    APIS.DASHBOARD_FINDINGS_TRENDS,
-    { loadOnMount: false },
-  );
-  const updateChartData = useCallback(
-    ({ startTime, endTime }) =>
-      fetchData({ urlPrefix: "ui", queryParams: { startTime, endTime } }),
-    [fetchData],
-  );
-
-  useEffect(() => {
-    const { startTime, endTime } = TIME_RANGES[selectedRange.value].calc();
-    updateChartData({ startTime, endTime });
-  }, [selectedRange.value, updateChartData]);
-
   const [selectedFilters, setSelectedFilters] = useState([
     ...WIDGET_FINDINGS_ITEMS.map(({ typeKey }) => typeKey),
   ]);
+
+  const { data, isError, isLoading } = useQuery({
+    queryKey: [QUERY_KEYS.findingsTrends, selectedRange.value],
+    queryFn: () => {
+      const { startTime, endTime } = TIME_RANGES[selectedRange.value].calc();
+      return openClarityUIBackend.dashboardFindingsTrendsGet(
+        startTime,
+        endTime,
+      );
+    },
+  });
 
   return (
     <WidgetWrapper
@@ -196,10 +190,9 @@ const FindingsTrendsWidget = ({ className }) => {
           onChange={(selectedItem) => setSelectedRange(selectedItem)}
         />
       </div>
-      {loading ? (
-        <Loader />
-      ) : error ? null : (
-        <WidgetChart data={data} selectedFilters={selectedFilters} />
+      {isLoading && <Loader />}
+      {!isLoading && !isError && (
+        <WidgetChart data={data.data} selectedFilters={selectedFilters} />
       )}
     </WidgetWrapper>
   );

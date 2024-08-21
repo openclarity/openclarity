@@ -1,10 +1,9 @@
-import React, { useEffect } from "react";
-import { useFetch, FETCH_METHODS, usePrevious } from "hooks";
+import React from "react";
 import { ICON_NAMES } from "components/Icon";
 import IconWithTooltip from "components/IconWithTooltip";
 import { SCAN_STATES } from "components/ScanProgressBar";
-import { APIS } from "utils/systemConsts";
-
+import { useMutation } from "@tanstack/react-query";
+import { openClarityApi } from "../../../../api/openClarityApi";
 import "./scan-actions-display.scss";
 
 const ScanActionsDisplay = ({ data, onUpdate }) => {
@@ -13,16 +12,22 @@ const ScanActionsDisplay = ({ data, onUpdate }) => {
     status: { state },
   } = data;
 
-  const [{ loading, error }, fetchScan] = useFetch(APIS.SCANS, {
-    loadOnMount: false,
+  const { mutate: stopScanMutation, isPending } = useMutation({
+    mutationFn: () =>
+      openClarityApi.patchScansScanID(id, {
+        status: {
+          state: SCAN_STATES.Aborted.state,
+          reason: "Cancellation",
+          message: "Scan has been aborted",
+          lastTransitionTime: new Date().toISOString(),
+        },
+      }),
+    onSuccess: () => {
+      if (onUpdate !== undefined) {
+        onUpdate();
+      }
+    },
   });
-  const prevLoading = usePrevious(loading);
-
-  useEffect(() => {
-    if (prevLoading && !loading && !error && !!onUpdate) {
-      onUpdate();
-    }
-  }, [loading, prevLoading, error, onUpdate]);
 
   if (
     [
@@ -30,7 +35,7 @@ const ScanActionsDisplay = ({ data, onUpdate }) => {
       SCAN_STATES.Failed.state,
       SCAN_STATES.Aborted.state,
     ].includes(state) ||
-    loading
+    isPending
   ) {
     return null;
   }
@@ -45,18 +50,7 @@ const ScanActionsDisplay = ({ data, onUpdate }) => {
           event.stopPropagation();
           event.preventDefault();
 
-          fetchScan({
-            method: FETCH_METHODS.PATCH,
-            submitData: {
-              status: {
-                state: SCAN_STATES.Aborted.state,
-                reason: "Cancellation",
-                message: "Scan has been aborted",
-                lastTransitionTime: new Date().toISOString(),
-              },
-            },
-            formatUrl: (url) => `${url}/${id}`,
-          });
+          stopScanMutation();
         }}
       />
     </div>

@@ -1,65 +1,49 @@
 import React from "react";
-import { useFetch } from "hooks";
 import Loader from "components/Loader";
-import { APIS } from "utils/systemConsts";
-import { CounterDisplay, ScanCounterDisplay } from "./CounterDisplay";
+import { useQuery } from "@tanstack/react-query";
+import { openClarityApi } from "../../api/openClarityApi";
+import QUERY_KEYS from "../../api/constants";
+import {
+  AssetCounterDisplay,
+  FindingCounterDisplay,
+  ScanCounterDisplay,
+} from "./CounterDisplay";
 import FindingsTrendsWidget from "./FindingsTrendsWidget";
 import RiskiestRegionsWidget from "./RiskiestRegionsWidget";
 import RiskiestAssetsWidget from "./RiskiestAssetsWidget";
 import FindingsImpactWidget from "./FindingsImpactWidget";
 import EmptyScansDisplay from "./EmptyScansDisplay";
-
-import COLORS from "utils/scss_variables.module.scss";
-
 import "./dashboard.scss";
 
-const COUNTERS_CONFIG = [
-  {
-    url: APIS.ASSETS,
-    title: "Assets",
-    background: COLORS["color-gradient-blue"],
-  },
-  {
-    url: APIS.FINDINGS,
-    title: "Findings",
-    background: COLORS["color-gradient-yellow"],
-  },
-];
-
-const Dashboard = () => {
-  const [{ data, error, loading }] = useFetch(APIS.SCANS, {
-    queryParams: { $count: true, $select: "count" },
+function Dashboard() {
+  const { data, isError, isLoading } = useQuery({
+    queryKey: [QUERY_KEYS.scans],
+    queryFn: () => openClarityApi.getScans(undefined, "count", true, 1),
   });
 
-  if (loading) {
+  if (isLoading) {
     return <Loader />;
   }
 
-  if (error) {
+  if (isError) {
     return null;
   }
 
-  if (data.count === 0) {
+  if (data.data.count === 0) {
     return <EmptyScansDisplay />;
   }
 
   return (
     <div className="dashboard-page-wrapper">
       <ScanCounterDisplay />
-      {COUNTERS_CONFIG.map(({ url, title, background }, index) => (
-        <CounterDisplay
-          key={index}
-          url={url}
-          title={title}
-          background={background}
-        />
-      ))}
+      <AssetCounterDisplay />
+      <FindingCounterDisplay />
       <RiskiestRegionsWidget className="riskiest-regions" />
       <FindingsTrendsWidget className="findings-trend" />
       <RiskiestAssetsWidget className="riskiest-assets" />
       <FindingsImpactWidget className="findings-impact" />
     </div>
   );
-};
+}
 
 export default Dashboard;
