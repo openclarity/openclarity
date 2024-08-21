@@ -81,7 +81,7 @@ jobs:
 
       - name: List targets
         id: targets
-        uses: docker/bake-action/subaction/list-targets@a4d7f0b5b91c14a296d792d4ec53a9db17f02e67 # v5.5.0
+        uses: docker/bake-action/subaction/list-targets@76cc8060bdff6d632a465001e4cf300684c5472c # v5.7.0
         with:
           target: ${{ inputs.bake-group }}
 
@@ -115,7 +115,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build
-        uses: docker/bake-action@a4d7f0b5b91c14a296d792d4ec53a9db17f02e67 # v5.5.0
+        uses: docker/bake-action@76cc8060bdff6d632a465001e4cf300684c5472c # v5.7.0
         id: bake
         with:
           targets: ${{ matrix.targets }}
