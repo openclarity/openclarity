@@ -3,7 +3,7 @@
 # xx is a helper for cross-compilation
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:1.4.0@sha256:0cd3f05c72d6c9b038eb135f91376ee1169ef3a330d34e418e65e2a5c2e9c0d4 AS xx
 
-FROM --platform=$BUILDPLATFORM golang:1.22.6-bullseye@sha256:0838740c99e64dde1916553b004bdb1bc321823be83bde3d2a1563882eaab7e6 AS builder
+FROM --platform=$BUILDPLATFORM golang:1.23.0-bullseye@sha256:ecef8303ced05b7cd1addf3c8ea98974f9231d4c5a0c230d23b37bb623714a23 AS builder
 
 COPY --link --from=xx / /
 
