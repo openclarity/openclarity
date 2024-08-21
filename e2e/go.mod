@@ -3,6 +3,7 @@ module github.com/openclarity/openclarity/e2e
 go 1.22.4
 
 require (
+	github.com/fbiville/markdown-table-formatter v0.3.0
 	github.com/go-viper/mapstructure/v2 v2.0.0
 	github.com/google/uuid v1.6.0
 	github.com/onsi/ginkgo/v2 v2.19.0

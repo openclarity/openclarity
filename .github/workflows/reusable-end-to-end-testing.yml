@@ -105,3 +105,6 @@ jobs:
           else
             echo "Invalid platform"
           fi
+
+      - name: Post benchmark results to GitHub Summary
+        run: cat "/tmp/scanner-benchmark.md" >> "$GITHUB_STEP_SUMMARY"

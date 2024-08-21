@@ -14,13 +14,13 @@ This test module is composed by:
 
 To run all end-to-end tests, use the following command:
 
-```
+```bash
 go test -v -failfast -test.v -test.paniconexit0 -timeout 2h -ginkgo.v .
 ```
 
 To run a particular end-to-end test file, use:
 
-```
+```bash
 go test -v -failfast -test.v -test.paniconexit0 -timeout 2h -ginkgo.v --ginkgo.focus-file <go test file> .
 ```
 
