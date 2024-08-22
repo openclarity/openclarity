@@ -8,8 +8,18 @@ param adminSSHKey string
 @description('The size of the OpenClarity Server VM')
 param serverVmSize string = 'Standard_D2s_v3'
 
-@description('The size of the Scanner VMs')
-param scannerVmSize string = 'Standard_D2s_v3'
+@description('The VM architecture to VM size mapping of the Scanner VMs')
+param scannerVmArchitectureToSizeMapping string = 'x86_64:Standard_D2s_v3,arm64:Standard_D2ps_v5'
+
+@description('The architecture to image sku mapping of the Scanner VMs')
+param scannerVMArchitectureToImageSkuMapping string = 'x86_64:20_04-lts-gen2,arm64:20_04-lts-arm64'
+
+@description('The architecture of the Scanner VMs')
+@allowed([
+  'x86_64'
+  'arm64'
+])
+param scannerVmArchitecture string
 
 @description('Location where to create the resources')
 param location string = resourceGroup().location
@@ -134,7 +144,8 @@ var params = {
   ExploitDBServerContainerImage: exploitDBContainerImage
   FreshclamMirrorContainerImage: freshclamMirrorContainerImage
   PostgresqlContainerImage: postgresContainerImage
-  ScannerInstanceType: scannerVmSize
+  ScannerVmArchitectureToSizeMapping: scannerVmArchitectureToSizeMapping
+  ScannerVmArchitecture: scannerVmArchitecture
   AssetScanDeletePolicy: assetScanDeletePolicy
   DatabaseToUse: databaseToUse
   PostgresDBPassword: postgresDBPassword
@@ -149,10 +160,11 @@ var params = {
   AZURE_SCANNER_RESOURCE_GROUP: resourceGroup().name
   AZURE_SCANNER_SUBNET_ID: openClarityNet::openClarityScannerSubnet.id
   AZURE_SCANNER_PUBLIC_KEY: base64(adminSSHKey)
-  AZURE_SCANNER_VM_SIZE: scannerVmSize
+  AZURE_SCANNER_VM_ARCHITECTURE_TO_SIZE_MAPPING: scannerVmArchitectureToSizeMapping
+  AZURE_SCANNER_VM_ARCHITECTURE: scannerVmArchitecture
   AZURE_SCANNER_IMAGE_PUBLISHER: imageReference.publisher
   AZURE_SCANNER_IMAGE_OFFER: imageReference.offer
-  AZURE_SCANNER_IMAGE_SKU: imageReference.sku
+  AZURE_SCANNER_VM_ARCHITECTURE_TO_IMAGE_SKU_MAPPING: scannerVMArchitectureToImageSkuMapping
   AZURE_SCANNER_IMAGE_VERSION: imageReference.version
   AZURE_SCANNER_SECURITY_GROUP: openClarityScannerSecurityGroup.id
   AZURE_SCANNER_STORAGE_ACCOUNT_NAME: storageAccountName

@@ -68,6 +68,22 @@ func New(ctx context.Context) (*Provider, error) {
 		return nil, fmt.Errorf("failed to create disks client: %w", err)
 	}
 
+	architecture, err := config.ScannerMachineArchitecture.MarshalText()
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal ScannerInstanceArchitecture into text: %w", err)
+	}
+
+	scannerMachineType, ok := config.ScannerMachineArchitectureToTypeMapping[architecture]
+	if !ok {
+		return nil, fmt.Errorf("failed to find machine type for architecture %s", config.ScannerMachineArchitecture)
+	}
+
+	scannerSourceImage, ok := config.ScannerMachineArchitectureToSourceImageMapping[architecture]
+	if !ok {
+		return nil, fmt.Errorf("failed to find source image for architecture %s", config.ScannerMachineArchitecture)
+	}
+	scannerSourceImage = config.ScannerSourceImagePrefix + scannerSourceImage
+
 	return &Provider{
 		Discoverer: &discoverer.Discoverer{
 			DisksClient:     disksClient,
@@ -83,8 +99,8 @@ func New(ctx context.Context) (*Provider, error) {
 
 			ScannerZone:         config.ScannerZone,
 			ProjectID:           config.ProjectID,
-			ScannerSourceImage:  config.ScannerSourceImage,
-			ScannerMachineType:  config.ScannerMachineType,
+			ScannerSourceImage:  scannerSourceImage,
+			ScannerMachineType:  scannerMachineType,
 			ScannerSubnetwork:   config.ScannerSubnetwork,
 			ScannerSSHPublicKey: config.ScannerSSHPublicKey,
 		},

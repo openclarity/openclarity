@@ -22,7 +22,7 @@ import (
 	"fmt"
 	"sync"
 
-	awstype "github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 	"github.com/sirupsen/logrus"
@@ -42,8 +42,8 @@ type Scanner struct {
 	Kind                apitypes.CloudProvider
 	ScannerRegion       string
 	BlockDeviceName     string
-	ScannerImage        string
 	ScannerInstanceType string
+	ScannerInstanceAMI  string
 	SecurityGroupID     string
 	SubnetID            string
 	KeyPairName         string
@@ -480,7 +480,7 @@ func (s *Scanner) createInstance(ctx context.Context, region string, config *pro
 	runParams := &ec2.RunInstancesInput{
 		MaxCount:     to.Ptr[int32](1),
 		MinCount:     to.Ptr[int32](1),
-		ImageId:      to.Ptr(s.ScannerImage),
+		ImageId:      to.Ptr(s.ScannerInstanceAMI),
 		InstanceType: ec2types.InstanceType(s.ScannerInstanceType),
 		TagSpecifications: []ec2types.TagSpecification{
 			{
@@ -536,7 +536,7 @@ func (s *Scanner) createInstance(ctx context.Context, region string, config *pro
 	// if retryMaxAttempts value is 0 it will be ignored
 	out, err := s.Ec2Client.RunInstances(ctx, runParams, options, func(options *ec2.Options) {
 		options.RetryMaxAttempts = retryMaxAttempts
-		options.RetryMode = awstype.RetryModeStandard
+		options.RetryMode = aws.RetryModeStandard
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create instance: %w", err)
@@ -705,6 +705,7 @@ func instanceFromEC2Instance(i *ec2types.Instance, client *ec2.Client, region st
 		RootDeviceName:   *i.RootDeviceName,
 		Volumes:          volumes,
 		Metadata:         config.ScanMetadata,
+		Architecture:     string(i.Architecture),
 
 		Ec2Client: client,
 	}

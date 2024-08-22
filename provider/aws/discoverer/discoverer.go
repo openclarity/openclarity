@@ -141,7 +141,15 @@ func (d *Discoverer) GetInstances(ctx context.Context, filters []ec2types.Filter
 
 func getVMInfoFromInstance(i types.Instance) (apitypes.AssetType, error) {
 	assetType := apitypes.AssetType{}
-	err := assetType.FromVMInfo(apitypes.VMInfo{
+
+	var vmArchitecture apitypes.VMInfoArchitecture
+	err := vmArchitecture.UnmarshalText([]byte(i.Architecture))
+	if err != nil {
+		return assetType, fmt.Errorf("failed to unmarshal architecture: %w", err)
+	}
+
+	err = assetType.FromVMInfo(apitypes.VMInfo{
+		Architecture:     &vmArchitecture,
 		Image:            i.Image,
 		InstanceID:       i.ID,
 		InstanceProvider: to.Ptr(apitypes.AWS),

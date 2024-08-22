@@ -54,15 +54,16 @@
 
 ### AWS
 
-| Environment Variable                   | Required | Default      | Description                                                                   |
-|----------------------------------------|----------|--------------|-------------------------------------------------------------------------------|
-| `OPENCLARITY_AWS_REGION`                 | **yes**  |              | Region where the Scanner instance needs to be created                         |
-| `OPENCLARITY_AWS_SUBNET_ID`              | **yes**  |              | SubnetID where the Scanner instance needs to be created                       |
-| `OPENCLARITY_AWS_SECURITY_GROUP_ID`      | **yes**  |              | SecurityGroupId which needs to be attached to the Scanner instance            |
-| `OPENCLARITY_AWS_KEYPAIR_NAME`           |          |              | Name of the SSH KeyPair to use for Scanner instance launch                    |
-| `OPENCLARITY_AWS_SCANNER_AMI_ID`         | **yes**  |              | The AMI image used for creating Scanner instance                              |
-| `OPENCLARITY_AWS_SCANNER_INSTANCE_TYPE`  |          | `t2.large`   | The instance type used for Scanner instance                                   |
-| `OPENCLARITY_AWS_BLOCK_DEVICE_NAME`      |          | `xvdh`       | Block device name used for attaching Scanner volume to the Scanner instance   |
+| Environment Variable                            | Required  | Default                                                    | Description                                                                                                                                                                                                          |
+|-------------------------------------------------|-----------|------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `OPENCLARITY_AWS_REGION`                        | **yes**   |                                                            | Region where the Scanner instance needs to be created                                                                                                                                                                |
+| `OPENCLARITY_AWS_SUBNET_ID`                     | **yes**   |                                                            | SubnetID where the Scanner instance needs to be created                                                                                                                                                              |
+| `OPENCLARITY_AWS_SECURITY_GROUP_ID`             | **yes**   |                                                            | SecurityGroupId which needs to be attached to the Scanner instance                                                                                                                                                   |
+| `OPENCLARITY_AWS_KEYPAIR_NAME`                  |           |                                                            | Name of the SSH KeyPair to use for Scanner instance launch                                                                                                                                                           |
+| `OPENCLARITY_AWS_SCANNER_INSTANCE_ARCHITECTURE` |           | `x86_64`                                                   | Architecture to be used for Scanner instance. The Provider will use this value to lookup for instance details in `OPENCLARITY_AWS_SCANNER_INSTANCE_ARCHITECTURE_TO_TYPE_MAPPING` and `OPENCLARITY_AWS_SCANNER_INSTANCE_ARCHITECTURE_TO_AMI_MAPPING`. |
+| `OPENCLARITY_AWS_SCANNER_INSTANCE_ARCHITECTURE_TO_TYPE_MAPPING` |           | `x86_64:t3.large,arm64:t4g.large`                          | Comma separated list of architecture:instance_type pairs used for VMClarity Scanner instance                                                                                                                         |
+| `OPENCLARITY_AWS_SCANNER_INSTANCE_ARCHITECTURE_TO_AMI_MAPPING`  |           | `x86_64:ami-03f1cc6c8b9c0b899,arm64:ami-06972d841707cc4cf` | Comma separated list of architecture:ami_id pairs used for VMClarity Scanner instance                                                                                                                                |
+| `OPENCLARITY_AWS_BLOCK_DEVICE_NAME`             |           | `xvdh`                                                     | Block device name used for attaching Scanner volume to the Scanner instance                                                                                                                                          |
 
 ## UI backend
 

@@ -2429,6 +2429,12 @@ components:
           format: date-time
         rootVolume:
           $ref: '#/components/schemas/RootVolume'
+        architecture:
+          type: string
+          enum:
+            - amd64
+            - arm64
+            - unknown
       required:
         - objectType
         - instanceID

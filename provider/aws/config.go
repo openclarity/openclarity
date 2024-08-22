@@ -19,13 +19,28 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
+
+	apitypes "github.com/openclarity/openclarity/api/types"
 )
 
 const (
-	DefaultEnvPrefix           = "OPENCLARITY_AWS"
-	DefaultScannerInstanceType = "t2.large"
-	DefaultBlockDeviceName     = "xvdh"
+	DefaultEnvPrefix                   = "OPENCLARITY_AWS"
+	DefaultScannerInstanceArchitecture = apitypes.Amd64
+	DefaultBlockDeviceName             = "xvdh"
+)
+
+var (
+	DefaultScannerInstanceArchitectureToTypeMapping = apitypes.FromArchitectureMapping{
+		"x86_64": "t3.large",
+		"arm64":  "t4g.large",
+	}
+
+	DefaultScannerInstanceArchitectureToAMIMapping = apitypes.FromArchitectureMapping{
+		"x86_64": "ami-03f1cc6c8b9c0b899",
+		"arm64":  "ami-06972d841707cc4cf",
+	}
 )
 
 type Config struct {
@@ -37,10 +52,13 @@ type Config struct {
 	SecurityGroupID string `mapstructure:"security_group_id"`
 	// KeyPairName is the name of the SSH KeyPair to use for Scanner instance launch
 	KeyPairName string `mapstructure:"keypair_name"`
-	// ScannerImage is the AMI image used for creating Scanner instance
-	ScannerImage string `mapstructure:"scanner_ami_id"`
-	// ScannerInstanceType is the instance type used for Scanner instance
-	ScannerInstanceType string `mapstructure:"scanner_instance_type"`
+	// ScannerInstanceArchitecture contains the architecture to be used for Scanner instance which prevents the Provider
+	// to dynamically determine it based on the Target architecture.
+	ScannerInstanceArchitecture apitypes.VMInfoArchitecture `mapstructure:"scanner_instance_architecture"`
+	// ScannerInstanceArchitectureToTypeMapping contains Architecture:InstanceType pairs
+	ScannerInstanceArchitectureToTypeMapping apitypes.FromArchitectureMapping `mapstructure:"scanner_instance_architecture_to_type_mapping"`
+	// ScannerInstanceArchitectureToAMIMapping contains Architecture:AMI pairs
+	ScannerInstanceArchitectureToAMIMapping apitypes.FromArchitectureMapping `mapstructure:"scanner_instance_architecture_to_ami_mapping"`
 	// BlockDeviceName contains the block device name used for attaching Scanner volume to the Scanner instance
 	BlockDeviceName string `mapstructure:"block_device_name"`
 }
@@ -58,12 +76,17 @@ func (c *Config) Validate() error {
 		return errors.New("parameter SecurityGroupID must be provided")
 	}
 
-	if c.ScannerImage == "" {
-		return errors.New("parameter ScannerImage must be provided")
+	architecture, err := c.ScannerInstanceArchitecture.MarshalText()
+	if err != nil {
+		return fmt.Errorf("failed to marshal ScannerInstanceArchitecture into text: %w", err)
 	}
 
-	if c.ScannerInstanceType == "" {
-		return errors.New("parameter ScannerInstanceType must be provided")
+	if _, ok := c.ScannerInstanceArchitectureToTypeMapping[architecture]; !ok {
+		return fmt.Errorf("failed to find instance type for architecture. Arch=%s", architecture)
+	}
+
+	if _, ok := c.ScannerInstanceArchitectureToAMIMapping[architecture]; !ok {
+		return fmt.Errorf("failed to find instance AMI for architecture. Arch=%s", architecture)
 	}
 
 	return nil
@@ -81,16 +104,29 @@ func NewConfig() (*Config, error) {
 	_ = v.BindEnv("subnet_id")
 	_ = v.BindEnv("security_group_id")
 	_ = v.BindEnv("keypair_name")
-	_ = v.BindEnv("scanner_ami_id")
 
-	_ = v.BindEnv("scanner_instance_type")
-	v.SetDefault("scanner_instance_type", DefaultScannerInstanceType)
+	_ = v.BindEnv("scanner_instance_architecture")
+	v.SetDefault("scanner_instance_architecture", DefaultScannerInstanceArchitecture)
+
+	_ = v.BindEnv("scanner_instance_architecture_to_type_mapping")
+	v.SetDefault("scanner_instance_architecture_to_type_mapping", DefaultScannerInstanceArchitectureToTypeMapping)
+
+	_ = v.BindEnv("scanner_instance_architecture_to_ami_mapping")
+	v.SetDefault("scanner_instance_architecture_to_ami_mapping", DefaultScannerInstanceArchitectureToAMIMapping)
 
 	_ = v.BindEnv("block_device_name")
 	v.SetDefault("block_device_name", DefaultBlockDeviceName)
 
+	decodeHooks := mapstructure.ComposeDecodeHookFunc(
+		// TextUnmarshallerHookFunc is needed to decode the custom types
+		mapstructure.TextUnmarshallerHookFunc(),
+		// Default decoders
+		mapstructure.StringToTimeDurationHookFunc(),
+		mapstructure.StringToSliceHookFunc(","),
+	)
+
 	config := &Config{}
-	if err := v.Unmarshal(config); err != nil {
+	if err := v.Unmarshal(config, viper.DecodeHook(decodeHooks)); err != nil {
 		return nil, fmt.Errorf("failed to parse provider configuration. Provider=AWS: %w", err)
 	}
 

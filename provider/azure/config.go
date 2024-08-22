@@ -22,11 +22,24 @@ import (
 
 	"github.com/go-viper/mapstructure/v2"
 	"github.com/spf13/viper"
+
+	apitypes "github.com/openclarity/openclarity/api/types"
 )
 
 const (
-	DefaultEnvPrefix = "OPENCLARITY_AZURE"
+	DefaultEnvPrefix             = "OPENCLARITY_AZURE"
+	DefaultScannerVMArchitecture = apitypes.Amd64
 )
+
+var DefaultScannerVMArchitectureToSizeMapping = apitypes.FromArchitectureMapping{
+	"x86_64": "Standard_D2s_v3",
+	"arm64":  "Standard_D2ps_v5",
+}
+
+var DefaultScannerVMArchitectureToImageSKUMapping = apitypes.FromArchitectureMapping{
+	"x86_64": "20_04-lts-gen2",
+	"arm64":  "20_04-lts-arm64",
+}
 
 type AzurePublicKey string
 
@@ -42,19 +55,20 @@ func (a *AzurePublicKey) UnmarshalText(text []byte) error {
 }
 
 type Config struct {
-	SubscriptionID              string         `mapstructure:"subscription_id"`
-	ScannerLocation             string         `mapstructure:"scanner_location"`
-	ScannerResourceGroup        string         `mapstructure:"scanner_resource_group"`
-	ScannerSubnet               string         `mapstructure:"scanner_subnet_id"`
-	ScannerPublicKey            AzurePublicKey `mapstructure:"scanner_public_key"`
-	ScannerVMSize               string         `mapstructure:"scanner_vm_size"`
-	ScannerImagePublisher       string         `mapstructure:"scanner_image_publisher"`
-	ScannerImageOffer           string         `mapstructure:"scanner_image_offer"`
-	ScannerImageSKU             string         `mapstructure:"scanner_image_sku"`
-	ScannerImageVersion         string         `mapstructure:"scanner_image_version"`
-	ScannerSecurityGroup        string         `mapstructure:"scanner_security_group"`
-	ScannerStorageAccountName   string         `mapstructure:"scanner_storage_account_name"`
-	ScannerStorageContainerName string         `mapstructure:"scanner_storage_container_name"`
+	SubscriptionID                         string                           `mapstructure:"subscription_id"`
+	ScannerLocation                        string                           `mapstructure:"scanner_location"`
+	ScannerResourceGroup                   string                           `mapstructure:"scanner_resource_group"`
+	ScannerSubnet                          string                           `mapstructure:"scanner_subnet_id"`
+	ScannerPublicKey                       AzurePublicKey                   `mapstructure:"scanner_public_key"`
+	ScannerImagePublisher                  string                           `mapstructure:"scanner_image_publisher"`
+	ScannerImageOffer                      string                           `mapstructure:"scanner_image_offer"`
+	ScannerVMArchitectureToImageSKUMapping apitypes.FromArchitectureMapping `mapstructure:"scanner_vm_architecture_to_image_sku_mapping"`
+	ScannerImageVersion                    string                           `mapstructure:"scanner_image_version"`
+	ScannerSecurityGroup                   string                           `mapstructure:"scanner_security_group"`
+	ScannerStorageAccountName              string                           `mapstructure:"scanner_storage_account_name"`
+	ScannerStorageContainerName            string                           `mapstructure:"scanner_storage_container_name"`
+	ScannerVMArchitectureToSizeMapping     apitypes.FromArchitectureMapping `mapstructure:"scanner_vm_architecture_to_size_mapping"`
+	ScannerVMArchitecture                  apitypes.VMInfoArchitecture      `mapstructure:"scanner_vm_architecture"`
 }
 
 func NewConfig() (*Config, error) {
@@ -70,14 +84,21 @@ func NewConfig() (*Config, error) {
 	_ = v.BindEnv("scanner_resource_group")
 	_ = v.BindEnv("scanner_subnet_id")
 	_ = v.BindEnv("scanner_public_key")
-	_ = v.BindEnv("scanner_vm_size")
 	_ = v.BindEnv("scanner_image_publisher")
 	_ = v.BindEnv("scanner_image_offer")
-	_ = v.BindEnv("scanner_image_sku")
+
+	_ = v.BindEnv("scanner_vm_architecture_to_image_sku_mapping")
+	v.SetDefault("scanner_vm_architecture_to_image_sku_mapping", DefaultScannerVMArchitectureToImageSKUMapping)
+
 	_ = v.BindEnv("scanner_image_version")
 	_ = v.BindEnv("scanner_security_group")
 	_ = v.BindEnv("scanner_storage_account_name")
 	_ = v.BindEnv("scanner_storage_container_name")
+
+	_ = v.BindEnv("scanner_vm_architecture_to_size_mapping")
+	v.SetDefault("scanner_vm_architecture_to_size_mapping", DefaultScannerVMArchitectureToSizeMapping)
+
+	_ = v.BindEnv("scanner_vm_architecture")
 
 	config := &Config{}
 	if err := v.Unmarshal(&config, viper.DecodeHook(mapstructure.TextUnmarshallerHookFunc())); err != nil {
@@ -104,8 +125,17 @@ func (c Config) Validate() error {
 		return errors.New("parameter ScannerSubnet must be provided")
 	}
 
-	if c.ScannerVMSize == "" {
-		return errors.New("parameter ScannerVMSize must be provided")
+	if c.ScannerVMArchitecture == "" {
+		return errors.New("parameter ScannerVmArchitecture must be provided")
+	}
+
+	architecture, err := c.ScannerVMArchitecture.MarshalText()
+	if err != nil {
+		return fmt.Errorf("failed to marshal ScannerInstanceArchitecture into text: %w", err)
+	}
+
+	if _, ok := c.ScannerVMArchitectureToSizeMapping[architecture]; !ok {
+		return fmt.Errorf("failed to find vm size for architecture %s", c.ScannerVMArchitecture)
 	}
 
 	if c.ScannerImagePublisher == "" {
@@ -116,8 +146,8 @@ func (c Config) Validate() error {
 		return errors.New("parameter ScannerImageOffer must be provided")
 	}
 
-	if c.ScannerImageSKU == "" {
-		return errors.New("parameter ScannerImageSKU must be provided")
+	if _, ok := c.ScannerVMArchitectureToImageSKUMapping[architecture]; !ok {
+		return fmt.Errorf("failed to find image sku for architecture %s", c.ScannerVMArchitecture)
 	}
 
 	if c.ScannerImageVersion == "" {

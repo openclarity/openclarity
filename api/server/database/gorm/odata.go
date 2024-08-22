@@ -586,6 +586,7 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 				},
 			},
 			"instanceProvider": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"architecture":     odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 		},
 	},
 	"RootVolume": {

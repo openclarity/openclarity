@@ -94,8 +94,12 @@ spec:
               value: {{ .keypairName }}
             - name: OPENCLARITY_AWS_SCANNER_AMI_ID
               value: {{ .scannerAmiId }}
-            - name: OPENCLARITY_AWS_SCANNER_INSTANCE_TYPE
-              value: {{ .scannerInstanceType }}
+            - name: OPENCLARITY_AWS_SCANNER_INSTANCE_ARCHITECTURE
+              value: {{ .scannerInstanceArchitecture }}
+            - name: OPENCLARITY_AWS_SCANNER_INSTANCE_ARCHITECTURE_TO_TYPE_MAPPING
+              value: {{ .scannerInstanceArchitectureToTypeMapping }}
+            - name: OPENCLARITY_AWS_SCANNER_INSTANCE_ARCHITECTURE_TO_AMI_MAPPING
+              value: {{ .scannerInstanceArchitectureToAmiMapping }}
             {{- end -}}
             {{- end }}
 
@@ -107,10 +111,14 @@ spec:
               value: {{ .scannerZone }}
             - name: OPENCLARITY_GCP_SCANNER_SUBNETWORK
               value: {{ .scannerSubnet }}
-            - name: OPENCLARITY_GCP_SCANNER_MACHINE_TYPE
-              value: {{ .scannerMachineType }}
-            - name: OPENCLARITY_GCP_SCANNER_SOURCE_IMAGE
-              value: {{ .scannerSourceImage }}
+            - name: OPENCLARITY_GCP_SCANNER_MACHINE_ARCHITECTURE_TO_TYPE_MAPPING
+              value: {{ .scannerMachineArchitectureToTypeMapping }}
+            - name: OPENCLARITY_GCP_SCANNER_MACHINE_ARCHITECTURE
+              value: {{ .scannerMachineArchitecture }}
+            - name: OPENCLARITY_GCP_SCANNER_SOURCE_IMAGE_PREFIX
+              value: {{ .scannerSourceImagePrefix }}
+            - name: OPENCLARITY_GCP_SCANNER_MACHINE_ARCHITECTURE_TO_SOURCE_IMAGE_MAPPING
+              value: {{ .scannerMachineArchitectureToSourceImageMapping }}
             {{- end -}}
             {{- end }}
 
@@ -126,14 +134,16 @@ spec:
               value: .scannerSubnetId
             - name: OPENCLARITY_AZURE_SCANNER_PUBLIC_KEY
               value: .scannerPublicKey
-            - name: OPENCLARITY_AZURE_SCANNER_VM_SIZE
-              value: .scannerVmSize
+            - name: OPENCLARITY_AZURE_SCANNER_VM_ARCHITECTURE_TO_SIZE_MAPPING
+              value: .scannerVmArchitectureToSizeMapping
+            - name: OPENCLARITY_AZURE_SCANNER_VM_ARCHITECTURE
+              value: .scannerVmArchitecture
             - name: OPENCLARITY_AZURE_SCANNER_IMAGE_PUBLISHER
               value: .scannerImagePublisher
             - name: OPENCLARITY_AZURE_SCANNER_IMAGE_OFFER
               value: .scannerImageOffer
-            - name: OPENCLARITY_AZURE_SCANNER_IMAGE_SKU
-              value: .scannerImageSku
+            - name: OPENCLARITY_AZURE_SCANNER_VM_ARCHITECTURE_TO_IMAGE_SKU_MAPPING
+              value: .scannerVMArchitectureToImageSkuMapping
             - name: OPENCLARITY_AZURE_SCANNER_IMAGE_VERSION
               value: .scannerImageVersion
             - name: OPENCLARITY_AZURE_SCANNER_SECURITY_GROUP
