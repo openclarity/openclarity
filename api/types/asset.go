@@ -24,9 +24,9 @@ func (a *VMInfoArchitecture) UnmarshalText(text []byte) error {
 	var arch VMInfoArchitecture
 
 	switch string(text) {
-	case "x86_64":
+	case "x86_64", "x64", "amd64":
 		arch = Amd64
-	case "arm64":
+	case "arm64", "aarch64":
 		arch = Arm64
 	default:
 		return fmt.Errorf("failed to unmarshal text into VMInfoArchitecture: %s", text)
