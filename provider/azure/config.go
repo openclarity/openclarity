@@ -32,13 +32,13 @@ const (
 )
 
 var DefaultScannerVMSizeMapping = apitypes.FromArchitectureMapping{
-	apitypes.Amd64: "Standard_D2s_v3",
-	apitypes.Arm64: "Standard_D2ps_v5",
+	"x86_64": "Standard_D2s_v3",
+	"arm64":  "Standard_D2ps_v5",
 }
 
 var DefaultScannerImageSKUMapping = apitypes.FromArchitectureMapping{
-	apitypes.Amd64: "20_04-lts-gen2",
-	apitypes.Arm64: "20_04-lts-arm64",
+	"x86_64": "20_04-lts-gen2",
+	"arm64":  "20_04-lts-arm64",
 }
 
 type AzurePublicKey string
@@ -129,7 +129,12 @@ func (c Config) Validate() error {
 		return errors.New("parameter ScannerVmArchitecture must be provided")
 	}
 
-	if _, ok := c.ScannerVMSizeMapping[c.ScannerVMArchitecture]; !ok {
+	architecture, err := c.ScannerVMArchitecture.MarshalText()
+	if err != nil {
+		return fmt.Errorf("failed to marshal ScannerInstanceArchitecture into text: %w", err)
+	}
+
+	if _, ok := c.ScannerVMSizeMapping[architecture]; !ok {
 		return fmt.Errorf("failed to find vm size for architecture %s", c.ScannerVMArchitecture)
 	}
 
@@ -141,7 +146,7 @@ func (c Config) Validate() error {
 		return errors.New("parameter ScannerImageOffer must be provided")
 	}
 
-	if _, ok := c.ScannerImageSKUMapping[c.ScannerVMArchitecture]; !ok {
+	if _, ok := c.ScannerImageSKUMapping[architecture]; !ok {
 		return fmt.Errorf("failed to find image sku for architecture %s", c.ScannerVMArchitecture)
 	}
 

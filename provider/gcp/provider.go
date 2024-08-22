@@ -68,12 +68,17 @@ func New(ctx context.Context) (*Provider, error) {
 		return nil, fmt.Errorf("failed to create disks client: %w", err)
 	}
 
-	scannerMachineType, ok := config.ScannerMachineTypeMapping[config.ScannerMachineArchitecture]
+	architecture, err := config.ScannerMachineArchitecture.MarshalText()
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal ScannerInstanceArchitecture into text: %w", err)
+	}
+
+	scannerMachineType, ok := config.ScannerMachineTypeMapping[architecture]
 	if !ok {
 		return nil, fmt.Errorf("failed to find machine type for architecture %s", config.ScannerMachineArchitecture)
 	}
 
-	scannerSourceImage, ok := config.ScannerSourceImageMapping[config.ScannerMachineArchitecture]
+	scannerSourceImage, ok := config.ScannerSourceImageMapping[architecture]
 	if !ok {
 		return nil, fmt.Errorf("failed to find machine type for architecture %s", config.ScannerMachineArchitecture)
 	}

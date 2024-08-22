@@ -54,12 +54,12 @@ func TestConfig(t *testing.T) {
 				KeyPairName:                 "vmclarity-ssh-key",
 				ScannerInstanceArchitecture: apitypes.Amd64,
 				ScannerInstanceTypeMapping: apitypes.FromArchitectureMapping{
-					apitypes.Amd64: "t3.large",
-					apitypes.Arm64: "t4g.large",
+					"x86_64": "t3.large",
+					"arm64":  "t4g.large",
 				},
 				ScannerInstanceAMIMapping: apitypes.FromArchitectureMapping{
-					apitypes.Amd64: "ami-03f1cc6c8b9c0b899",
-					apitypes.Arm64: "ami-06972d841707cc4cf",
+					"x86_64": "ami-03f1cc6c8b9c0b899",
+					"arm64":  "ami-06972d841707cc4cf",
 				},
 				BlockDeviceName: "xvdh",
 			},
@@ -102,8 +102,8 @@ func TestInstanceTypeMapping(t *testing.T) {
 
 			ExpectedErrorMatcher: Not(HaveOccurred()),
 			ExpectedInstanceTypeMapping: &apitypes.FromArchitectureMapping{
-				apitypes.Amd64: "t3.large",
-				apitypes.Arm64: "t4g.large",
+				"x86_64": "t3.large",
+				"arm64":  "t4g.large",
 			},
 		},
 	}

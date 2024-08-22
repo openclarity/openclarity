@@ -40,14 +40,14 @@ const (
 
 var (
 	DefaultScannerMachineTypeMapping = apitypes.FromArchitectureMapping{
-		apitypes.Amd64: "e2-standard-2",
-		apitypes.Arm64: "t2a-standard-2",
+		"x86_64": "e2-standard-2",
+		"arm64":  "t2a-standard-2",
 	}
 
 	DefaultScannerSourceImagePrefix  = "projects/ubuntu-os-cloud/global/images/"
 	DefaultScannerSourceImageMapping = apitypes.FromArchitectureMapping{
-		apitypes.Amd64: "ubuntu-2204-jammy-v20230630",
-		apitypes.Arm64: "ubuntu-2204-jammy-arm64-v20230630",
+		"x86_64": "ubuntu-2204-jammy-v20230630",
+		"arm64":  "ubuntu-2204-jammy-arm64-v20230630",
 	}
 )
 
@@ -112,7 +112,12 @@ func (c Config) Validate() error {
 		return fmt.Errorf("parameter ScannerMachineArchitecture must be provided by setting %v_%v environment variable", DefaultEnvPrefix, strings.ToUpper(scannerMachineArchitecture))
 	}
 
-	if _, ok := c.ScannerMachineTypeMapping[c.ScannerMachineArchitecture]; !ok {
+	architecture, err := c.ScannerMachineArchitecture.MarshalText()
+	if err != nil {
+		return fmt.Errorf("failed to marshal ScannerMachineArchitecture into text: %w", err)
+	}
+
+	if _, ok := c.ScannerMachineTypeMapping[architecture]; !ok {
 		return fmt.Errorf("failed to find machine type for architecture %s", c.ScannerMachineArchitecture)
 	}
 
@@ -120,7 +125,7 @@ func (c Config) Validate() error {
 		return fmt.Errorf("parameter ScannerSourceImageMappingPrefix must be provided by setting %v_%v environment variable", DefaultEnvPrefix, strings.ToUpper(scannerSourceImagePrefix))
 	}
 
-	if _, ok := c.ScannerSourceImageMapping[c.ScannerMachineArchitecture]; !ok {
+	if _, ok := c.ScannerSourceImageMapping[architecture]; !ok {
 		return fmt.Errorf("failed to find source image for architecture %s", c.ScannerMachineArchitecture)
 	}
 

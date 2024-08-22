@@ -33,13 +33,13 @@ const (
 
 var (
 	DefaultScannerInstanceTypeMapping = apitypes.FromArchitectureMapping{
-		apitypes.Amd64: "t3.large",
-		apitypes.Arm64: "t4g.large",
+		"x86_64": "t3.large",
+		"arm64":  "t4g.large",
 	}
 
 	DefaultScannerInstanceAMIMapping = apitypes.FromArchitectureMapping{
-		apitypes.Amd64: "ami-03f1cc6c8b9c0b899",
-		apitypes.Arm64: "ami-06972d841707cc4cf",
+		"x86_64": "ami-03f1cc6c8b9c0b899",
+		"arm64":  "ami-06972d841707cc4cf",
 	}
 )
 
@@ -77,12 +77,17 @@ func (c *Config) Validate() error {
 		return errors.New("parameter SecurityGroupID must be provided")
 	}
 
-	if _, ok := c.ScannerInstanceTypeMapping[c.ScannerInstanceArchitecture]; !ok {
-		return fmt.Errorf("failed to find instance type for architecture. Arch=%s", c.ScannerInstanceArchitecture)
+	architecture, err := c.ScannerInstanceArchitecture.MarshalText()
+	if err != nil {
+		return fmt.Errorf("failed to marshal ScannerInstanceArchitecture into text: %w", err)
 	}
 
-	if _, ok := c.ScannerInstanceAMIMapping[c.ScannerInstanceArchitecture]; !ok {
-		return fmt.Errorf("failed to find instance AMI for architecture. Arch=%s", c.ScannerInstanceArchitecture)
+	if _, ok := c.ScannerInstanceTypeMapping[architecture]; !ok {
+		return fmt.Errorf("failed to find instance type for architecture. Arch=%s", architecture)
+	}
+
+	if _, ok := c.ScannerInstanceAMIMapping[architecture]; !ok {
+		return fmt.Errorf("failed to find instance AMI for architecture. Arch=%s", architecture)
 	}
 
 	return nil

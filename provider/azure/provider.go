@@ -65,12 +65,17 @@ func New(_ context.Context) (*Provider, error) {
 		return nil, fmt.Errorf("failed to create compute client factory: %w", err)
 	}
 
-	scannerVMSize, ok := config.ScannerVMSizeMapping[config.ScannerVMArchitecture]
+	architecture, err := config.ScannerVMArchitecture.MarshalText()
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal ScannerVMArchitecture into text: %w", err)
+	}
+
+	scannerVMSize, ok := config.ScannerVMSizeMapping[architecture]
 	if !ok {
 		return nil, fmt.Errorf("failed to find vm size for architecture %s", config.ScannerVMArchitecture)
 	}
 
-	scannerImageSKU, ok := config.ScannerImageSKUMapping[config.ScannerVMArchitecture]
+	scannerImageSKU, ok := config.ScannerImageSKUMapping[architecture]
 	if !ok {
 		return nil, fmt.Errorf("failed to find image sku for architecture %s", config.ScannerVMArchitecture)
 	}

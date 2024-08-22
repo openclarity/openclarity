@@ -60,14 +60,19 @@ func New(ctx context.Context) (provider.Provider, error) {
 
 	ec2Client := ec2.NewFromConfig(cfg)
 
+	architecture, err := config.ScannerInstanceArchitecture.MarshalText()
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal ScannerInstanceArchitecture into text: %w", err)
+	}
+
 	// Find architecture specific InstanceType for Scanner instance
-	scannerInstanceType, ok := config.ScannerInstanceTypeMapping[config.ScannerInstanceArchitecture]
+	scannerInstanceType, ok := config.ScannerInstanceTypeMapping[architecture]
 	if !ok {
 		return nil, fmt.Errorf("failed to find instance type for architecture. Arch=%s", config.ScannerInstanceArchitecture)
 	}
 
 	// Find architecture specific AMI for Scanner instance
-	scannerInstanceAMI, ok := config.ScannerInstanceAMIMapping[config.ScannerInstanceArchitecture]
+	scannerInstanceAMI, ok := config.ScannerInstanceAMIMapping[architecture]
 	if !ok {
 		return nil, fmt.Errorf("failed to find AMI for architecture. Arch=%s", config.ScannerInstanceArchitecture)
 	}

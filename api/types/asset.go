@@ -37,7 +37,20 @@ func (a *VMInfoArchitecture) UnmarshalText(text []byte) error {
 	return nil
 }
 
-type FromArchitectureMapping map[VMInfoArchitecture]string
+func (a *VMInfoArchitecture) MarshalText() (string, error) {
+	switch *a {
+	case Amd64:
+		return "x86_64", nil
+	case Arm64:
+		return "arm64", nil
+	case Unknown:
+		return "", fmt.Errorf("unknown VMInfoArchitecture: %v", *a)
+	default:
+		return "", fmt.Errorf("failed to marshal VMInfoArchitecture into text: %v", *a)
+	}
+}
+
+type FromArchitectureMapping map[string]string
 
 func (m *FromArchitectureMapping) UnmarshalText(text []byte) error {
 	mapping := make(FromArchitectureMapping)
@@ -50,13 +63,7 @@ func (m *FromArchitectureMapping) UnmarshalText(text []byte) error {
 			continue
 		}
 
-		var arch VMInfoArchitecture
-		err := arch.UnmarshalText([]byte(pair[0]))
-		if err != nil {
-			return fmt.Errorf("failed to unmarshal architecture: %w", err)
-		}
-
-		mapping[arch] = pair[1]
+		mapping[pair[0]] = pair[1]
 	}
 	*m = mapping
 
