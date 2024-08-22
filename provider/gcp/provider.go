@@ -73,14 +73,14 @@ func New(ctx context.Context) (*Provider, error) {
 		return nil, fmt.Errorf("failed to marshal ScannerInstanceArchitecture into text: %w", err)
 	}
 
-	scannerMachineType, ok := config.ScannerMachineTypeMapping[architecture]
+	scannerMachineType, ok := config.ScannerMachineArchitectureToTypeMapping[architecture]
 	if !ok {
 		return nil, fmt.Errorf("failed to find machine type for architecture %s", config.ScannerMachineArchitecture)
 	}
 
-	scannerSourceImage, ok := config.ScannerSourceImageMapping[architecture]
+	scannerSourceImage, ok := config.ScannerMachineArchitectureToSourceImageMapping[architecture]
 	if !ok {
-		return nil, fmt.Errorf("failed to find machine type for architecture %s", config.ScannerMachineArchitecture)
+		return nil, fmt.Errorf("failed to find source image for architecture %s", config.ScannerMachineArchitecture)
 	}
 	scannerSourceImage = config.ScannerSourceImagePrefix + scannerSourceImage
 

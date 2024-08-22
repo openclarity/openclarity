@@ -70,12 +70,12 @@ func New(_ context.Context) (*Provider, error) {
 		return nil, fmt.Errorf("failed to marshal ScannerVMArchitecture into text: %w", err)
 	}
 
-	scannerVMSize, ok := config.ScannerVMSizeMapping[architecture]
+	scannerVMSize, ok := config.ScannerVMArchitectureToSizeMapping[architecture]
 	if !ok {
 		return nil, fmt.Errorf("failed to find vm size for architecture %s", config.ScannerVMArchitecture)
 	}
 
-	scannerImageSKU, ok := config.ScannerImageSKUMapping[architecture]
+	scannerImageSKU, ok := config.ScannerVMArchitectureToImageSKUMapping[architecture]
 	if !ok {
 		return nil, fmt.Errorf("failed to find image sku for architecture %s", config.ScannerVMArchitecture)
 	}

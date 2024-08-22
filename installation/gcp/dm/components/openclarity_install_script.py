@@ -44,10 +44,10 @@ def GenerateInstallScript(context):
             f"regions/{context.properties['region']}/"
             f"subnetworks/{context.properties['network']}"
         ),
-        "ScannerMachineTypeMapping": context.properties["scannerMachineTypeMapping"],
+        "ScannerMachineArchitectureToTypeMapping": context.properties["scannerMachineArchitectureToTypeMapping"],
         "ScannerMachineArchitecture": context.properties["scannerMachineArchitecture"],
         "ScannerSourceImagePrefix": context.properties["scannerSourceImagePrefix"],
-        "ScannerSourceImageMapping": context.properties["scannerSourceImageMapping"],
+        "ScannerMachineArchitectureToSourceImageMapping": context.properties["scannerMachineArchitectureToSourceImageMapping"],
         # Optional parameters
         "PostgresDBPassword": context.properties.get("postgresDBPassword", ""),
         "ExternalDBName": context.properties.get("externalDBName", ""),

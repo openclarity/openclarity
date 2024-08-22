@@ -188,13 +188,13 @@ orchestrator:
     # -- Subnet where to run the scanner instances
     scannerSubnet: ""
     # -- Scanner Machine type mapping
-    scannerMachineTypeMapping: ""
+    scannerMachineArchitectureToTypeMapping: ""
     # -- Scanner Machine architecture
     scannerMachineArchitecture: ""
     # -- Scanner source image prefix
     scannerSourceImagePrefix: ""
     # -- Scanner source image mapping
-    scannerSourceImageMapping: ""
+    scannerMachineArchitectureToSourceImageMapping: ""
 
   azure:
     # -- Subscription ID for discovery and scanning
@@ -208,7 +208,7 @@ orchestrator:
     # -- SSH RSA Public Key to configure the scanner instances with
     scannerPublicKey: ""
     # -- Scanner architecture to VM size mapping
-    scannerVmSizeMapping: ""
+    scannerVmArchitectureToSizeMapping: ""
     # -- Scanner architecture
     scannerVmArchitecture: ""
     # -- Scanner VM source image publisher
@@ -216,7 +216,7 @@ orchestrator:
     # -- Scanner VM source image offer
     scannerImageOffer: ""
     # -- Scanner VM source image sku mapping
-    scannerImageSkuMapping: ""
+    scannerVMArchitectureToImageSkuMapping: ""
     # -- Scanner VM source image version
     scannerImageVersion: ""
     # -- Scanner VM security group

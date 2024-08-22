@@ -66,13 +66,13 @@ func New(ctx context.Context) (provider.Provider, error) {
 	}
 
 	// Find architecture specific InstanceType for Scanner instance
-	scannerInstanceType, ok := config.ScannerInstanceTypeMapping[architecture]
+	scannerInstanceType, ok := config.ScannerInstanceArchitectureToTypeMapping[architecture]
 	if !ok {
 		return nil, fmt.Errorf("failed to find instance type for architecture. Arch=%s", config.ScannerInstanceArchitecture)
 	}
 
 	// Find architecture specific AMI for Scanner instance
-	scannerInstanceAMI, ok := config.ScannerInstanceAMIMapping[architecture]
+	scannerInstanceAMI, ok := config.ScannerInstanceArchitectureToAMIMapping[architecture]
 	if !ok {
 		return nil, fmt.Errorf("failed to find AMI for architecture. Arch=%s", config.ScannerInstanceArchitecture)
 	}

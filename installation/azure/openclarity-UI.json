@@ -136,7 +136,7 @@
                             "visible": true
                         },
                         {
-                            "name": "scannerVmSizeMapping",
+                            "name": "scannerVmArchitectureToSizeMapping",
                             "type": "Microsoft.Common.TextBox",
                             "label": "Scanner VM Architecture to Machine Size Mapping",
                             "subLabel": "",
@@ -539,7 +539,7 @@
                 "adminUsername": "[steps('basics').adminUsername]",
                 "adminSSHKey": "[steps('basics').adminSSHKey.sshPublicKey]",
                 "serverVmSize": "[steps('basics').serverVmSize]",
-                "scannerVmSizeMapping": "[steps('basics').scannerVmSizeMapping]",
+                "scannerVmArchitectureToSizeMapping": "[steps('basics').scannerVmArchitectureToSizeMapping]",
                 "scannerVmArchitecture": "[steps('basics').scannerVmArchitecture]",
                 "securityType": "[steps('basics').securityType]",
                 "deploypostfix": "[steps('basics').deploypostfix]",

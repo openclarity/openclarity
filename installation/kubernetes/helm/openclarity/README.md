@@ -172,7 +172,6 @@ secrets.
 | orchestrator.aws.subnetId | string | `""` | Subnet where the scanners will be created |
 | orchestrator.azure.scannerImageOffer | string | `""` | Scanner VM source image offer |
 | orchestrator.azure.scannerImagePublisher | string | `""` | Scanner VM source image publisher |
-| orchestrator.azure.scannerImageSkuMapping | string | `""` | Scanner VM source image sku mapping |
 | orchestrator.azure.scannerImageVersion | string | `""` | Scanner VM source image version |
 | orchestrator.azure.scannerLocation | string | `""` | Location where the scanner instances will be run |
 | orchestrator.azure.scannerPublicKey | string | `""` | SSH RSA Public Key to configure the scanner instances with |
@@ -181,8 +180,9 @@ secrets.
 | orchestrator.azure.scannerStorageAccountName | string | `""` | Storage account to use for transfering snapshots between regions |
 | orchestrator.azure.scannerStorageContainerName | string | `""` | Storage container to use for transfering snapshots between regions |
 | orchestrator.azure.scannerSubnetId | string | `""` | Subnet ID where the scanner instances will be run |
+| orchestrator.azure.scannerVMArchitectureToImageSkuMapping | string | `""` | Scanner VM source image sku mapping |
 | orchestrator.azure.scannerVmArchitecture | string | `""` | Scanner architecture |
-| orchestrator.azure.scannerVmSizeMapping | string | `""` | Scanner architecture to VM size mapping |
+| orchestrator.azure.scannerVmArchitectureToSizeMapping | string | `""` | Scanner architecture to VM size mapping |
 | orchestrator.azure.subscriptionId | string | `""` | Subscription ID for discovery and scanning |
 | orchestrator.containerSecurityContext.allowPrivilegeEscalation | bool | `false` | Force the child process to run as non-privileged |
 | orchestrator.containerSecurityContext.capabilities.drop | list | `["ALL"]` | List of capabilities to be dropped |
@@ -198,8 +198,8 @@ secrets.
 | orchestrator.freshclamMirrorAddress | string | `""` | Address that scanners can use to reach the freshclam mirror |
 | orchestrator.gcp.projectId | string | `""` | Project ID for discovery and scanning |
 | orchestrator.gcp.scannerMachineArchitecture | string | `""` | Scanner Machine architecture |
-| orchestrator.gcp.scannerMachineTypeMapping | string | `""` | Scanner Machine type mapping |
-| orchestrator.gcp.scannerSourceImageMapping | string | `""` | Scanner source image mapping |
+| orchestrator.gcp.scannerMachineArchitectureToSourceImageMapping | string | `""` | Scanner source image mapping |
+| orchestrator.gcp.scannerMachineArchitectureToTypeMapping | string | `""` | Scanner Machine type mapping |
 | orchestrator.gcp.scannerSourceImagePrefix | string | `""` | Scanner source image prefix |
 | orchestrator.gcp.scannerSubnet | string | `""` | Subnet where to run the scanner instances |
 | orchestrator.gcp.scannerZone | string | `""` | Zone to where the scanner instances should run |

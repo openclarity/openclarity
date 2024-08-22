@@ -32,12 +32,12 @@ const (
 )
 
 var (
-	DefaultScannerInstanceTypeMapping = apitypes.FromArchitectureMapping{
+	DefaultScannerInstanceArchitectureToTypeMapping = apitypes.FromArchitectureMapping{
 		"x86_64": "t3.large",
 		"arm64":  "t4g.large",
 	}
 
-	DefaultScannerInstanceAMIMapping = apitypes.FromArchitectureMapping{
+	DefaultScannerInstanceArchitectureToAMIMapping = apitypes.FromArchitectureMapping{
 		"x86_64": "ami-03f1cc6c8b9c0b899",
 		"arm64":  "ami-06972d841707cc4cf",
 	}
@@ -53,13 +53,12 @@ type Config struct {
 	// KeyPairName is the name of the SSH KeyPair to use for Scanner instance launch
 	KeyPairName string `mapstructure:"keypair_name"`
 	// ScannerInstanceArchitecture contains the architecture to be used for Scanner instance which prevents the Provider
-	// to dynamically determine it based on the Target architecture. The Provider will use this value to lookup
-	// for InstanceType in InstanceTypeMapping.
+	// to dynamically determine it based on the Target architecture.
 	ScannerInstanceArchitecture apitypes.VMInfoArchitecture `mapstructure:"scanner_instance_architecture"`
-	// InstanceTypeMapping contains Architecture:InstanceType pairs
-	ScannerInstanceTypeMapping apitypes.FromArchitectureMapping `mapstructure:"scanner_instance_type_mapping"`
-	// ScannerInstanceAMIMapping contains Architecture:AMI pairs
-	ScannerInstanceAMIMapping apitypes.FromArchitectureMapping `mapstructure:"scanner_instance_ami_mapping"`
+	// ScannerInstanceArchitectureToTypeMapping contains Architecture:InstanceType pairs
+	ScannerInstanceArchitectureToTypeMapping apitypes.FromArchitectureMapping `mapstructure:"scanner_instance_architecture_to_type_mapping"`
+	// ScannerInstanceArchitectureToAMIMapping contains Architecture:AMI pairs
+	ScannerInstanceArchitectureToAMIMapping apitypes.FromArchitectureMapping `mapstructure:"scanner_instance_architecture_to_ami_mapping"`
 	// BlockDeviceName contains the block device name used for attaching Scanner volume to the Scanner instance
 	BlockDeviceName string `mapstructure:"block_device_name"`
 }
@@ -82,11 +81,11 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("failed to marshal ScannerInstanceArchitecture into text: %w", err)
 	}
 
-	if _, ok := c.ScannerInstanceTypeMapping[architecture]; !ok {
+	if _, ok := c.ScannerInstanceArchitectureToTypeMapping[architecture]; !ok {
 		return fmt.Errorf("failed to find instance type for architecture. Arch=%s", architecture)
 	}
 
-	if _, ok := c.ScannerInstanceAMIMapping[architecture]; !ok {
+	if _, ok := c.ScannerInstanceArchitectureToAMIMapping[architecture]; !ok {
 		return fmt.Errorf("failed to find instance AMI for architecture. Arch=%s", architecture)
 	}
 
@@ -109,11 +108,11 @@ func NewConfig() (*Config, error) {
 	_ = v.BindEnv("scanner_instance_architecture")
 	v.SetDefault("scanner_instance_architecture", DefaultScannerInstanceArchitecture)
 
-	_ = v.BindEnv("scanner_instance_type_mapping")
-	v.SetDefault("scanner_instance_type_mapping", DefaultScannerInstanceTypeMapping)
+	_ = v.BindEnv("scanner_instance_architecture_to_type_mapping")
+	v.SetDefault("scanner_instance_architecture_to_type_mapping", DefaultScannerInstanceArchitectureToTypeMapping)
 
-	_ = v.BindEnv("scanner_instance_ami_mapping")
-	v.SetDefault("scanner_instance_ami_mapping", DefaultScannerInstanceAMIMapping)
+	_ = v.BindEnv("scanner_instance_architecture_to_ami_mapping")
+	v.SetDefault("scanner_instance_architecture_to_ami_mapping", DefaultScannerInstanceArchitectureToAMIMapping)
 
 	_ = v.BindEnv("block_device_name")
 	v.SetDefault("block_device_name", DefaultBlockDeviceName)

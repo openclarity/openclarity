@@ -37,14 +37,14 @@ func TestConfig(t *testing.T) {
 		{
 			Name: "New config from environment",
 			EnvVars: map[string]string{
-				"OPENCLARITY_AWS_SCANNER_REGION":                "eu-west-1",
-				"OPENCLARITY_AWS_SUBNET_ID":                     "subnet-038f85dc621fd5b5d",
-				"OPENCLARITY_AWS_SECURITY_GROUP_ID":             "sg-02cfdc854e18664d4",
-				"OPENCLARITY_AWS_KEYPAIR_NAME":                  "vmclarity-ssh-key",
-				"OPENCLARITY_AWS_SCANNER_INSTANCE_ARCHITECTURE": "x86_64",
-				"OPENCLARITY_AWS_SCANNER_INSTANCE_TYPE_MAPPING": "x86_64:t3.large,arm64:t4g.large",
-				"OPENCLARITY_AWS_SCANNER_INSTANCE_AMI_MAPPING":  "x86_64:ami-03f1cc6c8b9c0b899,arm64:ami-06972d841707cc4cf",
-				"OPENCLARITY_AWS_BLOCK_DEVICE_NAME":             "xvdh",
+				"OPENCLARITY_AWS_SCANNER_REGION":                                "eu-west-1",
+				"OPENCLARITY_AWS_SUBNET_ID":                                     "subnet-038f85dc621fd5b5d",
+				"OPENCLARITY_AWS_SECURITY_GROUP_ID":                             "sg-02cfdc854e18664d4",
+				"OPENCLARITY_AWS_KEYPAIR_NAME":                                  "vmclarity-ssh-key",
+				"OPENCLARITY_AWS_SCANNER_INSTANCE_ARCHITECTURE":                 "x86_64",
+				"OPENCLARITY_AWS_SCANNER_INSTANCE_ARCHITECTURE_TO_TYPE_MAPPING": "x86_64:t3.large,arm64:t4g.large",
+				"OPENCLARITY_AWS_SCANNER_INSTANCE_ARCHITECTURE_TO_AMI_MAPPING":  "x86_64:ami-03f1cc6c8b9c0b899,arm64:ami-06972d841707cc4cf",
+				"OPENCLARITY_AWS_BLOCK_DEVICE_NAME":                             "xvdh",
 			},
 			ExpectedNewErrorMatcher: Not(HaveOccurred()),
 			ExpectedConfig: &Config{
@@ -53,11 +53,11 @@ func TestConfig(t *testing.T) {
 				SecurityGroupID:             "sg-02cfdc854e18664d4",
 				KeyPairName:                 "vmclarity-ssh-key",
 				ScannerInstanceArchitecture: apitypes.Amd64,
-				ScannerInstanceTypeMapping: apitypes.FromArchitectureMapping{
+				ScannerInstanceArchitectureToTypeMapping: apitypes.FromArchitectureMapping{
 					"x86_64": "t3.large",
 					"arm64":  "t4g.large",
 				},
-				ScannerInstanceAMIMapping: apitypes.FromArchitectureMapping{
+				ScannerInstanceArchitectureToAMIMapping: apitypes.FromArchitectureMapping{
 					"x86_64": "ami-03f1cc6c8b9c0b899",
 					"arm64":  "ami-06972d841707cc4cf",
 				},
