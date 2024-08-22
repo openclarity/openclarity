@@ -94,8 +94,12 @@ spec:
               value: {{ .keypairName }}
             - name: OPENCLARITY_AWS_SCANNER_AMI_ID
               value: {{ .scannerAmiId }}
-            - name: OPENCLARITY_AWS_SCANNER_INSTANCE_TYPE
-              value: {{ .scannerInstanceType }}
+            - name: OPENCLARITY_AWS_SCANNER_INSTANCE_ARCHITECTURE
+              value: {{ .scannerInstanceArchitecture }}
+            - name: OPENCLARITY_AWS_SCANNER_INSTANCE_ARCHITECTURE_TO_TYPE_MAPPING
+              value: {{ .scannerInstanceArchitectureToTypeMapping }}
+            - name: OPENCLARITY_AWS_SCANNER_INSTANCE_ARCHITECTURE_TO_AMI_MAPPING
+              value: {{ .scannerInstanceArchitectureToAmiMapping }}
             {{- end -}}
             {{- end }}
 

@@ -1247,7 +1247,6 @@ Parameters:
   ScannerInstanceArchitecture:
     Description: >
       The architecture to be used for Scanner instance which prevents the Provider to dynamically determine it based on the Target architecture.
-      The Provider will use this value to lookup for InstanceType in ScannerInstanceArchitectureToTypeMapping.
     Type: String
     Default: ''
     AllowedValues:
