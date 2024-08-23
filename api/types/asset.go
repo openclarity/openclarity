@@ -28,6 +28,8 @@ func (a *VMInfoArchitecture) UnmarshalText(text []byte) error {
 		arch = Amd64
 	case "arm64", "aarch64":
 		arch = Arm64
+	case "":
+		arch = Unknown
 	default:
 		return fmt.Errorf("failed to unmarshal text into VMInfoArchitecture: %s", text)
 	}
@@ -44,7 +46,7 @@ func (a *VMInfoArchitecture) MarshalText() (string, error) {
 	case Arm64:
 		return "arm64", nil
 	case Unknown:
-		return "", fmt.Errorf("unknown VMInfoArchitecture: %v", *a)
+		return "", nil
 	default:
 		return "", fmt.Errorf("failed to marshal VMInfoArchitecture into text: %v", *a)
 	}
