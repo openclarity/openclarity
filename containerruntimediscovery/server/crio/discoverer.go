@@ -42,6 +42,11 @@ import (
 	"k8s.io/klog/v2"
 )
 
+const (
+	CRIOSockAddress      = "unix:///var/run/crio/crio.sock"
+	DefaultClientTimeout = 2 * time.Second
+)
+
 type discoverer struct {
 	runtimeService cri.RuntimeService
 	imageService   cri.ImageManagerService
@@ -53,12 +58,12 @@ func New() (types.Discoverer, error) {
 	logger := klog.Background()
 	var tp trace.TracerProvider = noop.NewTracerProvider()
 
-	r, err := remote.NewRemoteRuntimeService("unix:///var/run/crio/crio.sock", 2*time.Second, tp, &logger)
+	r, err := remote.NewRemoteRuntimeService(CRIOSockAddress, DefaultClientTimeout, tp, &logger)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create CRIO runtime service client: %w", err)
 	}
 
-	i, err := remote.NewRemoteImageService("unix:///var/run/crio/crio.sock", 2*time.Second, tp, &logger)
+	i, err := remote.NewRemoteImageService(CRIOSockAddress, DefaultClientTimeout, tp, &logger)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create CRIO image service client: %w", err)
 	}
@@ -168,7 +173,7 @@ func (d *discoverer) ExportImage(ctx context.Context, imageID string) (io.ReadCl
 		return nil, func() {}, fmt.Errorf("error parsing image name: %w", err)
 	}
 
-	destFilePath := filepath.Join(os.TempDir(), fmt.Sprintf("%s-image.tar", uuid.New().String()))
+	destFilePath := filepath.Join(os.TempDir(), uuid.New().String()+"-image.tar")
 
 	dest, err := alltransports.ParseImageName("docker-archive:" + destFilePath)
 	if err != nil {
@@ -180,6 +185,7 @@ func (d *discoverer) ExportImage(ctx context.Context, imageID string) (io.ReadCl
 	if err != nil {
 		return nil, func() {}, fmt.Errorf("error creating policy context: %w", err)
 	}
+	//nolint:errcheck
 	defer policyContext.Destroy()
 
 	_, err = copy.Image(ctx, policyContext, dest, src, &copy.Options{
