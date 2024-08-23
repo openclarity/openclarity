@@ -13,7 +13,10 @@ RUN --mount=type=cache,id=${TARGETPLATFORM}-apt,target=/var/cache/apt,sharing=lo
     apt-get update \
     && xx-apt-get install -y --no-install-recommends \
       gcc \
-      libc6-dev
+      libc6-dev \
+      libbtrfs-dev \
+      libgpgme-dev \
+      pkg-config
 
 WORKDIR /build/containerruntimediscovery/server
 

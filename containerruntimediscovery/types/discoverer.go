@@ -27,7 +27,7 @@ type DiscovererFactory func() (Discoverer, error)
 type Discoverer interface {
 	Images(ctx context.Context) ([]apitypes.ContainerImageInfo, error)
 	Image(ctx context.Context, imageID string) (apitypes.ContainerImageInfo, error)
-	ExportImage(ctx context.Context, imageID string) (io.ReadCloser, error)
+	ExportImage(ctx context.Context, imageID string) (io.ReadCloser, func(), error)
 
 	Containers(ctx context.Context) ([]apitypes.ContainerInfo, error)
 	Container(ctx context.Context, containerID string) (apitypes.ContainerInfo, error)

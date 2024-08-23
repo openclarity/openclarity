@@ -107,13 +107,14 @@ func (crds *ContainerRuntimeDiscoveryServer) ExportImage(c echo.Context) error {
 	ctx := c.Request().Context()
 	id := c.Param("id")
 
-	reader, err := crds.discoverer.ExportImage(ctx, id)
+	reader, cleanup, err := crds.discoverer.ExportImage(ctx, id)
 	if err != nil {
 		if errors.Is(err, types.ErrNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Image not found with ID %v", id))
 		}
 		return fmt.Errorf("failed to export image %s: %w", id, err)
 	}
+	defer cleanup()
 	defer reader.Close()
 
 	c.Response().Header().Set(echo.HeaderContentType, echo.MIMEOctetStream)

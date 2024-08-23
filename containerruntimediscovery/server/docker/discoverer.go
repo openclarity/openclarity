@@ -94,12 +94,12 @@ func (d *discoverer) getContainerImageInfo(ctx context.Context, imageID string) 
 	}, nil
 }
 
-func (d *discoverer) ExportImage(ctx context.Context, imageID string) (io.ReadCloser, error) {
+func (d *discoverer) ExportImage(ctx context.Context, imageID string) (io.ReadCloser, func(), error) {
 	reader, err := d.client.ImageSave(ctx, []string{imageID})
 	if err != nil {
-		return nil, fmt.Errorf("unable to save image from daemon: %w", err)
+		return nil, func() {}, fmt.Errorf("unable to save image from daemon: %w", err)
 	}
-	return reader, nil
+	return reader, func() {}, nil
 }
 
 func (d *discoverer) Containers(ctx context.Context) ([]apitypes.ContainerInfo, error) {

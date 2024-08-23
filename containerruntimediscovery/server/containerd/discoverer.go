@@ -270,7 +270,7 @@ func (d discoverer) getSnapshotterName(ctx context.Context) string {
 }
 
 // TODO(sambetts) Support auth config for fetching private images if they are missing.
-func (d *discoverer) ExportImage(ctx context.Context, imageID string) (io.ReadCloser, error) {
+func (d *discoverer) ExportImage(ctx context.Context, imageID string) (io.ReadCloser, func(), error) {
 	var img containerd.Image
 	var found bool
 
@@ -284,10 +284,10 @@ func (d *discoverer) ExportImage(ctx context.Context, imageID string) (io.ReadCl
 
 	err := d.imageIDWalk(ctx, imageID, walkFn)
 	if err != nil {
-		return nil, fmt.Errorf("failed to walk all images: %w", err)
+		return nil, func() {}, fmt.Errorf("failed to walk all images: %w", err)
 	}
 	if !found {
-		return nil, types.ErrNotFound
+		return nil, func() {}, types.ErrNotFound
 	}
 
 	// NOTE(sambetts) When running in Kubernetes containerd can be
@@ -299,22 +299,22 @@ func (d *discoverer) ExportImage(ctx context.Context, imageID string) (io.ReadCl
 	// nolint: dogsled
 	_, _, _, missing, err := containerdImages.Check(ctx, d.client.ContentStore(), img.Target(), platforms.Default())
 	if err != nil {
-		return nil, fmt.Errorf("unable to check image in content store: %w", err)
+		return nil, func() {}, fmt.Errorf("unable to check image in content store: %w", err)
 	}
 	if len(missing) > 0 {
 		imageInfo, err := d.Image(ctx, imageID)
 		if err != nil {
-			return nil, fmt.Errorf("failed to get image info to export: %w", err)
+			return nil, func() {}, fmt.Errorf("failed to get image info to export: %w", err)
 		}
 		if imageInfo.RepoDigests == nil || len(*imageInfo.RepoDigests) == 0 {
-			return nil, errors.New("image has no known repo digests can not safely fetch it")
+			return nil, func() {}, errors.New("image has no known repo digests can not safely fetch it")
 		}
 
 		// TODO(sambetts) Maybe try all the digests in case one has gone missing?
 		ref := (*imageInfo.RepoDigests)[0]
 		img, err = d.client.Pull(ctx, ref)
 		if err != nil {
-			return nil, fmt.Errorf("failed to fetch image %s: %w", ref, err)
+			return nil, func() {}, fmt.Errorf("failed to fetch image %s: %w", ref, err)
 		}
 	}
 
@@ -331,7 +331,7 @@ func (d *discoverer) ExportImage(ctx context.Context, imageID string) (io.ReadCl
 			log.GetLoggerFromContextOrDefault(ctx).Errorf("failed to export image: %v", err)
 		}
 	}()
-	return pr, nil
+	return pr, func() {}, nil
 }
 
 // ParseImageReferences parses a list of arbitrary image references and returns
