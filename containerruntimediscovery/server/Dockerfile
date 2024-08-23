@@ -16,7 +16,8 @@ RUN --mount=type=cache,id=${TARGETPLATFORM}-apt,target=/var/cache/apt,sharing=lo
       libc6-dev \
       libbtrfs-dev \
       libgpgme-dev \
-      pkg-config
+      pkg-config \
+      dpkg-dev
 
 WORKDIR /build/containerruntimediscovery/server
 
