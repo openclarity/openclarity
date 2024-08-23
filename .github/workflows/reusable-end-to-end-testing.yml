@@ -71,7 +71,7 @@ jobs:
         if: inputs.platform == 'kubernetes'
         uses: azure/setup-helm@fe7b79cd5ee1e45176fcad797de68ecaf3ca4814 # v4.2.0
 
-      - name: Install btrfs
+      - name: Install required libs and tools
         run: sudo apt-get install libbtrfs-dev libgpgme-dev pkg-config -y
 
       - name: Download artifacts
