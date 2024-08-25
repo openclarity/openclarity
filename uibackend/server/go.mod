@@ -77,5 +77,5 @@ replace (
 	github.com/openclarity/openclarity/scanner => ../../scanner
 	github.com/openclarity/openclarity/uibackend/types => ../types
 	github.com/openclarity/openclarity/utils => ../../utils
-	github.com/openclarity/openclarity/workflow => ../workflow
+	github.com/openclarity/openclarity/workflow => ../../workflow
 )
