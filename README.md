@@ -12,7 +12,7 @@
 VMClarity is an open source tool for agentless detection and management of Virtual Machine
 Software Bill Of Materials (SBOM) and security threats such as vulnerabilities, exploits, malware, rootkits, misconfigurations and leaked secrets.
 
-<img src="./assets/vmclarity_demo.gif" alt="VMClarity demo" />
+<img src="./assets/OpenClarity-demo.gif" alt="OpenClarity demo" />
 
 Join [VMClarity's Slack channel](https://outshift.slack.com/messages/vmclarity) to hear about the latest announcements and upcoming activities. We would love to get your feedback!
 
