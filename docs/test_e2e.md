@@ -2,13 +2,13 @@
 
 ## Table of Contents
 
-- [Installing a specific VMClarity build on AWS](#installing-a-specific-vmclarity-build-on-aws)
+- [Installing a specific OpenClarity build on AWS](#installing-a-specific-openclarity-build-on-aws)
   - [1. Build the containers and publish them to your Docker registry](#1.-build-the-containers-and-publish-them-to-your-docker-registry)
-  - [2. Install VMClarity CloudFormation](#2.-install-vmclarity-cloudformation)
-  - [3. Ensure that VMClarity backend is working correctly](#3.-ensure-that-vmclarity-backend-is-working-correctly)
+  - [2. Install OpenClarity CloudFormation](#2.-install-openclarity-cloudformation)
+  - [3. Ensure that OpenClarity backend is working correctly](#3.-ensure-that-openclarity-backend-is-working-correctly)
 - [Performing an end-to-end test](#performing-an-end-to-end-test)
 
-## Installing a specific VMClarity build on AWS
+## Installing a specific OpenClarity build on AWS
 
 ### 1. Build the containers and publish them to your Docker registry
 
@@ -16,25 +16,25 @@
 DOCKER_REGISTRY=<your docker registry> make push-docker
 ```
 
-### 2. Install VMClarity CloudFormation
+### 2. Install OpenClarity CloudFormation
 
 1. Ensure you have an SSH key pair uploaded to AWS EC2
 2. Go to CloudFormation -> Create Stack -> Upload template.
-3. Upload the VMClarity.cfn
+3. Upload the OpenClarity.cfn
 4. Follow the wizard through to the end
-    - Set the `VMClarity Backend Container Image` and `VMClarity Scanner Container Image` parameters in the wizard to
-    use custom images (from step 1.) for deployment.
-    - Change the Asset Scan Delete Policy to `OnSuccess` or `Never` if debugging scanner VMs is required.
+   - Set the `OpenClarity Backend Container Image` and `OpenClarity Scanner Container Image` parameters in the wizard to
+     use custom images (from step 1.) for deployment.
+   - Change the Asset Scan Delete Policy to `OnSuccess` or `Never` if debugging scanner VMs is required.
 5. Wait for install to complete
 
-### 3. Ensure that VMClarity backend is working correctly
+### 3. Ensure that OpenClarity backend is working correctly
 
 1. Get the IP address from the CloudFormation stack's Output Tab
 2. `ssh ubuntu@<ip address>`
-3. Check the VMClarity Logs
+3. Check the OpenClarity Logs
 
    ```shell
-   sudo journalctl -u vmclarity
+   sudo journalctl -u openclarity
    ```
 
 ## Performing an end-to-end test
@@ -51,53 +51,53 @@ DOCKER_REGISTRY=<your docker registry> make push-docker
 
    b. Enable the different scan families you want:
 
-    ```shell
-    "scanFamiliesConfig": {
-      "sbom": {
-        "enabled": true
-      },
-      "vulnerabilities": {
-        "enabled": true
-      },
-      "exploits": {
-        "enabled": true
-      }
-    },
-    ```
+   ```shell
+   "scanFamiliesConfig": {
+     "sbom": {
+       "enabled": true
+     },
+     "vulnerabilities": {
+       "enabled": true
+     },
+     "exploits": {
+       "enabled": true
+     }
+   },
+   ```
 
    c. Configure the scope of the test
 
-      - By Region, VPC or Security group:
+   - By Region, VPC or Security group:
 
-        ```shell
-        "scope": "contains(assetInfo.location, '<name of region>/<name of vpc>') and contains(assetInfo.securityGroups, '{\"id\":\"<name of sec group>\"}')"
-        ```
+     ```shell
+     "scope": "contains(assetInfo.location, '<name of region>/<name of vpc>') and contains(assetInfo.securityGroups, '{\"id\":\"<name of sec group>\"}')"
+     ```
 
-      - By tag:
+   - By tag:
 
-        ```shell
-        "scope": "contains(assetInfo.tags, '{\"key\":\"<key>\",\"value\":\"<value>\"}')"
-        ```
+     ```shell
+     "scope": "contains(assetInfo.tags, '{\"key\":\"<key>\",\"value\":\"<value>\"}')"
+     ```
 
-      - All:
+   - All:
 
-        ```shell
-        "scope": ""
-        ```
+     ```shell
+     "scope": ""
+     ```
 
    d. Set operationTime to the time you want the scan to run. As long as the time
-      is in the future it can be within seconds.
+   is in the future it can be within seconds.
 
-3. While ssh'd into the VMClarity server run
+3. While ssh'd into the OpenClarity server run
 
    ```shell
    curl -X POST http://localhost:8080/api/scanConfigs -H 'Content-Type: application/json' -d @scan-config.json
    ```
 
-4. Check VMClarity logs to ensure that everything is performing as expected
+4. Check OpenClarity logs to ensure that everything is performing as expected
 
    ```shell
-   sudo journalctl -u vmclarity
+   sudo journalctl -u openclarity
    ```
 
 5. Monitor the asset scans

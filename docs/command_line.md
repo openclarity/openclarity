@@ -6,9 +6,9 @@
 ./cli/bin/openclarity-cli scan --config ~/testConf.yaml -o outputfile
 ```
 
-If we want to report results to the VMClarity backend, we need to create asset and asset scan object before scan because it requires asset-scan-id
+If we want to report results to the OpenClarity backend, we need to create asset and asset scan object before scan because it requires asset-scan-id
 
-## Reporting results to VMClarity backend
+## Reporting results to OpenClarity backend
 
 ```shell
 ASSET_ID=$(./cli/bin/openclarity-cli asset-create --file assets/dir-asset.json --server http://localhost:8080/api) --jsonpath {.id}
