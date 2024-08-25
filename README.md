@@ -1,7 +1,7 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./assets/logos/VMClarity-logo-dark-bg-horizontal@4x.png">
-  <source media="(prefers-color-scheme: light)" srcset="./assets/logos/VMClarity-logo-light-bg-horizontal@4x.png">
-  <img alt="VMClarity Logo" src="./assets/logos/VMClarity-logo-light-bg-horizontal@4x.png">
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/logos/OpenClarity-logo-dark-bg.png">
+  <source media="(prefers-color-scheme: light)" srcset="./assets/logos/OpenClarity-logo-light-bg.png">
+  <img alt="OpenClarity Logo" src="./assets/logos/OpenClarity-logo-light-bg.png">
 </picture>
 
 [![Slack Invite](https://img.shields.io/badge/Slack-Join-blue?logo=slack)](https://outshift.slack.com/messages/vmclarity)
