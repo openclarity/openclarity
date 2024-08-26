@@ -21,7 +21,7 @@ require (
 	github.com/docker/compose/v2 v2.27.1
 	github.com/docker/docker v26.1.5+incompatible
 	github.com/ghodss/yaml v1.0.0
-	github.com/go-viper/mapstructure/v2 v2.0.0
+	github.com/go-viper/mapstructure/v2 v2.1.0
 	github.com/onsi/gomega v1.33.1
 	github.com/openclarity/openclarity/core v0.7.2
 	github.com/openclarity/openclarity/installation v0.7.2
