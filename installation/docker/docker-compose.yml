@@ -122,7 +122,7 @@ services:
       retries: 60
 
   grype-server:
-    image: ${OPENCLARITY_GRYPE_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/grype-server:v0.7.3}
+    image: ${OPENCLARITY_GRYPE_SERVER_CONTAINER_IMAGE:-ghcr.io/openclarity/grype-server:v0.7.4}
     command:
       - run
       - --log-level
