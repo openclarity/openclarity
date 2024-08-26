@@ -3,7 +3,7 @@ module github.com/openclarity/openclarity/workflow
 go 1.22.4
 
 require (
-	github.com/heimdalr/dag v1.4.0
+	github.com/heimdalr/dag v1.5.0
 	github.com/onsi/gomega v1.33.1
 )
 
