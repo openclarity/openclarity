@@ -21,7 +21,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/jinzhu/copier v0.4.0
 	github.com/onsi/gomega v1.33.1
-	github.com/openclarity/grype-server/api v0.0.0-20240619144520-b9ba72524a9c
+	github.com/openclarity/grype-server/api v0.0.0-20240808094111-65a244e79a8f
 	github.com/openclarity/openclarity/api/types v0.7.2
 	github.com/openclarity/openclarity/core v0.7.2
 	github.com/openclarity/openclarity/plugins/runner v0.7.2
