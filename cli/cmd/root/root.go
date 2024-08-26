@@ -25,6 +25,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/openclarity/openclarity/cli/cmd/asset"
+	"github.com/openclarity/openclarity/cli/cmd/convert"
 	"github.com/openclarity/openclarity/cli/cmd/logutil"
 	"github.com/openclarity/openclarity/cli/cmd/scan"
 	"github.com/openclarity/openclarity/core/log"
@@ -33,9 +34,9 @@ import (
 
 // RootCmd represents the base command when called without any subcommands.
 var rootCmd = &cobra.Command{
-	Use:          "vmclarity",
-	Short:        "VMClarity",
-	Long:         `VMClarity`,
+	Use:          "openclarity",
+	Short:        "OpenClarity",
+	Long:         `OpenClarity`,
 	Version:      version.String(),
 	SilenceUsage: true,
 }
@@ -61,9 +62,10 @@ func init() {
 	rootCmd.AddCommand(scan.ScanCmd)
 	rootCmd.AddCommand(asset.AssetCreateCmd)
 	rootCmd.AddCommand(asset.AssetScanCreateCmd)
+	rootCmd.AddCommand(convert.ConvertCmd)
 }
 
 func initLogger() {
 	log.InitLogger(logrus.InfoLevel.String(), os.Stderr)
-	logutil.Logger = logrus.WithField("app", "vmclarity")
+	logutil.Logger = logrus.WithField("app", "openclarity")
 }

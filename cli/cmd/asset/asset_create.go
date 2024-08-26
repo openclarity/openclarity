@@ -30,11 +30,10 @@ import (
 	cliutils "github.com/openclarity/openclarity/scanner/utils"
 )
 
-// AssetCreateCmd represents the standalone command.
 var AssetCreateCmd = &cobra.Command{
 	Use:   "asset-create",
 	Short: "Create asset",
-	Long:  `It creates asset. It's useful in the CI/CD mode without VMClarity orchestration`,
+	Long:  `It creates asset. It's useful in the CI/CD mode without OpenClarity orchestration`,
 	Run: func(cmd *cobra.Command, args []string) {
 		logutil.Logger.Infof("Creating asset...")
 		filename, err := cmd.Flags().GetString("file")
@@ -43,7 +42,7 @@ var AssetCreateCmd = &cobra.Command{
 		}
 		server, err := cmd.Flags().GetString("server")
 		if err != nil {
-			logutil.Logger.Fatalf("Unable to get VMClarity server address: %v", err)
+			logutil.Logger.Fatalf("Unable to get OpenClarity server address: %v", err)
 		}
 		assetType, err := getAssetFromJSONFile(filename)
 		if err != nil {
@@ -76,7 +75,7 @@ var AssetCreateCmd = &cobra.Command{
 
 func init() {
 	AssetCreateCmd.Flags().String("file", "", "asset json filename")
-	AssetCreateCmd.Flags().String("server", "", "VMClarity server to create asset to, for example: http://localhost:9999/api")
+	AssetCreateCmd.Flags().String("server", "", "OpenClarity server to create asset to, for example: http://localhost:9999/api")
 	AssetCreateCmd.Flags().Bool("update-if-exists", false, "the asset will be updated the asset if it exists")
 	AssetCreateCmd.Flags().String("jsonpath", "", "print selected value of asset")
 	if err := AssetCreateCmd.MarkFlagRequired("file"); err != nil {
@@ -118,7 +117,7 @@ func getAssetFromJSONFile(filename string) (*apitypes.AssetType, error) {
 func createAsset(ctx context.Context, assetType *apitypes.AssetType, server string, updateIfExists bool) (*apitypes.Asset, error) {
 	client, err := apiclient.New(server)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create VMClarity API client: %w", err)
+		return nil, fmt.Errorf("failed to create OpenClarity API client: %w", err)
 	}
 
 	creationTime := time.Now()

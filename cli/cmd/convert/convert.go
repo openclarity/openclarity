@@ -79,8 +79,8 @@ var ConvertCmd = &cobra.Command{
 // nolint: gochecknoinits
 func init() {
 	ConvertCmd.Flags().StringP("input-format", "", "cyclonedx", "Deprecated and ignored")
-	ConvertCmd.Flags().StringP("input-sboms", "i", "", "Define input filename")
-	ConvertCmd.Flags().StringP("output-path", "op", "", "Define output path")
+	ConvertCmd.Flags().StringP("input-sbom", "i", "", "Define input filename")
+	ConvertCmd.Flags().StringP("output-path", "p", "", "Define output path")
 	ConvertCmd.Flags().StringP("output-format", "", "json", "Define output format")
 	ConvertCmd.Flags().StringP("output-sbom", "o", "", "Define output filename")
 }
@@ -88,12 +88,12 @@ func init() {
 func convertSBOMFile(inputSBOMFile string, outputFormat converter.SbomFormat) ([]byte, error) {
 	cdxBom, err := converter.GetCycloneDXSBOMFromFile(inputSBOMFile)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get CycloneDX SBOM from file: %v", err)
+		return nil, fmt.Errorf("failed to get CycloneDX SBOM from file: %w", err)
 	}
 
 	bomBytes, err := converter.CycloneDxToBytes(cdxBom, outputFormat)
 	if err != nil {
-		return nil, fmt.Errorf("failed to convert CycloneDX to %v format: %v", outputFormat, err)
+		return nil, fmt.Errorf("failed to convert CycloneDX to %v format: %w", outputFormat, err)
 	}
 
 	return bomBytes, nil

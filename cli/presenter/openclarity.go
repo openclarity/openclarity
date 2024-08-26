@@ -38,41 +38,52 @@ import (
 
 type AssetScanID = apitypes.AssetScanID
 
-type VMClarityPresenter struct {
+type OpenClarityPresenter struct {
 	client *apiclient.Client
 
 	assetScanID apitypes.AssetScanID
 }
 
-func (v *VMClarityPresenter) ExportFamilyResult(ctx context.Context, res families.FamilyResult) error {
+func NewOpenClarityPresenter(client *apiclient.Client, id AssetScanID) (*OpenClarityPresenter, error) {
+	if client == nil {
+		return nil, errors.New("API client must not be nil")
+	}
+
+	return &OpenClarityPresenter{
+		client:      client,
+		assetScanID: id,
+	}, nil
+}
+
+func (o *OpenClarityPresenter) ExportFamilyResult(ctx context.Context, res families.FamilyResult) error {
 	var err error
 
 	switch res.FamilyType {
 	case families.SBOM:
-		err = v.ExportSbomResult(ctx, res)
+		err = o.ExportSbomResult(ctx, res)
 	case families.Vulnerabilities:
-		err = v.ExportVulResult(ctx, res)
+		err = o.ExportVulResult(ctx, res)
 	case families.Secrets:
-		err = v.ExportSecretsResult(ctx, res)
+		err = o.ExportSecretsResult(ctx, res)
 	case families.Exploits:
-		err = v.ExportExploitsResult(ctx, res)
+		err = o.ExportExploitsResult(ctx, res)
 	case families.Misconfiguration:
-		err = v.ExportMisconfigurationResult(ctx, res)
+		err = o.ExportMisconfigurationResult(ctx, res)
 	case families.Rootkits:
-		err = v.ExportRootkitResult(ctx, res)
+		err = o.ExportRootkitResult(ctx, res)
 	case families.Malware:
-		err = v.ExportMalwareResult(ctx, res)
+		err = o.ExportMalwareResult(ctx, res)
 	case families.InfoFinder:
-		err = v.ExportInfoFinderResult(ctx, res)
+		err = o.ExportInfoFinderResult(ctx, res)
 	case families.Plugins:
-		err = v.ExportPluginsResult(ctx, res)
+		err = o.ExportPluginsResult(ctx, res)
 	}
 
 	return err
 }
 
-func (v *VMClarityPresenter) ExportSbomResult(ctx context.Context, res families.FamilyResult) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
+func (o *OpenClarityPresenter) ExportSbomResult(ctx context.Context, res families.FamilyResult) error {
+	assetScan, err := o.client.GetAssetScan(ctx, o.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
@@ -113,7 +124,7 @@ func (v *VMClarityPresenter) ExportSbomResult(ctx context.Context, res families.
 		}
 	}
 
-	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
+	err = o.client.PatchAssetScan(ctx, assetScan, o.assetScanID)
 	if err != nil {
 		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
@@ -121,8 +132,8 @@ func (v *VMClarityPresenter) ExportSbomResult(ctx context.Context, res families.
 	return nil
 }
 
-func (v *VMClarityPresenter) ExportVulResult(ctx context.Context, res families.FamilyResult) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
+func (o *OpenClarityPresenter) ExportVulResult(ctx context.Context, res families.FamilyResult) error {
+	assetScan, err := o.client.GetAssetScan(ctx, o.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
@@ -163,7 +174,7 @@ func (v *VMClarityPresenter) ExportVulResult(ctx context.Context, res families.F
 		}
 	}
 
-	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
+	err = o.client.PatchAssetScan(ctx, assetScan, o.assetScanID)
 	if err != nil {
 		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
@@ -171,8 +182,8 @@ func (v *VMClarityPresenter) ExportVulResult(ctx context.Context, res families.F
 	return nil
 }
 
-func (v *VMClarityPresenter) ExportSecretsResult(ctx context.Context, res families.FamilyResult) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
+func (o *OpenClarityPresenter) ExportSecretsResult(ctx context.Context, res families.FamilyResult) error {
+	assetScan, err := o.client.GetAssetScan(ctx, o.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
@@ -213,7 +224,7 @@ func (v *VMClarityPresenter) ExportSecretsResult(ctx context.Context, res famili
 		}
 	}
 
-	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
+	err = o.client.PatchAssetScan(ctx, assetScan, o.assetScanID)
 	if err != nil {
 		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
@@ -244,8 +255,8 @@ func getInputScanStats(metadata families.FamilyMetadata) *[]apitypes.AssetScanIn
 	return &ret
 }
 
-func (v *VMClarityPresenter) ExportMalwareResult(ctx context.Context, res families.FamilyResult) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
+func (o *OpenClarityPresenter) ExportMalwareResult(ctx context.Context, res families.FamilyResult) error {
+	assetScan, err := o.client.GetAssetScan(ctx, o.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
@@ -288,15 +299,15 @@ func (v *VMClarityPresenter) ExportMalwareResult(ctx context.Context, res famili
 		}
 	}
 
-	if err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID); err != nil {
+	if err = o.client.PatchAssetScan(ctx, assetScan, o.assetScanID); err != nil {
 		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
 
 	return nil
 }
 
-func (v *VMClarityPresenter) ExportExploitsResult(ctx context.Context, res families.FamilyResult) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
+func (o *OpenClarityPresenter) ExportExploitsResult(ctx context.Context, res families.FamilyResult) error {
+	assetScan, err := o.client.GetAssetScan(ctx, o.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
@@ -337,7 +348,7 @@ func (v *VMClarityPresenter) ExportExploitsResult(ctx context.Context, res famil
 		}
 	}
 
-	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
+	err = o.client.PatchAssetScan(ctx, assetScan, o.assetScanID)
 	if err != nil {
 		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
@@ -345,8 +356,8 @@ func (v *VMClarityPresenter) ExportExploitsResult(ctx context.Context, res famil
 	return nil
 }
 
-func (v *VMClarityPresenter) ExportMisconfigurationResult(ctx context.Context, res families.FamilyResult) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
+func (o *OpenClarityPresenter) ExportMisconfigurationResult(ctx context.Context, res families.FamilyResult) error {
+	assetScan, err := o.client.GetAssetScan(ctx, o.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
@@ -397,7 +408,7 @@ func (v *VMClarityPresenter) ExportMisconfigurationResult(ctx context.Context, r
 		}
 	}
 
-	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
+	err = o.client.PatchAssetScan(ctx, assetScan, o.assetScanID)
 	if err != nil {
 		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
@@ -405,8 +416,8 @@ func (v *VMClarityPresenter) ExportMisconfigurationResult(ctx context.Context, r
 	return nil
 }
 
-func (v *VMClarityPresenter) ExportInfoFinderResult(ctx context.Context, res families.FamilyResult) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
+func (o *OpenClarityPresenter) ExportInfoFinderResult(ctx context.Context, res families.FamilyResult) error {
+	assetScan, err := o.client.GetAssetScan(ctx, o.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
@@ -457,7 +468,7 @@ func (v *VMClarityPresenter) ExportInfoFinderResult(ctx context.Context, res fam
 		}
 	}
 
-	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
+	err = o.client.PatchAssetScan(ctx, assetScan, o.assetScanID)
 	if err != nil {
 		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
@@ -465,8 +476,8 @@ func (v *VMClarityPresenter) ExportInfoFinderResult(ctx context.Context, res fam
 	return nil
 }
 
-func (v *VMClarityPresenter) ExportRootkitResult(ctx context.Context, res families.FamilyResult) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
+func (o *OpenClarityPresenter) ExportRootkitResult(ctx context.Context, res families.FamilyResult) error {
+	assetScan, err := o.client.GetAssetScan(ctx, o.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
@@ -507,15 +518,15 @@ func (v *VMClarityPresenter) ExportRootkitResult(ctx context.Context, res famili
 		}
 	}
 
-	if err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID); err != nil {
+	if err = o.client.PatchAssetScan(ctx, assetScan, o.assetScanID); err != nil {
 		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
 
 	return nil
 }
 
-func (v *VMClarityPresenter) ExportPluginsResult(ctx context.Context, res families.FamilyResult) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
+func (o *OpenClarityPresenter) ExportPluginsResult(ctx context.Context, res families.FamilyResult) error {
+	assetScan, err := o.client.GetAssetScan(ctx, o.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
@@ -557,20 +568,10 @@ func (v *VMClarityPresenter) ExportPluginsResult(ctx context.Context, res famili
 		}
 	}
 
-	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
+	err = o.client.PatchAssetScan(ctx, assetScan, o.assetScanID)
 	if err != nil {
 		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
 
 	return nil
-}
-
-func NewVMClarityPresenter(client *apiclient.Client, id AssetScanID) (*VMClarityPresenter, error) {
-	if client == nil {
-		return nil, errors.New("API client must not be nil")
-	}
-	return &VMClarityPresenter{
-		client:      client,
-		assetScanID: id,
-	}, nil
 }
