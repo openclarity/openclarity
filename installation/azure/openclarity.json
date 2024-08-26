@@ -108,7 +108,7 @@
     },
     "grypeServerContainerImage": {
       "type": "string",
-      "defaultValue": "ghcr.io/openclarity/grype-server:v0.7.3",
+      "defaultValue": "ghcr.io/openclarity/grype-server:v0.7.4",
       "metadata": {
         "description": "Grype Server Container Image"
       }
@@ -719,7 +719,7 @@
             },
             "grypeServerContainerImage": {
               "type": "string",
-              "defaultValue": "ghcr.io/openclarity/grype-server:v0.7.3",
+              "defaultValue": "ghcr.io/openclarity/grype-server:v0.7.4",
               "metadata": {
                 "description": "Grype Server Container Image"
               }

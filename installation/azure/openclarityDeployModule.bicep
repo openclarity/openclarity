@@ -59,7 +59,7 @@ param scannerContainerImage string = 'ghcr.io/openclarity/openclarity-cli:latest
 param trivyServerContainerImage string = 'docker.io/aquasec/trivy:0.52.1'
 
 @description ('Grype Server Container Image')
-param grypeServerContainerImage string = 'ghcr.io/openclarity/grype-server:v0.7.3'
+param grypeServerContainerImage string = 'ghcr.io/openclarity/grype-server:v0.7.4'
 
 @description ('Exploit DB Container Image')
 param exploitDBContainerImage string = 'ghcr.io/openclarity/exploit-db-server:v0.3.0'
