@@ -44,7 +44,7 @@ spec:
             - name: OPENCLARITY_APISERVER_DB_PORT
               value: "5432"
             - name: OPENCLARITY_APISERVER_DB_NAME
-              value: vmclarity
+              value: openclarity
             - name: OPENCLARITY_APISERVER_DB_USER
               value: {{ .Values.postgresql.auth.username }}
             - name: OPENCLARITY_APISERVER_DB_PASS

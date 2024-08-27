@@ -34,8 +34,8 @@ if [ "{DatabaseToUse}" == "Postgresql" ]; then
   # Configure the OpenClarity backend to use the local postgres
   # service
   echo "OPENCLARITY_APISERVER_DATABASE_DRIVER=POSTGRES" > /etc/openclarity/apiserver.env
-  echo "OPENCLARITY_APISERVER_DB_NAME=vmclarity" >> /etc/openclarity/apiserver.env
-  echo "OPENCLARITY_APISERVER_DB_USER=vmclarity" >> /etc/openclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_DB_NAME=openclarity" >> /etc/openclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_DB_USER=openclarity" >> /etc/openclarity/apiserver.env
   echo "OPENCLARITY_APISERVER_DB_PASS={PostgresDBPassword}" >> /etc/openclarity/apiserver.env
   echo "OPENCLARITY_APISERVER_DB_HOST=postgresql" >> /etc/openclarity/apiserver.env
   echo "OPENCLARITY_APISERVER_DB_PORT=5432" >> /etc/openclarity/apiserver.env
@@ -53,7 +53,7 @@ elif [ "{DatabaseToUse}" == "SQLite" ]; then
   # driver and configure the storage location so that it
   # persists.
   echo "OPENCLARITY_APISERVER_DATABASE_DRIVER=LOCAL" > /etc/openclarity/apiserver.env
-  echo "OPENCLARITY_APISERVER_LOCAL_DB_PATH=/data/vmclarity.db" >> /etc/openclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_LOCAL_DB_PATH=/data/openclarity.db" >> /etc/openclarity/apiserver.env
 fi
 
 # Replace anywhere in the config.env __CONTROLPLANE_HOST__
@@ -418,9 +418,9 @@ EOF
 chmod 644 /etc/openclarity/trivy-server.env
 
 cat << 'EOF' > /etc/openclarity/postgres.env
-POSTGRESQL_USERNAME=vmclarity
+POSTGRESQL_USERNAME=openclarity
 POSTGRESQL_PASSWORD={PostgresDBPassword}
-POSTGRESQL_DATABASE=vmclarity
+POSTGRESQL_DATABASE=openclarity
 EOF
 chmod 644 /etc/openclarity/postgres.env
 
