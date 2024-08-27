@@ -54,10 +54,10 @@ jobs:
             ${{ runner.os }}-go-${{ github.ref_name }}-
             ${{ runner.os }}-go-${{ github.event.repository.default_branch }}-
 
-      - name: Create vmclarity-cli manifest(s)
+      - name: Create openclarity-cli manifest(s)
         env:
           VERSION: ${{ github.ref_name }}
-        run: make dist-vmclarity-cli
+        run: make dist-openclarity-cli
 
       - name: Create Cloudformation manifest(s)
         env:
@@ -87,8 +87,8 @@ jobs:
             dist/*.tar.gz
             dist/*.tgz
             dist/*.sha256sum
-            dist/bicep/vmclarity.json
-            dist/bicep/vmclarity-UI.json
+            dist/bicep/openclarity.json
+            dist/bicep/openclarity-UI.json
           if-no-files-found: error
           compression-level: 0
 
@@ -163,7 +163,7 @@ jobs:
         with:
           allowUpdates: true
           artifactErrorsFailBuild: true
-          artifacts: "dist/*.tar.gz,dist/*.sha256sum,dist/bicep/vmclarity.json,dist/bicep/vmclarity-UI.json"
+          artifacts: "dist/*.tar.gz,dist/*.sha256sum,dist/bicep/openclarity.json,dist/bicep/openclarity-UI.json"
           bodyFile: "dist/CHANGELOG.md"
           draft: true
           name: "Release ${{ github.ref_name }}"

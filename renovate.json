@@ -268,11 +268,11 @@
       "allowedVersions": "/^latest$/",
       "pinDigests": false,
       "description": [
-        "Always use latest version for VMClarity container images.",
+        "Always use latest version for OpenClarity container images.",
         "Do not pin by digest."
       ],
       "matchPackageNames": [
-        "ghcr.io/openclarity/vmclarity-{/,}**"
+        "ghcr.io/openclarity/openclarity-{/,}**"
       ]
     },
     {
