@@ -1,7 +1,6 @@
 import React from "react";
 import { FETCH_METHODS } from "hooks";
 import WizardModal from "components/WizardModal";
-import { APIS } from "utils/systemConsts";
 import StepGeneralProperties from "./StepGeneralProperties";
 import StepScanTypes from "./StepScanTypes";
 import StepTimeConfiguration, {
@@ -110,7 +109,6 @@ const ScanConfigWizardModal = ({ initialData, onClose, onSubmitSuccess }) => {
       onClose={onClose}
       steps={steps}
       initialValues={initialValues}
-      submitUrl={APIS.SCAN_CONFIGS}
       getSubmitParams={(formValues) => {
         const { id, scheduled, ...submitData } = formValues;
 
@@ -142,6 +140,7 @@ const ScanConfigWizardModal = ({ initialData, onClose, onSubmitSuccess }) => {
             };
       }}
       onSubmitSuccess={onSubmitSuccess}
+      isEditForm={isEditForm}
     />
   );
 };
