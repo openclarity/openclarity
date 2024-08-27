@@ -1,4 +1,4 @@
-# Troubleshooting and debugging VMClarity
+# Troubleshooting and debugging OpenClarity
 
 ## Table of Contents
 
@@ -15,12 +15,12 @@ access them directly and check the logs.
 
 ### Cloud providers
 
-On cloud providers (AWS, Azure, GCP) VMClarity is configured to create the Scanner VMs with the same key-pair that the
-VMClarity server has. The Scanner VMs run in a private network, however the VMClarity Server can be used as a
+On cloud providers (AWS, Azure, GCP) OpenClarity is configured to create the Scanner VMs with the same key-pair that the
+OpenClarity server has. The Scanner VMs run in a private network, however the OpenClarity Server can be used as a
 bastion/jump host to reach them via SSH.
 
 ```shell
-ssh -i <key-pair private key> -J ubuntu@<vmclarity server public IP> ubuntu@<scanner VM private IP address>
+ssh -i <key-pair private key> -J ubuntu@<openclarity server public IP> ubuntu@<scanner VM private IP address>
 ```
 
 Once SSH access has been established, the status of the VM's start up
@@ -30,8 +30,8 @@ configuration can be debugged by checking the cloud-init logs:
 sudo journalctl -u cloud-final
 ```
 
-And the vmclarity-scanner service logs:
+And the openclarity-scanner service logs:
 
 ```shell
-sudo journalctl -u vmclarity-scanner
+sudo journalctl -u openclarity-scanner
 ```
