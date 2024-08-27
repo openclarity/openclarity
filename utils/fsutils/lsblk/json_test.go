@@ -448,7 +448,7 @@ func TestJSONFormat(t *testing.T) {
 					FSType:                 "ext4",
 					FSUsed:                 2930733056,
 					FSUsedPercent:          "36%",
-					MountPoint:             "/var/opt/vmclarity",
+					MountPoint:             "/var/opt/openclarity",
 					Label:                  "cloudimg-rootfs",
 					UUID:                   "db7f5fbc-cf4b-45ae-985d-11e4b2222934",
 					PartitionTableUUID:     "",
