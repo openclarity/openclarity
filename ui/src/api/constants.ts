@@ -4,6 +4,7 @@ const QUERY_KEYS = {
   findings: "findings",
   findingsImpact: "findingsImpact",
   findingsTrends: "findingsTrends",
+  riskiestAssets: "riskiestAssets",
   riskiestRegions: "riskiestRegions",
   scanConfigs: "scanConfigs",
   scans: "scans",
