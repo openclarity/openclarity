@@ -16,5 +16,5 @@ maintainers:
     url: https://github.com/openclarity/openclarity
 dependencies:
   - name: postgresql
-    version: "15.5.20"
+    version: "15.5.26"
     repository: https://charts.bitnami.com/bitnami
