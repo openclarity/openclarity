@@ -205,7 +205,7 @@ func (s *Scanner) runScannerJob(ctx context.Context, config *provider.ScanJobCon
 							Args: []string{
 								"scan",
 								"--config",
-								"/etc/vmclarity/config.yaml",
+								"/etc/openclarity/config.yaml",
 								"--server",
 								config.VMClarityAddress,
 								"--asset-scan-id",

@@ -3,7 +3,7 @@ package_upgrade: true
 packages:
   - docker.io
 write_files:
-  - path: /opt/vmclarity/scanconfig.yaml
+  - path: /opt/openclarity/scanconfig.yaml
     permissions: "0644"
     content: |
       {{- .ScannerCLIConfig | nindent 6 }}
@@ -31,7 +31,7 @@ write_files:
           --network vmclarity \
           {{ .ScannerImage }} \
           scan \
-          --config /opt/vmclarity/scanconfig.yaml \
+          --config /opt/openclarity/scanconfig.yaml \
           --server {{ .VMClarityAddress }} \
           --mount-attached-volume \
           --asset-scan-id {{ .AssetScanID }} \

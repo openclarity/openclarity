@@ -3,7 +3,7 @@ package_upgrade: true
 packages:
   - docker.io
 write_files:
-  - path: /opt/vmclarity/scanconfig.yaml
+  - path: /opt/openclarity/scanconfig.yaml
     permissions: "0644"
     content: |
       sbom:
@@ -41,7 +41,7 @@ write_files:
           --network vmclarity \
           ghcr.io/openclarity/openclarity-cli:latest \
           scan \
-          --config /opt/vmclarity/scanconfig.yaml \
+          --config /opt/openclarity/scanconfig.yaml \
           --server 10.1.1.1:8888 \
           --mount-attached-volume \
           --asset-scan-id d6ff6f55-5d53-4934-bef5-c3abb70a7f76 \

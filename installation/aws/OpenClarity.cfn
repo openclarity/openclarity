@@ -149,7 +149,7 @@ Resources:
               command: systemctl restart cfn-hup.service
         install_vmclarity:
           files:
-            "/etc/vmclarity/deploy.sh":
+            "/etc/openclarity/deploy.sh":
               content:
                 Fn::Sub: |
                   #!/bin/bash
@@ -179,33 +179,33 @@ Resources:
                   if [ "${DatabaseToUse}" == "Postgresql" ]; then
                     # Configure the OpenClarity backend to use the local postgres
                     # service
-                    echo "OPENCLARITY_APISERVER_DATABASE_DRIVER=POSTGRES" > /etc/vmclarity/apiserver.env
-                    echo "OPENCLARITY_APISERVER_DB_NAME=vmclarity" >> /etc/vmclarity/apiserver.env
-                    echo "OPENCLARITY_APISERVER_DB_USER=vmclarity" >> /etc/vmclarity/apiserver.env
-                    echo "OPENCLARITY_APISERVER_DB_PASS=${PostgresDBPassword}" >> /etc/vmclarity/apiserver.env
-                    echo "OPENCLARITY_APISERVER_DB_HOST=postgresql" >> /etc/vmclarity/apiserver.env
-                    echo "OPENCLARITY_APISERVER_DB_PORT=5432" >> /etc/vmclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DATABASE_DRIVER=POSTGRES" > /etc/openclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_NAME=vmclarity" >> /etc/openclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_USER=vmclarity" >> /etc/openclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_PASS=${PostgresDBPassword}" >> /etc/openclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_HOST=postgresql" >> /etc/openclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_PORT=5432" >> /etc/openclarity/apiserver.env
                   elif [ "${DatabaseToUse}" == "External Postgresql" ]; then
                     # Configure the OpenClarity backend to use the postgres
                     # database configured by the user.
-                    echo "OPENCLARITY_APISERVER_DATABASE_DRIVER=POSTGRES" > /etc/vmclarity/apiserver.env
-                    echo "OPENCLARITY_APISERVER_DB_NAME=${ExternalDBName}" >> /etc/vmclarity/apiserver.env
-                    echo "OPENCLARITY_APISERVER_DB_USER=${ExternalDBUsername}" >> /etc/vmclarity/apiserver.env
-                    echo "OPENCLARITY_APISERVER_DB_PASS=${ExternalDBPassword}" >> /etc/vmclarity/apiserver.env
-                    echo "OPENCLARITY_APISERVER_DB_HOST=${ExternalDBHost}" >> /etc/vmclarity/apiserver.env
-                    echo "OPENCLARITY_APISERVER_DB_PORT=${ExternalDBPort}" >> /etc/vmclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DATABASE_DRIVER=POSTGRES" > /etc/openclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_NAME=${ExternalDBName}" >> /etc/openclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_USER=${ExternalDBUsername}" >> /etc/openclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_PASS=${ExternalDBPassword}" >> /etc/openclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_HOST=${ExternalDBHost}" >> /etc/openclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_PORT=${ExternalDBPort}" >> /etc/openclarity/apiserver.env
                   elif [ "${DatabaseToUse}" == "SQLite" ]; then
                     # Configure the OpenClarity backend to use the SQLite DB
                     # driver and configure the storage location so that it
                     # persists.
-                    echo "OPENCLARITY_APISERVER_DATABASE_DRIVER=LOCAL" > /etc/vmclarity/apiserver.env
-                    echo "OPENCLARITY_APISERVER_LOCAL_DB_PATH=/data/vmclarity.db" >> /etc/vmclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DATABASE_DRIVER=LOCAL" > /etc/openclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_LOCAL_DB_PATH=/data/vmclarity.db" >> /etc/openclarity/apiserver.env
                   fi
 
                   # Replace anywhere in the config.env __CONTROLPLANE_HOST__
                   # with the local ipv4 IP address of the OpenClarity server.
                   local_ip_address="$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"
-                  sed -i "s/__CONTROLPLANE_HOST__/${!local_ip_address}/" /etc/vmclarity/orchestrator.env
+                  sed -i "s/__CONTROLPLANE_HOST__/${!local_ip_address}/" /etc/openclarity/orchestrator.env
 
                   # Reload the systemd daemon to ensure that the OpenClarity unit
                   # has been detected.
@@ -236,7 +236,7 @@ Resources:
                   usermod -a -G docker ubuntu
               mode: "000744"
 
-            "/etc/vmclarity/vmclarity.yaml":
+            "/etc/openclarity/vmclarity.yaml":
               content:
                 Fn::Sub:
                   - |
@@ -468,7 +468,7 @@ Resources:
                     YaraRuleServerContainerImage: !If [YaraRuleServerContainerImageOverridden, !Ref YaraRuleServerContainerImageOverride, "ghcr.io/openclarity/yara-rule-server:v0.3.0"]
                     FreshclamMirrorContainerImage: !If [FreshclamMirrorContainerImageOverridden, !Ref FreshclamMirrorContainerImageOverride, "ghcr.io/openclarity/freshclam-mirror:v0.3.1"]
 
-            "/etc/vmclarity/vmclarity.override.yaml":
+            "/etc/openclarity/vmclarity.override.yaml":
               content:
                 Fn::If:
                   - DatabaseIsLocalPostgresql
@@ -500,7 +500,7 @@ Resources:
                     - PostgresqlContainerImage: !If [PostgresqlContainerImageOverridden, !Ref PostgresqlContainerImageOverride, "bitnami/postgresql:16.3.0-debian-12-r13"]
                   - "\n"
 
-            "/etc/vmclarity/uibackend.env":
+            "/etc/openclarity/uibackend.env":
               content: |
                 ##
                 ## UIBackend configuration
@@ -509,7 +509,7 @@ Resources:
                 OPENCLARITY_UIBACKEND_APISERVER_ADDRESS=http://apiserver:8888
 
 
-            "/etc/vmclarity/swagger-config.json":
+            "/etc/openclarity/swagger-config.json":
               content: |
                 {
                     "urls": [
@@ -520,7 +520,7 @@ Resources:
                     ]
                 }
 
-            "/etc/vmclarity/orchestrator.env":
+            "/etc/openclarity/orchestrator.env":
               content:
                 Fn::Sub:
                   - |
@@ -577,13 +577,13 @@ Resources:
                     ScannerInstanceArchitectureToAMIMapping: !Join [",", !Ref ScannerInstanceArchitectureToAMIMapping]
               mode: "000644"
 
-            "/etc/vmclarity/trivy-server.env":
+            "/etc/openclarity/trivy-server.env":
               content: |
                 TRIVY_LISTEN=0.0.0.0:9992
                 TRIVY_CACHE_DIR=/home/scanner/.cache/trivy
               mode: "000644"
 
-            "/etc/vmclarity/yara-rule-server.yaml":
+            "/etc/openclarity/yara-rule-server.yaml":
               content: |
                 enable_json_log: true
                 rule_update_schedule: "0 0 * * *"
@@ -596,7 +596,7 @@ Resources:
                     exclude_regex: ".*index.*.yar"
               mode: "000644"
 
-            "/etc/vmclarity/postgres.env":
+            "/etc/openclarity/postgres.env":
               content:
                 Fn::Sub: |
                     POSTGRESQL_USERNAME=vmclarity
@@ -604,7 +604,7 @@ Resources:
                     POSTGRESQL_DATABASE=vmclarity
               mode: "000644"
 
-            "/etc/vmclarity/gateway.conf":
+            "/etc/openclarity/gateway.conf":
               content: |
                 events {
                     worker_connections 1024;
@@ -660,15 +660,15 @@ Resources:
                 TimeoutStartSec=0
                 Type=oneshot
                 RemainAfterExit=true
-                ExecStart=/usr/bin/docker compose -p vmclarity -f /etc/vmclarity/vmclarity.yaml -f /etc/vmclarity/vmclarity.override.yaml up -d --wait --remove-orphans
-                ExecStop=/usr/bin/docker compose -p vmclarity -f /etc/vmclarity/vmclarity.yaml -f /etc/vmclarity/vmclarity.override.yaml down
+                ExecStart=/usr/bin/docker compose -p vmclarity -f /etc/openclarity/vmclarity.yaml -f /etc/openclarity/vmclarity.override.yaml up -d --wait --remove-orphans
+                ExecStop=/usr/bin/docker compose -p vmclarity -f /etc/openclarity/vmclarity.yaml -f /etc/openclarity/vmclarity.override.yaml down
 
                 [Install]
                 WantedBy=multi-user.target
               mode: "000644"
           commands:
             01deploy_vmclarity:
-              command: /etc/vmclarity/deploy.sh
+              command: /etc/openclarity/deploy.sh
 
     DependsOn:
       - OpenClarityServerPublicRoute
