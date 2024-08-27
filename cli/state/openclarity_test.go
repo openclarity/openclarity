@@ -153,7 +153,37 @@ func Test_appendEffectiveScanConfigAnnotation(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "annotations contain deprecated effective scan config, overwrite it",
+			args: args{
+				annotations: &apitypes.Annotations{
+					{
+						Key:   to.Ptr(deprecatedeffectiveScanConfigAnnotationKey),
+						Value: to.Ptr("test"),
+					},
+				},
+				config: &scanner.Config{
+					SBOM: sbom.Config{
+						Enabled:       true,
+						AnalyzersList: []string{"syft"},
+						Inputs: []common.ScanInput{
+							{
+								Input:     "test",
+								InputType: "dir",
+							},
+						},
+					},
+				},
+			},
+			want: &apitypes.Annotations{
+				{
+					Key:   to.Ptr(effectiveScanConfigAnnotationKey),
+					Value: to.Ptr(effectiveScanConfigJSON),
+				},
+			},
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := NewGomegaWithT(t)

@@ -28,11 +28,10 @@ import (
 	cliutils "github.com/openclarity/openclarity/scanner/utils"
 )
 
-// AssetScanCreateCmd represents the standalone command.
 var AssetScanCreateCmd = &cobra.Command{
 	Use:   "asset-scan-create",
 	Short: "Create asset scan",
-	Long:  `It creates asset scan. It's useful in the CI/CD mode without VMClarity orchestration`,
+	Long:  `It creates asset scan. It's useful in the CI/CD mode without OpenClarity orchestration`,
 	Run: func(cmd *cobra.Command, args []string) {
 		logutil.Logger.Infof("asset-scan-create called")
 		assetID, err := cmd.Flags().GetString("asset-id")
@@ -41,7 +40,7 @@ var AssetScanCreateCmd = &cobra.Command{
 		}
 		server, err := cmd.Flags().GetString("server")
 		if err != nil {
-			logutil.Logger.Fatalf("Unable to get VMClarity server address: %v", err)
+			logutil.Logger.Fatalf("Unable to get OpenClarity server address: %v", err)
 		}
 		jsonPath, err := cmd.Flags().GetString("jsonpath")
 		if err != nil {
@@ -60,7 +59,7 @@ var AssetScanCreateCmd = &cobra.Command{
 }
 
 func init() {
-	AssetScanCreateCmd.Flags().String("server", "", "VMClarity server to create asset to, for example: http://localhost:9999/api")
+	AssetScanCreateCmd.Flags().String("server", "", "OpenClarity server to create asset to, for example: http://localhost:9999/api")
 	AssetScanCreateCmd.Flags().String("asset-id", "", "Asset ID for asset scan")
 	AssetScanCreateCmd.Flags().String("jsonpath", "", "print selected value of asset scan")
 	if err := AssetScanCreateCmd.MarkFlagRequired("server"); err != nil {
@@ -74,7 +73,7 @@ func init() {
 func createAssetScan(ctx context.Context, server, assetID string) (*apitypes.AssetScan, error) {
 	client, err := apiclient.New(server)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create VMClarity API client: %w", err)
+		return nil, fmt.Errorf("failed to create OpenClarity API client: %w", err)
 	}
 
 	asset, err := client.GetAsset(ctx, assetID, apitypes.GetAssetsAssetIDParams{})
