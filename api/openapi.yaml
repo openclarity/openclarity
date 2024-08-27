@@ -1,7 +1,7 @@
 openapi: 3.0.1
 
 info:
-  title: VMClarity APIs
+  title: OpenClarity APIs
   version: 1.0.0
 
 paths:
@@ -2567,14 +2567,14 @@ components:
           description: |
             Machine readable reason for state transition.
 
-            | State   | Reason          | Description                                                            |
-            | ------- | --------------- | ---------------------------------------------------------------------- |
-            | Pending | AssetScanCreate | AssetScan created                                                      |
-            | Skipped | NotApplicable   | Resource cleanup is not required as it is managed outside of VMClarity |
-            | Skipped | DeletePolicy    | Resource cleanup has been skipped due to Delete Job Policy             |
-            | Failed  | ProviderError   | Failed due to Provider error                                           |
-            | Failed  | InternalError   | Failed due to internal error                                           |
-            | Done    | Success         | Successfully completed                                                 |
+            | State   | Reason          | Description                                                              |
+            | ------- | --------------- | ------------------------------------------------------------------------ |
+            | Pending | AssetScanCreate | AssetScan created                                                        |
+            | Skipped | NotApplicable   | Resource cleanup is not required as it is managed outside of OpenClarity |
+            | Skipped | DeletePolicy    | Resource cleanup has been skipped due to Delete Job Policy               |
+            | Failed  | ProviderError   | Failed due to Provider error                                             |
+            | Failed  | InternalError   | Failed due to internal error                                             |
+            | Done    | Success         | Successfully completed                                                   |
           type: string
           enum:
             - AssetScanCreated

@@ -38,8 +38,8 @@ var (
 	logLevel = LogLevelDefaultValue
 	rootCmd  = &cobra.Command{
 		Use:   ExecutableName,
-		Short: "VMClarity Backend",
-		Long:  "VMClarity Backend",
+		Short: "OpenClarity Backend",
+		Long:  "OpenClarity Backend",
 		Version: fmt.Sprintf("Version: %s \nCommit: %s\nBuild Time: %s",
 			version.Version, version.CommitHash, version.BuildTimestamp),
 		SilenceUsage: true,
@@ -51,7 +51,7 @@ func init() {
 		Use:     "run",
 		Run:     runCommand,
 		Short:   "Starts the server",
-		Long:    "Starts the VMClarity API server",
+		Long:    "Starts the OpenClarity API server",
 		Example: ExecutableName + " run",
 	}
 	cmdRun.PersistentFlags().StringVar(&logLevel,
@@ -63,7 +63,7 @@ func init() {
 		Use:     "version",
 		Run:     versionCommand,
 		Short:   "Displays the version",
-		Long:    "Displays the version of the VMClarity API server",
+		Long:    "Displays the version of the OpenClarity API server",
 		Example: ExecutableName + " version",
 	}
 

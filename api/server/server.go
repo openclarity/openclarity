@@ -55,7 +55,7 @@ func Run(ctx context.Context, config *Config) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	logger.Info("VMClarity backend is running")
+	logger.Info("OpenClarity backend is running")
 
 	dbConfig := createDatabaseConfig(config)
 	dbHandler, err := database.InitializeDatabase(dbConfig)
@@ -72,7 +72,7 @@ func Run(ctx context.Context, config *Config) {
 	defer restServer.Stop(ctx)
 
 	healthServer.SetIsReady(true)
-	logger.Info("VMClarity backend is ready")
+	logger.Info("OpenClarity backend is ready")
 
 	// Wait for deactivation
 	sig := make(chan os.Signal, 1)
