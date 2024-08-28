@@ -39,7 +39,6 @@
     "helmv3",
     "pip_setup"
   ],
-  "forkProcessing": "disabled",
   "labels": [
     "dependencies"
   ],

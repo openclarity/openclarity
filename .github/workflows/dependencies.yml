@@ -1,0 +1,38 @@
+name: Dependencies
+
+on:
+  workflow_dispatch:
+  schedule:
+    # At 01:00 on Monday: https://crontab.guru/#0_1_*_*_1
+    - cron: '0 1 * * 1'
+
+jobs:
+  renovate:
+    name: Renovate Sync
+    runs-on: ubuntu-latest
+    steps:
+      - name: Authenticate Bot
+        id: auth
+        uses: actions/create-github-app-token@31c86eb3b33c9b601a1f60f98dcbfd1d70f379b4 # v1.10.3
+        with:
+          app-id: ${{ secrets.OPENCLARITY_BOT_APP_ID }}
+          private-key: ${{ secrets.OPENCLARITY_BOT_PRIVATE_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Run Renovate
+        run: make renovate
+        env:
+          ## Discovery
+          # Renovate finds and creates PRs for all repos accessible by auth token.
+          # Since we auth only against this repo, no other repos can be accessed.
+          RENOVATE_AUTODISCOVER: "true"
+          RENOVATE_FORK_PROCESSING: "enabled"
+          ## Project sync
+          RENOVATE_PLATFORM: "github"
+          RENOVATE_PLATFORM_COMMIT: "true"
+          RENOVATE_TOKEN: ${{ steps.auth.outputs.token }}
+          GITHUB_COM_TOKEN: ${{ steps.auth.outputs.token }}
+          # Remove unused fields from PR description
+          RENOVATE_PR_BODY_TEMPLATE: "{{{header}}}{{{table}}}{{{warnings}}}{{{notes}}}{{{changelogs}}}"
