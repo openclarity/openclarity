@@ -227,10 +227,10 @@ secrets.
 | orchestrator.serviceAccount.name | string | `""` | The name of the ServiceAccount to use. If not set and create is true, it will use the component's calculated name. |
 | orchestrator.trivyServerAddress | string | `""` | Address that scanners can use to reach trivy server |
 | orchestrator.yaraRuleServerAddress | string | `""` | Address that scanner can use to reach the yara rule server |
-| postgresql.auth.database | string | `"vmclarity"` | Name for a custom database to create |
+| postgresql.auth.database | string | `"openclarity"` | Name for a custom database to create |
 | postgresql.auth.existingSecret | string | `""` | Name of existing secret to use for PostgreSQL credentials |
 | postgresql.auth.password | string | `"password1"` | Password for the custom user |
-| postgresql.auth.username | string | `"vmclarity"` | Name for a custom user to create |
+| postgresql.auth.username | string | `"openclarity"` | Name for a custom user to create |
 | postgresql.containerSecurityContext.allowPrivilegeEscalation | bool | `false` | Force the child process to run as non-privileged |
 | postgresql.containerSecurityContext.capabilities.drop | list | `["ALL"]` | List of capabilities to be dropped |
 | postgresql.containerSecurityContext.enabled | bool | `true` | Container security context enabled |

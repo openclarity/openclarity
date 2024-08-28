@@ -2,8 +2,8 @@
 
 set -euo pipefail
 
-mkdir -p /etc/vmclarity
-mkdir -p /opt/vmclarity
+mkdir -p /etc/openclarity
+mkdir -p /opt/openclarity
 
 cat << 'EOF' > /etc/openclarity/deploy.sh
 #!/bin/bash
@@ -69,8 +69,8 @@ systemctl daemon-reload
 /usr/bin/mkdir -p /opt/grype-server
 /usr/bin/chown -R 1000:1000 /opt/grype-server
 
-# Create directory required for vmclarity apiserver
-/usr/bin/mkdir -p /opt/vmclarity
+# Create directory required for openclarity apiserver
+/usr/bin/mkdir -p /opt/openclarity
 
 # Create directory for exploit db server
 /usr/bin/mkdir -p /opt/exploits
@@ -82,11 +82,11 @@ systemctl daemon-reload
 /usr/bin/mkdir -p /opt/yara-rule-server
 
 # Enable and start/restart OpenClarity backend
-systemctl enable vmclarity.service
-systemctl restart vmclarity.service
+systemctl enable openclarity.service
+systemctl restart openclarity.service
 
-# Add vmclarity user to docker group
-usermod -a -G docker vmclarity
+# Add openclarity user to docker group
+usermod -a -G docker openclarity
 EOF
 chmod 744 /etc/openclarity/deploy.sh
 
@@ -126,7 +126,7 @@ OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_FRESHCLAM_MIRROR=http://__CON
 EOF
 chmod 644 /etc/openclarity/orchestrator.env
 
-cat << 'EOF' > /etc/openclarity/vmclarity.yaml
+cat << 'EOF' > /etc/openclarity/openclarity.yaml
 services:
   apiserver:
     image: {APIServerContainerImage}
@@ -139,7 +139,7 @@ services:
     env_file: ./apiserver.env
     volumes:
       - type: bind
-        source: /opt/vmclarity
+        source: /opt/openclarity
         target: /data
     logging:
       driver: journald
@@ -361,10 +361,10 @@ configs:
     file: ./yara-rule-server.yaml
 EOF
 
-touch /etc/openclarity/vmclarity.override.yaml
+touch /etc/openclarity/openclarity.override.yaml
 # shellcheck disable=SC2050
 if [ "{DatabaseToUse}" == "Postgresql" ]; then
-  cat << 'EOF' > /etc/openclarity/vmclarity.override.yaml
+  cat << 'EOF' > /etc/openclarity/openclarity.override.yaml
 services:
   postgresql:
     image: {PostgresqlContainerImage}
@@ -379,7 +379,7 @@ services:
       restart_policy:
         condition: on-failure
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d vmclarity -U vmclarity"]
+      test: ["CMD-SHELL", "pg_isready -d openclarity -U openclarity"]
       interval: 10s
       retries: 60
 
@@ -469,7 +469,7 @@ http {{
 EOF
 chmod 644 /etc/openclarity/gateway.conf
 
-cat << 'EOF' > /lib/systemd/system/vmclarity.service
+cat << 'EOF' > /lib/systemd/system/openclarity.service
 [Unit]
 Description=OpenClarity
 After=docker.service
@@ -479,12 +479,12 @@ Requires=docker.service
 TimeoutStartSec=0
 Type=oneshot
 RemainAfterExit=true
-ExecStart=/usr/bin/docker compose -p vmclarity -f /etc/openclarity/vmclarity.yaml -f /etc/openclarity/vmclarity.override.yaml up -d --wait --remove-orphans
-ExecStop=/usr/bin/docker compose -p vmclarity -f /etc/openclarity/vmclarity.yaml -f /etc/openclarity/vmclarity.override.yaml down
+ExecStart=/usr/bin/docker compose -p openclarity -f /etc/openclarity/openclarity.yaml -f /etc/openclarity/openclarity.override.yaml up -d --wait --remove-orphans
+ExecStop=/usr/bin/docker compose -p openclarity -f /etc/openclarity/openclarity.yaml -f /etc/openclarity/openclarity.override.yaml down
 
 [Install]
 WantedBy=multi-user.target
 EOF
-chmod 644 /lib/systemd/system/vmclarity.service
+chmod 644 /lib/systemd/system/openclarity.service
 
 /etc/openclarity/deploy.sh

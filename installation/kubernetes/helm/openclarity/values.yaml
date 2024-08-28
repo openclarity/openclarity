@@ -458,11 +458,11 @@ postgresql:
     # -- Name of existing secret to use for PostgreSQL credentials
     existingSecret: ""
     # -- Name for a custom user to create
-    username: vmclarity
+    username: openclarity
     # -- Password for the custom user
     password: password1
     # -- Name for a custom database to create
-    database: vmclarity
+    database: openclarity
 
   podSecurityContext:
     # -- Pod security context enabled
