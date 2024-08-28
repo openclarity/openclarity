@@ -73,7 +73,7 @@ require (
 	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/alecthomas/chroma v0.10.0 // indirect
 	github.com/alessio/shellescape v1.4.1 // indirect
-	github.com/anchore/clio v0.0.0-20240705045624-ac88e09ad9d0 // indirect
+	github.com/anchore/clio v0.0.0-20240806233806-4c50c054c508 // indirect
 	github.com/anchore/fangs v0.0.0-20240508143433-f016b099950f // indirect
 	github.com/anchore/go-collections v0.0.0-20240216171411-9321230ce537 // indirect
 	github.com/anchore/go-logger v0.0.0-20230725134548-c21dafa1ec5a // indirect
