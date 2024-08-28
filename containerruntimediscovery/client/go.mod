@@ -20,7 +20,6 @@ require (
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/oapi-codegen/oapi-codegen/v2 v2.3.1-0.20240823215434-d232e9efa9f5 // indirect
 	github.com/oapi-codegen/runtime v1.1.1 // indirect
-	github.com/openclarity/openclarity/core v0.7.2 // indirect
 	github.com/openclarity/openclarity/plugins/sdk-go v0.7.2 // indirect
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	github.com/speakeasy-api/openapi-overlay v0.9.0 // indirect
@@ -35,6 +34,5 @@ require (
 replace (
 	github.com/openclarity/openclarity/api/types => ../../api/types
 	github.com/openclarity/openclarity/containerruntimediscovery/types => ../types
-	github.com/openclarity/openclarity/core => ../../core
 	github.com/openclarity/openclarity/plugins/sdk-go => ../../plugins/sdk-go
 )

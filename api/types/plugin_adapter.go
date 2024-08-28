@@ -15,10 +15,7 @@
 
 package types
 
-import (
-	"github.com/openclarity/openclarity/core/to"
-	plugintypes "github.com/openclarity/openclarity/plugins/sdk-go/types"
-)
+import plugintypes "github.com/openclarity/openclarity/plugins/sdk-go/types"
 
 // DefaultPluginAdapter is used to convert latest version Plugin API models to OpenClarity.
 var DefaultPluginAdapter PluginAdapter = &pluginAdapter{}
@@ -193,10 +190,9 @@ func (p pluginAdapter) InfoFinder(data plugintypes.InfoFinder) (*InfoFinderFindi
 	}
 
 	return &InfoFinderFindingInfo{
-		Data:        data.Data,
-		Path:        data.Path,
-		ScannerName: to.Ptr(""),
-		Type:        &tp,
+		Data: data.Data,
+		Path: data.Path,
+		Type: &tp,
 	}, nil
 }
 
@@ -231,9 +227,6 @@ func (p pluginAdapter) Misconfiguration(data plugintypes.Misconfiguration) (*Mis
 		Location:    data.Location,
 		Message:     data.Message,
 		Remediation: data.Remediation,
-		// TODO(ramizpolic): Remove ScannerName property from Misconfiguration API.
-		// TODO(ramizpolic): This data is available on higher Finding object.
-		ScannerName: to.Ptr(""),
 		Severity:    &severity,
 	}, nil
 }

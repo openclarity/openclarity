@@ -3312,8 +3312,6 @@ components:
     Misconfiguration:
       type: object
       properties:
-        scannerName:
-          type: string
         id:
           type: string
           description: Check or test ID, if applicable (e.g. Lynis TestID, CIS Docker Benchmark checkpoint code, etc)
@@ -3480,8 +3478,6 @@ components:
     InfoFinderInfo:
       type: object
       properties:
-        scannerName:
-          type: string
         type:
           $ref: '#/components/schemas/InfoType'
         path:

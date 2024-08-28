@@ -36,17 +36,15 @@ func TestGenerateInfoFinderKey(t *testing.T) {
 			name: "sanity",
 			args: args{
 				info: apitypes.InfoFinderFindingInfo{
-					Data:        to.Ptr("data"),
-					Path:        to.Ptr("path"),
-					ScannerName: to.Ptr("scanner"),
-					Type:        to.Ptr(apitypes.InfoTypeSSHAuthorizedKeyFingerprint),
+					Data: to.Ptr("data"),
+					Path: to.Ptr("path"),
+					Type: to.Ptr(apitypes.InfoTypeSSHAuthorizedKeyFingerprint),
 				},
 			},
 			want: InfoFinderKey{
-				ScannerName: "scanner",
-				Type:        string(apitypes.InfoTypeSSHAuthorizedKeyFingerprint),
-				Data:        "data",
-				Path:        "path",
+				Type: string(apitypes.InfoTypeSSHAuthorizedKeyFingerprint),
+				Data: "data",
+				Path: "path",
 			},
 		},
 	}
@@ -61,10 +59,9 @@ func TestGenerateInfoFinderKey(t *testing.T) {
 
 func TestInfoFinderKey_String(t *testing.T) {
 	type fields struct {
-		ScannerName string
-		Type        string
-		Data        string
-		Path        string
+		Type string
+		Data string
+		Path string
 	}
 	tests := []struct {
 		name   string
@@ -74,21 +71,19 @@ func TestInfoFinderKey_String(t *testing.T) {
 		{
 			name: "sanity",
 			fields: fields{
-				ScannerName: "scanner",
-				Type:        string(apitypes.InfoTypeSSHAuthorizedKeyFingerprint),
-				Data:        "data",
-				Path:        "path",
+				Type: string(apitypes.InfoTypeSSHAuthorizedKeyFingerprint),
+				Data: "data",
+				Path: "path",
 			},
-			want: "scanner.SSHAuthorizedKeyFingerprint.data.path",
+			want: "SSHAuthorizedKeyFingerprint.data.path",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			k := InfoFinderKey{
-				ScannerName: tt.fields.ScannerName,
-				Type:        tt.fields.Type,
-				Data:        tt.fields.Data,
-				Path:        tt.fields.Path,
+				Type: tt.fields.Type,
+				Data: tt.fields.Data,
+				Path: tt.fields.Path,
 			}
 			if got := k.String(); got != tt.want {
 				t.Errorf("String() = %v, want %v", got, tt.want)

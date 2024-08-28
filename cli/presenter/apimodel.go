@@ -278,7 +278,6 @@ func ConvertMisconfigurationResultToMisconfigurationsAndScanners(result *misconf
 		}
 
 		misconfigurations = append(misconfigurations, apitypes.Misconfiguration{
-			ScannerName: &misconfig.ScannerName,
 			Location:    &misconfig.Location,
 			Category:    &misconfig.Category,
 			Id:          &misconfig.ID,
@@ -304,10 +303,9 @@ func ConvertInfoFinderResultToInfosAndScanners(result *infofinder.Result) ([]api
 
 	for _, info := range result.Infos {
 		infos = append(infos, apitypes.InfoFinderInfo{
-			Data:        &info.Data,
-			Path:        &info.Path,
-			ScannerName: &info.ScannerName,
-			Type:        convertInfoTypeToAPIModel(info.Type),
+			Data: &info.Data,
+			Path: &info.Path,
+			Type: convertInfoTypeToAPIModel(info.Type),
 		})
 
 		scanners[info.ScannerName] = nil

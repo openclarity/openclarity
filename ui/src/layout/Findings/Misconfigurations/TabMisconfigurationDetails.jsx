@@ -13,7 +13,6 @@ const TabMisconfigurationDetails = ({ data }) => {
     id,
     severity,
     description,
-    scannerName,
     location,
     remediation,
     category,
@@ -31,9 +30,6 @@ const TabMisconfigurationDetails = ({ data }) => {
             </TitleValueDisplay>
           </TitleValueDisplayRow>
           <TitleValueDisplayRow>
-            <TitleValueDisplay title="Scanner Name">
-              {scannerName}
-            </TitleValueDisplay>
             <TitleValueDisplay title="File path">{location}</TitleValueDisplay>
           </TitleValueDisplayRow>
           <TitleValueDisplayRow>

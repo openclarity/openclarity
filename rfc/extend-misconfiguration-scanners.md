@@ -64,8 +64,6 @@ The model preserves most of its original properties but is generalized to enable
 Misconfiguration:
   type: object
   properties:
-    scannerName: # preserved
-      type: string
     id: # replaces `testID`; maps CISDockerBenchmarkResultsEX.code
       type: string
       description: Check or test ID, if applicable (e.g. Lynis TestID, CIS Docker Benchmark checkpoint code, etc)

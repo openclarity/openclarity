@@ -34,7 +34,6 @@ func (asp *AssetScanProcessor) reconcileResultMisconfigurationsToFindings(ctx co
 				Message:     &message,
 				Remediation: item.Remediation,
 				Location:    item.Location,
-				ScannerName: item.ScannerName,
 				Severity:    item.Severity,
 				Category:    item.Category,
 				Description: item.Description,

@@ -228,7 +228,6 @@ func createMisconfigurationFindingImpact(findingInfo *apitypes.FindingInfo, coun
 			Message:     info.Message,
 			Remediation: info.Remediation,
 			Location:    info.Location,
-			ScannerName: info.ScannerName,
 			Severity:    toModelsMisconfigurationSeverity(info.Severity),
 			Category:    info.Category,
 			Description: info.Description,

@@ -814,9 +814,8 @@ type InfoFinderFindingInfo struct {
 	ObjectType string  `json:"objectType"`
 
 	// Path File path containing the info
-	Path        *string   `json:"path,omitempty"`
-	ScannerName *string   `json:"scannerName,omitempty"`
-	Type        *InfoType `json:"type,omitempty"`
+	Path *string   `json:"path,omitempty"`
+	Type *InfoType `json:"type,omitempty"`
 }
 
 // InfoFinderInfo defines model for InfoFinderInfo.
@@ -825,9 +824,8 @@ type InfoFinderInfo struct {
 	Data *string `json:"data,omitempty"`
 
 	// Path File path containing the info
-	Path        *string   `json:"path,omitempty"`
-	ScannerName *string   `json:"scannerName,omitempty"`
-	Type        *InfoType `json:"type,omitempty"`
+	Path *string   `json:"path,omitempty"`
+	Type *InfoType `json:"type,omitempty"`
 }
 
 // InfoFinderScan defines model for InfoFinderScan.
@@ -909,7 +907,6 @@ type Misconfiguration struct {
 
 	// Remediation Possible fix for the misconfiguration
 	Remediation *string                   `json:"remediation,omitempty"`
-	ScannerName *string                   `json:"scannerName,omitempty"`
 	Severity    *MisconfigurationSeverity `json:"severity,omitempty"`
 }
 
@@ -933,7 +930,6 @@ type MisconfigurationFindingInfo struct {
 
 	// Remediation Possible fix for the misconfiguration
 	Remediation *string                   `json:"remediation,omitempty"`
-	ScannerName *string                   `json:"scannerName,omitempty"`
 	Severity    *MisconfigurationSeverity `json:"severity,omitempty"`
 }
 
