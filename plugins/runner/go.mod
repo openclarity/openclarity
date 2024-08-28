@@ -7,7 +7,7 @@ require (
 	github.com/docker/go-connections v0.5.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-multierror v1.1.1
-	github.com/oapi-codegen/oapi-codegen/v2 v2.3.1-0.20240819063527-fa048ac69eea
+	github.com/oapi-codegen/oapi-codegen/v2 v2.3.1-0.20240823215434-d232e9efa9f5
 	github.com/openclarity/openclarity/core v0.7.2
 	github.com/openclarity/openclarity/plugins/sdk-go v0.7.2
 	github.com/openclarity/openclarity/utils v0.7.2
@@ -39,6 +39,7 @@ require (
 	github.com/docker/docker-credential-helpers v0.8.1 // indirect
 	github.com/docker/go-events v0.0.0-20190806004212-e31b211e4f1c // indirect
 	github.com/docker/go-units v0.5.0 // indirect
+	github.com/dprotaso/go-yit v0.0.0-20220510233725-9ba8df137936 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.4 // indirect
 	github.com/getkin/kin-openapi v0.127.0 // indirect
@@ -86,6 +87,7 @@ require (
 	github.com/scylladb/go-set v1.0.3-0.20200225121959-cc7b2070d91e // indirect
 	github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
+	github.com/speakeasy-api/openapi-overlay v0.9.0 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/sylabs/sif/v2 v2.16.0 // indirect
 	github.com/sylabs/squashfs v0.6.1 // indirect
@@ -94,6 +96,7 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/vbatts/tar-split v0.11.5 // indirect
+	github.com/vmware-labs/yaml-jsonpath v0.3.2 // indirect
 	github.com/wagoodman/go-partybus v0.0.0-20230516145632-8ccac152c651 // indirect
 	github.com/wagoodman/go-progress v0.0.0-20230925121702-07e42b3cdba0 // indirect
 	go.opencensus.io v0.24.0 // indirect
