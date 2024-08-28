@@ -244,3 +244,15 @@ bin/multimod:
 	@if [ ! -d $(MULTIMOD_REPO_DIR) ]; then git clone https://github.com/open-telemetry/opentelemetry-go-build-tools --branch multimod/v$(MULTIMOD_VERSION) $(MULTIMOD_REPO_DIR); fi
 	@go build -C $(MULTIMOD_REPO_DIR)/multimod -o $(MULTIMOD_BIN) main.go
 	@rm -rf $(MULTIMOD_REPO_DIR)
+
+####
+##  Renovate CLI
+####
+
+# renovate: datasource=github-releases depName=renovatebot/renovate versioning=semver
+RENOVATE_VERSION := 38.55.4
+RENOVATE_INSTALL_DIR := $(BIN_DIR)/node
+RENOVATE_BIN := $(RENOVATE_INSTALL_DIR)/node_modules/.bin/renovate
+
+bin/renovate:
+	@npm install --silent --prefix $(RENOVATE_INSTALL_DIR) renovate@$(RENOVATE_VERSION)
