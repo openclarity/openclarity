@@ -50,8 +50,8 @@ var (
 	logLevel = LogLevelDefaultValue
 	rootCmd  = &cobra.Command{
 		Use:   ExecutableName,
-		Short: "VMClarity UI Backend",
-		Long:  "VMClarity UI Backend",
+		Short: "OpenClarity UI Backend",
+		Long:  "OpenClarity UI Backend",
 		Version: fmt.Sprintf("Version: %s \nCommit: %s\nBuild Time: %s",
 			version.Version, version.CommitHash, version.BuildTimestamp),
 		SilenceUsage: true,
@@ -63,7 +63,7 @@ func init() {
 		Use:     "run",
 		Run:     runCommand,
 		Short:   "Starts the UI Backend",
-		Long:    "Starts the VMClarity UI Backend",
+		Long:    "Starts the OpenClarity UI Backend",
 		Example: ExecutableName + " run",
 	}
 
@@ -76,7 +76,7 @@ func init() {
 		Use:     "version",
 		Run:     versionCommand,
 		Short:   "Displays the version",
-		Long:    "Displays the version of the VMClarity UI Backend",
+		Long:    "Displays the version of the OpenClarity UI Backend",
 		Example: ExecutableName + " version",
 	}
 

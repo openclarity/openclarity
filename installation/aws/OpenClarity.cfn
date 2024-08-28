@@ -107,7 +107,7 @@ Resources:
         configSets:
           full_install:
             - install_and_enable_cfn_hup
-            - install_vmclarity
+            - install_openclarity
         install_and_enable_cfn_hup:
           files:
             "/etc/cfn/cfn-hup.conf":
@@ -147,9 +147,9 @@ Resources:
               command: systemctl enable cfn-hup.service
             03start_restart_cfn_hup:
               command: systemctl restart cfn-hup.service
-        install_vmclarity:
+        install_openclarity:
           files:
-            "/etc/vmclarity/deploy.sh":
+            "/etc/openclarity/deploy.sh":
               content:
                 Fn::Sub: |
                   #!/bin/bash
@@ -179,33 +179,33 @@ Resources:
                   if [ "${DatabaseToUse}" == "Postgresql" ]; then
                     # Configure the OpenClarity backend to use the local postgres
                     # service
-                    echo "OPENCLARITY_APISERVER_DATABASE_DRIVER=POSTGRES" > /etc/vmclarity/apiserver.env
-                    echo "OPENCLARITY_APISERVER_DB_NAME=vmclarity" >> /etc/vmclarity/apiserver.env
-                    echo "OPENCLARITY_APISERVER_DB_USER=vmclarity" >> /etc/vmclarity/apiserver.env
-                    echo "OPENCLARITY_APISERVER_DB_PASS=${PostgresDBPassword}" >> /etc/vmclarity/apiserver.env
-                    echo "OPENCLARITY_APISERVER_DB_HOST=postgresql" >> /etc/vmclarity/apiserver.env
-                    echo "OPENCLARITY_APISERVER_DB_PORT=5432" >> /etc/vmclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DATABASE_DRIVER=POSTGRES" > /etc/openclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_NAME=openclarity" >> /etc/openclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_USER=openclarity" >> /etc/openclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_PASS=${PostgresDBPassword}" >> /etc/openclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_HOST=postgresql" >> /etc/openclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_PORT=5432" >> /etc/openclarity/apiserver.env
                   elif [ "${DatabaseToUse}" == "External Postgresql" ]; then
                     # Configure the OpenClarity backend to use the postgres
                     # database configured by the user.
-                    echo "OPENCLARITY_APISERVER_DATABASE_DRIVER=POSTGRES" > /etc/vmclarity/apiserver.env
-                    echo "OPENCLARITY_APISERVER_DB_NAME=${ExternalDBName}" >> /etc/vmclarity/apiserver.env
-                    echo "OPENCLARITY_APISERVER_DB_USER=${ExternalDBUsername}" >> /etc/vmclarity/apiserver.env
-                    echo "OPENCLARITY_APISERVER_DB_PASS=${ExternalDBPassword}" >> /etc/vmclarity/apiserver.env
-                    echo "OPENCLARITY_APISERVER_DB_HOST=${ExternalDBHost}" >> /etc/vmclarity/apiserver.env
-                    echo "OPENCLARITY_APISERVER_DB_PORT=${ExternalDBPort}" >> /etc/vmclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DATABASE_DRIVER=POSTGRES" > /etc/openclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_NAME=${ExternalDBName}" >> /etc/openclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_USER=${ExternalDBUsername}" >> /etc/openclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_PASS=${ExternalDBPassword}" >> /etc/openclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_HOST=${ExternalDBHost}" >> /etc/openclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DB_PORT=${ExternalDBPort}" >> /etc/openclarity/apiserver.env
                   elif [ "${DatabaseToUse}" == "SQLite" ]; then
                     # Configure the OpenClarity backend to use the SQLite DB
                     # driver and configure the storage location so that it
                     # persists.
-                    echo "OPENCLARITY_APISERVER_DATABASE_DRIVER=LOCAL" > /etc/vmclarity/apiserver.env
-                    echo "OPENCLARITY_APISERVER_LOCAL_DB_PATH=/data/vmclarity.db" >> /etc/vmclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_DATABASE_DRIVER=LOCAL" > /etc/openclarity/apiserver.env
+                    echo "OPENCLARITY_APISERVER_LOCAL_DB_PATH=/data/openclarity.db" >> /etc/openclarity/apiserver.env
                   fi
 
                   # Replace anywhere in the config.env __CONTROLPLANE_HOST__
                   # with the local ipv4 IP address of the OpenClarity server.
                   local_ip_address="$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"
-                  sed -i "s/__CONTROLPLANE_HOST__/${!local_ip_address}/" /etc/vmclarity/orchestrator.env
+                  sed -i "s/__CONTROLPLANE_HOST__/${!local_ip_address}/" /etc/openclarity/orchestrator.env
 
                   # Reload the systemd daemon to ensure that the OpenClarity unit
                   # has been detected.
@@ -215,8 +215,8 @@ Resources:
                   /usr/bin/mkdir -p /opt/grype-server
                   /usr/bin/chown -R 1000:1000 /opt/grype-server
 
-                  # Create directory required for vmclarity apiserver
-                  /usr/bin/mkdir -p /opt/vmclarity
+                  # Create directory required for openclarity apiserver
+                  /usr/bin/mkdir -p /opt/openclarity
 
                   # Create directory for exploit db server
                   /usr/bin/mkdir -p /opt/exploits
@@ -229,14 +229,14 @@ Resources:
                   /usr/bin/chown -R 1000:1000 /opt/yara-rule-server
 
                   # Enable and start/restart OpenClarity backend
-                  systemctl enable vmclarity.service
-                  systemctl restart vmclarity.service
+                  systemctl enable openclarity.service
+                  systemctl restart openclarity.service
 
                   # Add ubuntu user to docker group
                   usermod -a -G docker ubuntu
               mode: "000744"
 
-            "/etc/vmclarity/vmclarity.yaml":
+            "/etc/openclarity/openclarity.yaml":
               content:
                 Fn::Sub:
                   - |
@@ -252,7 +252,7 @@ Resources:
                         env_file: ./apiserver.env
                         volumes:
                           - type: bind
-                            source: /opt/vmclarity
+                            source: /opt/openclarity
                             target: /data
                         logging:
                           driver: journald
@@ -468,7 +468,7 @@ Resources:
                     YaraRuleServerContainerImage: !If [YaraRuleServerContainerImageOverridden, !Ref YaraRuleServerContainerImageOverride, "ghcr.io/openclarity/yara-rule-server:v0.3.0"]
                     FreshclamMirrorContainerImage: !If [FreshclamMirrorContainerImageOverridden, !Ref FreshclamMirrorContainerImageOverride, "ghcr.io/openclarity/freshclam-mirror:v0.3.1"]
 
-            "/etc/vmclarity/vmclarity.override.yaml":
+            "/etc/openclarity/openclarity.override.yaml":
               content:
                 Fn::If:
                   - DatabaseIsLocalPostgresql
@@ -488,7 +488,7 @@ Resources:
                             restart_policy:
                               condition: on-failure
                           healthcheck:
-                            test: ["CMD-SHELL", "pg_isready -d vmclarity -U vmclarity"]
+                            test: ["CMD-SHELL", "pg_isready -d openclarity -U openclarity"]
                             interval: 10s
                             retries: 60
 
@@ -500,7 +500,7 @@ Resources:
                     - PostgresqlContainerImage: !If [PostgresqlContainerImageOverridden, !Ref PostgresqlContainerImageOverride, "bitnami/postgresql:16.3.0-debian-12-r13"]
                   - "\n"
 
-            "/etc/vmclarity/uibackend.env":
+            "/etc/openclarity/uibackend.env":
               content: |
                 ##
                 ## UIBackend configuration
@@ -509,7 +509,7 @@ Resources:
                 OPENCLARITY_UIBACKEND_APISERVER_ADDRESS=http://apiserver:8888
 
 
-            "/etc/vmclarity/swagger-config.json":
+            "/etc/openclarity/swagger-config.json":
               content: |
                 {
                     "urls": [
@@ -520,7 +520,7 @@ Resources:
                     ]
                 }
 
-            "/etc/vmclarity/orchestrator.env":
+            "/etc/openclarity/orchestrator.env":
               content:
                 Fn::Sub:
                   - |
@@ -572,18 +572,18 @@ Resources:
                     OPENCLARITY_AWS_SCANNER_INSTANCE_ARCHITECTURE_TO_AMI_MAPPING=${ScannerInstanceArchitectureToAMIMapping}
                     # Block device name used for attaching Scanner volume to the Scanner instance
                     #OPENCLARITY_AWS_BLOCK_DEVICE_NAME=xvhd
-                  - ScannerContainerImage: !If [ScannerContainerImageOverridden, !Ref ScannerContainerImageOverride, "ghcr.io/openclarity/vmclarity-cli:latest"]
+                  - ScannerContainerImage: !If [ScannerContainerImageOverridden, !Ref ScannerContainerImageOverride, "ghcr.io/openclarity/openclarity-cli:latest"]
                     ScannerInstanceArchitectureToTypeMapping: !Join [",", !Ref ScannerInstanceArchitectureToTypeMapping]
                     ScannerInstanceArchitectureToAMIMapping: !Join [",", !Ref ScannerInstanceArchitectureToAMIMapping]
               mode: "000644"
 
-            "/etc/vmclarity/trivy-server.env":
+            "/etc/openclarity/trivy-server.env":
               content: |
                 TRIVY_LISTEN=0.0.0.0:9992
                 TRIVY_CACHE_DIR=/home/scanner/.cache/trivy
               mode: "000644"
 
-            "/etc/vmclarity/yara-rule-server.yaml":
+            "/etc/openclarity/yara-rule-server.yaml":
               content: |
                 enable_json_log: true
                 rule_update_schedule: "0 0 * * *"
@@ -596,15 +596,15 @@ Resources:
                     exclude_regex: ".*index.*.yar"
               mode: "000644"
 
-            "/etc/vmclarity/postgres.env":
+            "/etc/openclarity/postgres.env":
               content:
                 Fn::Sub: |
-                    POSTGRESQL_USERNAME=vmclarity
+                    POSTGRESQL_USERNAME=openclarity
                     POSTGRESQL_PASSWORD=${PostgresDBPassword}
-                    POSTGRESQL_DATABASE=vmclarity
+                    POSTGRESQL_DATABASE=openclarity
               mode: "000644"
 
-            "/etc/vmclarity/gateway.conf":
+            "/etc/openclarity/gateway.conf":
               content: |
                 events {
                     worker_connections 1024;
@@ -649,7 +649,7 @@ Resources:
                 }
               mode: "000644"
 
-            "/lib/systemd/system/vmclarity.service":
+            "/lib/systemd/system/openclarity.service":
               content: |
                 [Unit]
                 Description=OpenClarity
@@ -660,15 +660,15 @@ Resources:
                 TimeoutStartSec=0
                 Type=oneshot
                 RemainAfterExit=true
-                ExecStart=/usr/bin/docker compose -p vmclarity -f /etc/vmclarity/vmclarity.yaml -f /etc/vmclarity/vmclarity.override.yaml up -d --wait --remove-orphans
-                ExecStop=/usr/bin/docker compose -p vmclarity -f /etc/vmclarity/vmclarity.yaml -f /etc/vmclarity/vmclarity.override.yaml down
+                ExecStart=/usr/bin/docker compose -p openclarity -f /etc/openclarity/openclarity.yaml -f /etc/openclarity/openclarity.override.yaml up -d --wait --remove-orphans
+                ExecStop=/usr/bin/docker compose -p openclarity -f /etc/openclarity/openclarity.yaml -f /etc/openclarity/openclarity.override.yaml down
 
                 [Install]
                 WantedBy=multi-user.target
               mode: "000644"
           commands:
-            01deploy_vmclarity:
-              command: /etc/vmclarity/deploy.sh
+            01deploy_openclarity:
+              command: /etc/openclarity/deploy.sh
 
     DependsOn:
       - OpenClarityServerPublicRoute
@@ -1305,7 +1305,7 @@ Metadata:
       UIBackendContainerImageOverride:
         default: UI Backend Container Image Override
       ScannerInstanceArchitectureToTypeMapping:
-        default: VMClarity Scanner Instance Type Mapping
+        default: OpenClarity Scanner Instance Type Mapping
       ScannerContainerImageOverride:
         default: Scanner Container Image Override
       TrivyServerContainerImageOverride:
@@ -1337,7 +1337,7 @@ Metadata:
       ExternalDBPassword:
         default: External DB Password
       ScannerInstanceArchitecture:
-        default: VMClarity Scanner instance architecture
+        default: OpenClarity Scanner instance architecture
 Mappings:
   # For every type we want AWS hardware virtualisation on amd64 (HVMAMD64) or arm64 (HVMARM64)
   AWSInstanceType2Arch:

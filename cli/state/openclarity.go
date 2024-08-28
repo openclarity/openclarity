@@ -34,7 +34,7 @@ import (
 const (
 	DefaultWaitForVolRetryInterval             = 15 * time.Second
 	effectiveScanConfigAnnotationKey           = "openclarity.io/openclarity-scanner/config"
-	deprecatedeffectiveScanConfigAnnotationKey = "openclarity.io/vmclarity-scanner/config"
+	deprecatedeffectiveScanConfigAnnotationKey = "openclarity.io/openclarity-scanner/config"
 )
 
 type AssetScanID = apitypes.AssetScanID

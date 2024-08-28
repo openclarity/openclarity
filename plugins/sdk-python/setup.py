@@ -18,11 +18,11 @@ REQUIRES = [
 setup(
     name=NAME,
     version=VERSION,
-    description="VMClarity Scanner Plugin SDK",
-    url="vmclarity.io",
+    description="OpenClarity Scanner Plugin SDK",
+    url="openclarity.io",
     keywords=["Scanner Plugin API"],
     install_requires=REQUIRES,
     packages=find_packages(),
     include_package_data=True,
-    long_description="SDK to simplify development of scanner plugins used in VMClarity"
+    long_description="SDK to simplify development of scanner plugins used in OpenClarity"
 )

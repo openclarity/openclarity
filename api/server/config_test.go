@@ -45,7 +45,7 @@ func TestConfig(t *testing.T) {
 				"OPENCLARITY_APISERVER_DB_HOST":             "postgresql",
 				"OPENCLARITY_APISERVER_DB_PORT":             "5432",
 				"OPENCLARITY_APISERVER_ENABLE_DB_INFO_LOGS": "true",
-				"OPENCLARITY_APISERVER_LOCAL_DB_PATH":       "/data/vmclarity.db",
+				"OPENCLARITY_APISERVER_LOCAL_DB_PATH":       "/data/openclarity.db",
 			},
 			ExpectedNewErrorMatcher: Not(HaveOccurred()),
 			ExpectedConfig: &Config{
@@ -58,7 +58,7 @@ func TestConfig(t *testing.T) {
 				DBHost:             "postgresql",
 				DBPort:             "5432",
 				EnableDBInfoLogs:   true,
-				LocalDBPath:        "/data/vmclarity.db",
+				LocalDBPath:        "/data/openclarity.db",
 			},
 		},
 		{

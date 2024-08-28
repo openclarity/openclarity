@@ -2,11 +2,11 @@
 
 > **KICS** is a scanner application that uses [Checkmarx KICS](https://checkmarx.com/product/opensource/kics-open-source-infrastructure-as-code-project/) (Keeping Infrastructure as Code Secure)
 > to scan your Infrastructure as Code (IaC) files for misconfigurations.
-> It's designed to be used as a plugin for the [VMClarity](https://openclarity.io/docs/vmclarity/) platform.
+> It's designed to be used as a plugin for the [OpenClarity](https://openclarity.io/docs/openclarity/) platform.
 
 ## Usage
 
-Make a POST request with config below to the VMClarity API `/assetScans` endpoint to initiate a KICS scan.
+Make a POST request with config below to the OpenClarity API `/assetScans` endpoint to initiate a KICS scan.
 The body of the POST request should include a JSON object with the configuration for the scan.
 
 > NOTE: Below is a minimal example. Your actual configuration should have additional properties.
@@ -29,7 +29,7 @@ The body of the POST request should include a JSON object with the configuration
 
 ### Usage notes
 
-- The KICS scanner is designed to be started by **VMClarity**, therefore running it as a standalone tool is not recommended.
+- The KICS scanner is designed to be started by **OpenClarity**, therefore running it as a standalone tool is not recommended.
 
 - The value of the `scannerConfig` property in the POST request should contain the [parameters](https://github.com/Checkmarx/kics/blob/e387aa2505a3207e1087520972e0e52f7e0e6fdf/pkg/scan/client.go#L54) that the _KICS_ client will use.
 
@@ -39,5 +39,5 @@ When the scan is done, the output can be found at the `<specified output JSON fi
 KICS scan findings are exported via `Result` model defined in Scanner Plugin OpenAPI specs.
 They are saved to the specified output file in JSON format.
 
-> KICS outputs all its findings as `Misconfiguration` models under `Result.vmclarity.misconfigurations` property.
+> KICS outputs all its findings as `Misconfiguration` models under `Result.openclarity.misconfigurations` property.
 > See [Scanner Plugin OpenAPI specs](../../openapi.yaml).

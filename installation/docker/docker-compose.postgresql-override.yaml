@@ -10,7 +10,7 @@ services:
       restart_policy:
         condition: on-failure
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d vmclarity -U vmclarity"]
+      test: ["CMD-SHELL", "pg_isready -d openclarity -U openclarity"]
       interval: 10s
       retries: 60
 

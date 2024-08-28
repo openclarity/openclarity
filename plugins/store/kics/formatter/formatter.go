@@ -45,7 +45,7 @@ func FormatJSONOutput(rawOutputDir string) (model.Summary, error) {
 	return summaryJSON, nil
 }
 
-func FormatVMClarityOutput(summaryJSON model.Summary) (*[]types.Misconfiguration, error) {
+func FormatOpenClarityOutput(summaryJSON model.Summary) (*[]types.Misconfiguration, error) {
 	var misconfigurations []types.Misconfiguration
 	for _, q := range summaryJSON.Queries {
 		for _, file := range q.Files {

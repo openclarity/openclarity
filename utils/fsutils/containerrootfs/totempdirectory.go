@@ -180,7 +180,7 @@ func (cache *Cache) CleanupAll() error {
 
 type CacheContextKeyType string
 
-const CacheContextKey CacheContextKeyType = "VMClarityContainerRootfsCacheKey"
+const CacheContextKey CacheContextKeyType = "OpenClarityContainerRootfsCacheKey"
 
 func GetCacheFromContext(ctx context.Context) (*Cache, bool) {
 	cache, ok := ctx.Value(CacheContextKey).(*Cache)

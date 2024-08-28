@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # Defines the git repository the cache entry belongs to.
-# Example: openclarity/vmclarity
+# Example: openclarity/openclarity
 declare -rx REPO="${REPO:?}"
 # Defines the git reference the cache entry belongs to.
 declare -rx REF="${REF:-}"

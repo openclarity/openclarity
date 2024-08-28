@@ -20,11 +20,11 @@ import (
 	plugintypes "github.com/openclarity/openclarity/plugins/sdk-go/types"
 )
 
-// DefaultPluginAdapter is used to convert latest version Plugin API models to VMClarity.
+// DefaultPluginAdapter is used to convert latest version Plugin API models to OpenClarity.
 var DefaultPluginAdapter PluginAdapter = &pluginAdapter{}
 
 // PluginAdapter is responsible for converting Plugin security findings to
-// low-level VMClarity findings.
+// low-level OpenClarity findings.
 type PluginAdapter interface {
 	Result(data plugintypes.Result) ([]FindingInfo, error)
 	Exploit(data plugintypes.Exploit) (*ExploitFindingInfo, error)
@@ -44,7 +44,7 @@ func (p pluginAdapter) Result(data plugintypes.Result) ([]FindingInfo, error) {
 	var findings []FindingInfo
 
 	// Convert exploits
-	if exploits := data.Vmclarity.Exploits; exploits != nil {
+	if exploits := data.Openclarity.Exploits; exploits != nil {
 		for _, exploit := range *exploits {
 			exploit, err := p.Exploit(exploit)
 			if err != nil {
@@ -61,7 +61,7 @@ func (p pluginAdapter) Result(data plugintypes.Result) ([]FindingInfo, error) {
 	}
 
 	// Convert info finders
-	if infoFinders := data.Vmclarity.InfoFinder; infoFinders != nil {
+	if infoFinders := data.Openclarity.InfoFinder; infoFinders != nil {
 		for _, infoFinder := range *infoFinders {
 			infoFinder, err := p.InfoFinder(infoFinder)
 			if err != nil {
@@ -78,7 +78,7 @@ func (p pluginAdapter) Result(data plugintypes.Result) ([]FindingInfo, error) {
 	}
 
 	// Convert malwares
-	if malwares := data.Vmclarity.Malware; malwares != nil {
+	if malwares := data.Openclarity.Malware; malwares != nil {
 		for _, malware := range *malwares {
 			malware, err := p.Malware(malware)
 			if err != nil {
@@ -95,7 +95,7 @@ func (p pluginAdapter) Result(data plugintypes.Result) ([]FindingInfo, error) {
 	}
 
 	// Convert misconfigurations
-	if misconfigurations := data.Vmclarity.Misconfigurations; misconfigurations != nil {
+	if misconfigurations := data.Openclarity.Misconfigurations; misconfigurations != nil {
 		for _, misconfiguration := range *misconfigurations {
 			misconfiguration, err := p.Misconfiguration(misconfiguration)
 			if err != nil {
@@ -112,7 +112,7 @@ func (p pluginAdapter) Result(data plugintypes.Result) ([]FindingInfo, error) {
 	}
 
 	// Convert packages
-	if packages := data.Vmclarity.Packages; packages != nil {
+	if packages := data.Openclarity.Packages; packages != nil {
 		for _, pkg := range *packages {
 			pkg, err := p.Package(pkg)
 			if err != nil {
@@ -129,7 +129,7 @@ func (p pluginAdapter) Result(data plugintypes.Result) ([]FindingInfo, error) {
 	}
 
 	// Convert rootkits
-	if rootkits := data.Vmclarity.Rootkits; rootkits != nil {
+	if rootkits := data.Openclarity.Rootkits; rootkits != nil {
 		for _, rootkit := range *rootkits {
 			rootkit, err := p.Rootkit(rootkit)
 			if err != nil {
@@ -146,7 +146,7 @@ func (p pluginAdapter) Result(data plugintypes.Result) ([]FindingInfo, error) {
 	}
 
 	// Convert secrets
-	if secrets := data.Vmclarity.Secrets; secrets != nil {
+	if secrets := data.Openclarity.Secrets; secrets != nil {
 		for _, secret := range *secrets {
 			secret, err := p.Secret(secret)
 			if err != nil {

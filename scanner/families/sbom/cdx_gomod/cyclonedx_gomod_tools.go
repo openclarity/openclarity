@@ -28,7 +28,7 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
-const author = "vmclarity"
+const author = "openclarity"
 
 var Version = "v0.0.0-unset" // Must be a var so we can set it at build time
 

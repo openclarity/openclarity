@@ -203,7 +203,7 @@ func (s *Scanner) parseResults(ctx context.Context, runner runnertypes.PluginRun
 
 	findings, err := apitypes.DefaultPluginAdapter.Result(pluginResult)
 	if err != nil {
-		return nil, plugintypes.Result{}, fmt.Errorf("failed to convert plugin scanner result to vmclarity findings: %w", err)
+		return nil, plugintypes.Result{}, fmt.Errorf("failed to convert plugin scanner result to openclarity findings: %w", err)
 	}
 
 	return findings, pluginResult, nil

@@ -27,7 +27,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const ImageInfoMetadataKey = "vmclarity/internal/image_info"
+const ImageInfoMetadataKey = "openclarity/internal/image_info"
 
 type ImageInfo struct {
 	Name    string

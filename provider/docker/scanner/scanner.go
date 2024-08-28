@@ -332,7 +332,7 @@ func (s *Scanner) createScanContainer(ctx context.Context, assetScanMount *mount
 				"--config",
 				filepath.Join("/", getScanConfigFileName(t)),
 				"--server",
-				t.VMClarityAddress,
+				t.APIServerAddress,
 				"--asset-scan-id",
 				t.AssetScanID,
 			},

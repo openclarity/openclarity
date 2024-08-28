@@ -83,7 +83,7 @@ func (h *binaryRuntimeHandler) Start(ctx context.Context) error {
 			return fmt.Errorf("unable to determine user's home directory: %w", err)
 		}
 
-		binaryArtifactsPath = filepath.Join(home, ".vmclarity/plugins")
+		binaryArtifactsPath = filepath.Join(home, ".openclarity/plugins")
 	}
 
 	h.pluginDir = filepath.Join(binaryArtifactsPath, h.config.Name, image.Metadata.ID)
@@ -96,7 +96,7 @@ func (h *binaryRuntimeHandler) Start(ctx context.Context) error {
 	}
 
 	// Mount input from host
-	// /home/ubuntu/.vmclarity/plugins/kics/<id> + /input + /host-dir-to-scan
+	// /home/ubuntu/.openclarity/plugins/kics/<id> + /input + /host-dir-to-scan
 	h.inputDirMountPoint = filepath.Join(h.pluginDir, runtimehandler.RemoteScanInputDirOverride, h.config.InputDir)
 	err = os.MkdirAll(h.inputDirMountPoint, 0o550) //nolint:mnd
 	if err != nil {

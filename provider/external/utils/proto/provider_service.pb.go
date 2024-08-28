@@ -476,19 +476,19 @@ func (*Asset_Dirinfo) isAsset_AssetType() {}
 func (*Asset_Podinfo) isAsset_AssetType() {}
 
 // ScanJobConfig
-// Scanner instance - the VM that runs the VMClarity CLI.
-// Scanner CLI - VMClarity CLI tool that does the actual scanning.
+// Scanner instance - the VM that runs the OpenClarity CLI.
+// Scanner CLI - OpenClarity CLI tool that does the actual scanning.
 type ScanJobConfig struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// The container image of the scanner CLI. contains the vmclarity-cli and other required scanning tools.
+	// The container image of the scanner CLI. contains the openclarity-cli and other required scanning tools.
 	ScannerImage string `protobuf:"bytes,1,opt,name=scannerImage,proto3" json:"scannerImage,omitempty"`
 	// Scanner CLI config yaml (families config yaml) serialized in json format.
 	ScannerCLIConfig string `protobuf:"bytes,2,opt,name=scannerCLIConfig,proto3" json:"scannerCLIConfig,omitempty"`
-	// The VMClarity API address.
-	VmClarityAddress string `protobuf:"bytes,3,opt,name=vmClarityAddress,proto3" json:"vmClarityAddress,omitempty"`
+	// The API server address.
+	APIServerAddress string `protobuf:"bytes,3,opt,name=apiserverAddress,proto3" json:"apiserverAddress,omitempty"`
 	// The ID of the AssetScan that the scanner CLI should update in the backend.
 	ScanMetadata *ScanMetadata `protobuf:"bytes,4,opt,name=scanMetadata,proto3" json:"scanMetadata,omitempty"`
 	// Configuration for how to run the scanner instance (optional).
@@ -543,9 +543,9 @@ func (x *ScanJobConfig) GetScannerCLIConfig() string {
 	return ""
 }
 
-func (x *ScanJobConfig) GetVmClarityAddress() string {
+func (x *ScanJobConfig) GetAPIServerAddress() string {
 	if x != nil {
-		return x.VmClarityAddress
+		return x.APIServerAddress
 	}
 	return ""
 }

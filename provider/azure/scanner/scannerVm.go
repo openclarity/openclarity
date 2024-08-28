@@ -38,7 +38,7 @@ var (
 )
 
 func scannerVMNameFromJobConfig(config *provider.ScanJobConfig) string {
-	return "vmclarity-scanner-" + config.AssetScanID
+	return "openclarity-scanner-" + config.AssetScanID
 }
 
 func (s *Scanner) ensureScannerVirtualMachine(ctx context.Context, config *provider.ScanJobConfig, networkInterface armnetwork.Interface) (armcompute.VirtualMachine, error) {
@@ -95,7 +95,7 @@ func (s *Scanner) ensureScannerVirtualMachine(ctx context.Context, config *provi
 			},
 			OSProfile: &armcompute.OSProfile{ // use username/password
 				ComputerName:  to.Ptr(vmName),
-				AdminUsername: to.Ptr("vmclarity"),
+				AdminUsername: to.Ptr("openclarity"),
 				LinuxConfiguration: &armcompute.LinuxConfiguration{
 					DisablePasswordAuthentication: to.Ptr(true),
 				},
@@ -115,7 +115,7 @@ func (s *Scanner) ensureScannerVirtualMachine(ctx context.Context, config *provi
 		parameters.Properties.OSProfile.LinuxConfiguration.SSH = &armcompute.SSHConfiguration{
 			PublicKeys: []*armcompute.SSHPublicKey{
 				{
-					Path:    to.Ptr(fmt.Sprintf("/home/%s/.ssh/authorized_keys", "vmclarity")),
+					Path:    to.Ptr(fmt.Sprintf("/home/%s/.ssh/authorized_keys", "openclarity")),
 					KeyData: to.Ptr(s.ScannerPublicKey),
 				},
 			},

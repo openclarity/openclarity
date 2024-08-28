@@ -2,7 +2,7 @@
 
 import asyncio
 
-from plugin.models import Config, State, Status, Metadata, Stop, Result, VMClarityData, Vulnerability
+from plugin.models import Config, State, Status, Metadata, Stop, Result, OpenClarityData, Vulnerability
 from plugin.scanner import AbstractScanner
 from plugin.server import Server
 
@@ -38,7 +38,7 @@ class ExampleScanner(AbstractScanner):
         await asyncio.sleep(5)
         try:
             result = Result(
-                vmclarity=VMClarityData(
+                openclarity=OpenClarityData(
                     vulnerabilities=[Vulnerability(
                         vulnerability_name="vulnerability #1",
                         description="some vulnerability",
