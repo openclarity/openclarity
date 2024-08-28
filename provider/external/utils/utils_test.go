@@ -366,7 +366,7 @@ func Test_convertScanJobConfig(t *testing.T) {
 				config: &provider.ScanJobConfig{
 					ScannerImage:     "image1",
 					ScannerCLIConfig: "cliconfig",
-					VMClarityAddress: "addr",
+					APIServerAddress: "addr",
 					ScanMetadata: provider.ScanMetadata{
 						ScanID:      "scanid1",
 						AssetScanID: "assetscanid1",
@@ -385,7 +385,7 @@ func Test_convertScanJobConfig(t *testing.T) {
 			want: &provider_service.ScanJobConfig{
 				ScannerImage:     "image1",
 				ScannerCLIConfig: "cliconfig",
-				VmClarityAddress: "addr",
+				APIServerAddress: "addr",
 				ScanMetadata: &provider_service.ScanMetadata{
 					ScanID:      "scanid1",
 					AssetScanID: "assetscanid1",

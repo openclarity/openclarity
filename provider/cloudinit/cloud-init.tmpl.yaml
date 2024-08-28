@@ -32,7 +32,7 @@ write_files:
           {{ .ScannerImage }} \
           scan \
           --config /opt/openclarity/scanconfig.yaml \
-          --server {{ .VMClarityAddress }} \
+          --server {{ .APIServerAddress }} \
           --mount-attached-volume \
           --asset-scan-id {{ .AssetScanID }} \
           --output /var/opt/vmclarity

@@ -72,7 +72,7 @@ func newJobConfig(i *jobConfigInput) (*provider.ScanJobConfig, error) {
 	return &provider.ScanJobConfig{
 		ScannerImage:     i.config.ScannerImage,
 		ScannerCLIConfig: string(scannerConfigYAML),
-		VMClarityAddress: i.config.APIServerAddress,
+		APIServerAddress: i.config.APIServerAddress,
 		ScanMetadata: provider.ScanMetadata{
 			AssetScanID: *i.assetScan.Id,
 			AssetID:     i.assetScan.Asset.Id,

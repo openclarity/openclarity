@@ -70,7 +70,7 @@ type ScanMetadata struct {
 type ScanJobConfig struct {
 	ScannerImage     string // Scanner Container Image to use containing the vmclarity-cli and tools
 	ScannerCLIConfig string // Scanner CLI config yaml (families config yaml)
-	VMClarityAddress string // The backend address for the scanner CLI to export too
+	APIServerAddress string // The backend address for the scanner CLI to export too
 
 	ScanMetadata
 	apitypes.ScannerInstanceCreationConfig

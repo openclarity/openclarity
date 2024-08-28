@@ -73,7 +73,7 @@ message ScanJobConfig {
   // Scanner CLI config yaml (families config yaml) serialized in json format.
   string scannerCLIConfig = 2;
   // The VMClarity API address.
-  string vmClarityAddress = 3;
+  string apiserverAddress = 3;
   // The ID of the AssetScan that the scanner CLI should update in the backend.
   ScanMetadata scanMetadata = 4;
   // Configuration for how to run the scanner instance (optional).

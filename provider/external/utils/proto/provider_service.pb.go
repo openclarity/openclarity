@@ -487,8 +487,8 @@ type ScanJobConfig struct {
 	ScannerImage string `protobuf:"bytes,1,opt,name=scannerImage,proto3" json:"scannerImage,omitempty"`
 	// Scanner CLI config yaml (families config yaml) serialized in json format.
 	ScannerCLIConfig string `protobuf:"bytes,2,opt,name=scannerCLIConfig,proto3" json:"scannerCLIConfig,omitempty"`
-	// The VMClarity API address.
-	VmClarityAddress string `protobuf:"bytes,3,opt,name=vmClarityAddress,proto3" json:"vmClarityAddress,omitempty"`
+	// The API server address.
+	APIServerAddress string `protobuf:"bytes,3,opt,name=apiserverAddress,proto3" json:"apiserverAddress,omitempty"`
 	// The ID of the AssetScan that the scanner CLI should update in the backend.
 	ScanMetadata *ScanMetadata `protobuf:"bytes,4,opt,name=scanMetadata,proto3" json:"scanMetadata,omitempty"`
 	// Configuration for how to run the scanner instance (optional).
@@ -543,9 +543,9 @@ func (x *ScanJobConfig) GetScannerCLIConfig() string {
 	return ""
 }
 
-func (x *ScanJobConfig) GetVmClarityAddress() string {
+func (x *ScanJobConfig) GetAPIServerAddress() string {
 	if x != nil {
-		return x.VmClarityAddress
+		return x.APIServerAddress
 	}
 	return ""
 }

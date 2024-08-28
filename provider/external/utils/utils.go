@@ -158,7 +158,7 @@ func ConvertScanJobConfig(config *provider.ScanJobConfig) (*provider_service.Sca
 	ret := provider_service.ScanJobConfig{
 		ScannerImage:     config.ScannerImage,
 		ScannerCLIConfig: config.ScannerCLIConfig,
-		VmClarityAddress: config.VMClarityAddress,
+		APIServerAddress: config.APIServerAddress,
 		ScanMetadata: &provider_service.ScanMetadata{
 			ScanID:      config.ScanID,
 			AssetScanID: config.AssetScanID,
