@@ -1,6 +1,6 @@
 module github.com/openclarity/openclarity/plugins/sdk-go/example
 
-go 1.22.4
+go 1.22.6
 
 require github.com/openclarity/openclarity/plugins/sdk-go v0.7.2
 

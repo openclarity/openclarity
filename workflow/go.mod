@@ -1,6 +1,6 @@
 module github.com/openclarity/openclarity/workflow
 
-go 1.22.4
+go 1.22.6
 
 require (
 	github.com/heimdalr/dag v1.4.0
