@@ -1,10 +1,12 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import DetailsPageWrapper from "components/DetailsPageWrapper";
 import TabbedPage from "components/TabbedPage";
-import { APIS } from "utils/systemConsts";
 import { formatDate } from "utils/utils";
 import { Findings } from "layout/detail-displays";
+import { useQuery } from "@tanstack/react-query";
+import QUERY_KEYS from "../../api/constants";
+import { openClarityApi } from "../../api/openClarityApi";
 import TabAssetScanDetails from "./TabAssetScanDetails";
 
 const ASSET_SCAN_DETAILS_PATHS = {
@@ -44,23 +46,36 @@ const DetailsContent = ({ data }) => {
   );
 };
 
-const AssetScanDetails = () => (
-  <DetailsPageWrapper
-    backTitle="Asset scans"
-    url={APIS.ASSET_SCANS}
-    select="id,scan,asset,summary,status,stats,sbom/status,vulnerabilities/status,exploits/status,misconfigurations/status,secrets/status,malware/status,rootkits/status"
-    expand="scan($select=id,name,startTime,endTime),asset($select=id,assetInfo),status,stats"
-    getTitleData={({ scan, asset }) => {
-      const { startTime, name } = scan || {};
+const AssetScanDetails = () => {
+  const { id } = useParams();
+  const { data, isError, isLoading } = useQuery({
+    queryKey: [QUERY_KEYS.assetScans, id],
+    queryFn: () =>
+      openClarityApi.getAssetScansAssetScanID(
+        id,
+        "id,scan,asset,summary,status,stats,sbom/status,vulnerabilities/status,exploits/status,misconfigurations/status,secrets/status,malware/status,rootkits/status",
+        "scan($select=id,name,startTime,endTime),asset($select=id,assetInfo),status,stats",
+      ),
+  });
 
-      return {
-        title: asset?.assetInfo?.instanceID,
-        subTitle: `scanned by '${name}' on ${formatDate(startTime)}`,
-      };
-    }}
-    detailsContent={(props) => <DetailsContent {...props} />}
-    withPadding
-  />
-);
+  return (
+    <DetailsPageWrapper
+      backTitle="Asset scans"
+      getTitleData={({ scan, asset }) => {
+        const { startTime, name } = scan || {};
+
+        return {
+          title: asset?.assetInfo?.instanceID,
+          subTitle: `scanned by '${name}' on ${formatDate(startTime)}`,
+        };
+      }}
+      detailsContent={(props) => <DetailsContent {...props} />}
+      withPadding
+      data={data?.data}
+      isError={isError}
+      isLoading={isLoading}
+    />
+  );
+};
 
 export default AssetScanDetails;

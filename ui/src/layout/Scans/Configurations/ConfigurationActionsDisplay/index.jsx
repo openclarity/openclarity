@@ -12,7 +12,7 @@ import { useMutation } from "@tanstack/react-query";
 import { openClarityApi } from "../../../../api/openClarityApi";
 import "./configuration-actions-display.scss";
 
-const ConfigurationActionsDisplay = ({ data, onDelete, onUpdate }) => {
+const ConfigurationActionsDisplay = ({ data, onDelete }) => {
   const modalDisplayDispatch = useModalDisplayDispatch();
   const setScanConfigFormData = (data) =>
     modalDisplayDispatch({
@@ -45,9 +45,6 @@ const ConfigurationActionsDisplay = ({ data, onDelete, onUpdate }) => {
         },
         disabled: false,
       }),
-    onSettled: () => {
-      onUpdate();
-    },
   });
 
   return (

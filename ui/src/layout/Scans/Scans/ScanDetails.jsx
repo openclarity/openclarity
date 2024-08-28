@@ -1,20 +1,22 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import DetailsPageWrapper from "components/DetailsPageWrapper";
 import TabbedPage from "components/TabbedPage";
-import { APIS } from "utils/systemConsts";
 import { formatDate } from "utils/utils";
 import {
   ScanDetails as ScanDetailsTab,
   Findings,
 } from "layout/detail-displays";
+import { useQuery } from "@tanstack/react-query";
+import QUERY_KEYS from "../../../api/constants";
+import { openClarityApi } from "../../../api/openClarityApi";
 import ScanActionsDisplay from "./ScanActionsDisplay";
 
 export const SCAN_DETAILS_PATHS = {
   FINDINGS: "findings",
 };
 
-const DetailsContent = ({ data, fetchData }) => {
+const DetailsContent = ({ data, refetch }) => {
   const { pathname } = useLocation();
 
   const { id, name } = data;
@@ -45,25 +47,40 @@ const DetailsContent = ({ data, fetchData }) => {
         },
       ]}
       headerCustomDisplay={() => (
-        <ScanActionsDisplay data={data} onUpdate={fetchData} />
+        <ScanActionsDisplay data={data} refetch={refetch} />
       )}
       withInnerPadding={false}
     />
   );
 };
 
-const ScanDetails = () => (
-  <DetailsPageWrapper
-    className="scan-details-page-wrapper"
-    backTitle="Scans"
-    url={APIS.SCANS}
-    select="id,name,scanConfig,scope,assetScanTemplate,maxParallelScanners,startTime,endTime,summary,status"
-    getTitleData={({ name, startTime }) => ({
-      title: name,
-      subTitle: formatDate(startTime),
-    })}
-    detailsContent={(props) => <DetailsContent {...props} />}
-  />
-);
+const ScanDetails = () => {
+  const { id } = useParams();
+  const { data, isError, isLoading, refetch } = useQuery({
+    queryKey: [QUERY_KEYS.scans, id],
+    queryFn: () =>
+      openClarityApi.getScansScanID(
+        id,
+        "id,name,scanConfig,scope,assetScanTemplate,maxParallelScanners,startTime,endTime,summary,status",
+      ),
+  });
+
+  return (
+    <DetailsPageWrapper
+      className="scan-details-page-wrapper"
+      backTitle="Scans"
+      getTitleData={({ name, startTime }) => ({
+        title: name,
+        subTitle: formatDate(startTime),
+      })}
+      detailsContent={(props) => (
+        <DetailsContent {...props} refetch={() => refetch()} />
+      )}
+      data={data?.data}
+      isError={isError}
+      isLoading={isLoading}
+    />
+  );
+};
 
 export default ScanDetails;

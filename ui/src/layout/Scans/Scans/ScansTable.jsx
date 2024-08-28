@@ -175,7 +175,7 @@ const ScansTable = () => {
       ]}
       defaultSortBy={{ sortIds: START_TIME_SORT_IDS, desc: true }}
       actionsComponent={({ original }) => (
-        <ScanActionsDisplay data={original} onUpdate={doRefreshTimestamp} />
+        <ScanActionsDisplay data={original} refetch={doRefreshTimestamp} />
       )}
       customEmptyResultsDisplay={() => (
         <EmptyDisplay

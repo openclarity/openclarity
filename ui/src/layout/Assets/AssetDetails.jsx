@@ -1,12 +1,14 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import DetailsPageWrapper from "components/DetailsPageWrapper";
 import TabbedPage from "components/TabbedPage";
-import { APIS } from "utils/systemConsts";
 import {
   AssetDetails as AssetDetailsTab,
   Findings,
 } from "layout/detail-displays";
+import { useQuery } from "@tanstack/react-query";
+import QUERY_KEYS from "../../api/constants";
+import { openClarityApi } from "../../api/openClarityApi";
 
 const ASSET_DETAILS_PATHS = {
   FINDINGS: "findings",
@@ -48,15 +50,28 @@ const DetailsContent = ({ data }) => {
   );
 };
 
-const AssetDetails = () => (
-  <DetailsPageWrapper
-    backTitle="Assets"
-    url={APIS.ASSETS}
-    select="id,assetInfo,summary,firstSeen,lastSeen,terminatedOn"
-    getTitleData={({ assetInfo }) => ({ title: assetInfo?.instanceID })}
-    detailsContent={(props) => <DetailsContent {...props} />}
-    withPadding
-  />
-);
+const AssetDetails = () => {
+  const { id } = useParams();
+  const { data, isError, isLoading } = useQuery({
+    queryKey: [QUERY_KEYS.assets, id],
+    queryFn: () =>
+      openClarityApi.getAssetsAssetID(
+        id,
+        "id,assetInfo,summary,firstSeen,lastSeen,terminatedOn",
+      ),
+  });
+
+  return (
+    <DetailsPageWrapper
+      backTitle="Assets"
+      getTitleData={({ assetInfo }) => ({ title: assetInfo?.instanceID })}
+      detailsContent={(props) => <DetailsContent {...props} />}
+      withPadding
+      data={data?.data}
+      isError={isError}
+      isLoading={isLoading}
+    />
+  );
+};
 
 export default AssetDetails;
