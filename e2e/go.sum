@@ -324,8 +324,8 @@ github.com/alicebob/miniredis/v2 v2.32.1 h1:Bz7CciDnYSaa0mX5xODh6GUITRSx+cVhjNoO
 github.com/alicebob/miniredis/v2 v2.32.1/go.mod h1:AqkLNAfUm0K07J28hnAyyQKf/x0YkCY/g5DCtuL01Mw=
 github.com/anchore/archiver/v3 v3.5.2 h1:Bjemm2NzuRhmHy3m0lRe5tNoClB9A4zYyDV58PaB6aA=
 github.com/anchore/archiver/v3 v3.5.2/go.mod h1:e3dqJ7H78uzsRSEACH1joayhuSyhnonssnDhppzS1L4=
-github.com/anchore/clio v0.0.0-20240705045624-ac88e09ad9d0 h1:rtO6Bcc5KX1i6Ndj4pFcFUkE5PaiKv0J4hKSlmbEIXQ=
-github.com/anchore/clio v0.0.0-20240705045624-ac88e09ad9d0/go.mod h1:U3M+opzBUkSBUIRUXsQj6ZgrX9i7Nn0YLn4CjmhKMNI=
+github.com/anchore/clio v0.0.0-20240806233806-4c50c054c508 h1:dE7xKzC2eqd7QVt95jJaIbx6Kax/0GF8R1ppsXkfpCM=
+github.com/anchore/clio v0.0.0-20240806233806-4c50c054c508/go.mod h1:5q0B4t18buA/F3B5cd3+CQsyuyXd+4xCirEW7t5mNTk=
 github.com/anchore/fangs v0.0.0-20240508143433-f016b099950f h1:NOhzafCyNYFi88qxkBFjMzQo4dRa1vDhBzx+0Uovx8Q=
 github.com/anchore/fangs v0.0.0-20240508143433-f016b099950f/go.mod h1:sVpRS2yNCw6tLVpvA1QSDVWTJVpCuAm8JNZgn4Sjz/k=
 github.com/anchore/go-collections v0.0.0-20240216171411-9321230ce537 h1:GjNGuwK5jWjJMyVppBjYS54eOiiSNv4Ba869k4wh72Q=
