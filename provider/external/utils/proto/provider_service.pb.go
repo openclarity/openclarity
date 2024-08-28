@@ -476,14 +476,14 @@ func (*Asset_Dirinfo) isAsset_AssetType() {}
 func (*Asset_Podinfo) isAsset_AssetType() {}
 
 // ScanJobConfig
-// Scanner instance - the VM that runs the VMClarity CLI.
-// Scanner CLI - VMClarity CLI tool that does the actual scanning.
+// Scanner instance - the VM that runs the OpenClarity CLI.
+// Scanner CLI - OpenClarity CLI tool that does the actual scanning.
 type ScanJobConfig struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// The container image of the scanner CLI. contains the vmclarity-cli and other required scanning tools.
+	// The container image of the scanner CLI. contains the openclarity-cli and other required scanning tools.
 	ScannerImage string `protobuf:"bytes,1,opt,name=scannerImage,proto3" json:"scannerImage,omitempty"`
 	// Scanner CLI config yaml (families config yaml) serialized in json format.
 	ScannerCLIConfig string `protobuf:"bytes,2,opt,name=scannerCLIConfig,proto3" json:"scannerCLIConfig,omitempty"`

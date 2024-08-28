@@ -32,7 +32,7 @@ const (
 const (
 	EC2TagKeyOwner         = "Owner"
 	EC2TagKeyName          = "Name"
-	EC2TagValueNamePattern = "vmclarity-scanner-%s"
+	EC2TagValueNamePattern = "openclarity-scanner-%s"
 	EC2TagValueOwner       = "OpenClarity"
 	EC2TagKeyScanID        = "OpenClarity.ScanID"
 	EC2TagKeyAssetScanID   = "OpenClarity.AssetScanID"

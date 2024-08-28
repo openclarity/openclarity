@@ -17,39 +17,39 @@ write_files:
       misconfiguration:
         enabled: true
 
-  - path: /etc/systemd/system/vmclarity-scanner.service
+  - path: /etc/systemd/system/openclarity-scanner.service
     permissions: "0644"
     content: |
       [Unit]
-      Description=VMClarity scanner job
+      Description=OpenClarity scanner job
       Requires=docker.service
       After=network.target docker.service
       
       [Service]
       Type=oneshot
-      WorkingDirectory=/opt/vmclarity
-      ExecStartPre=mkdir -p /var/opt/vmclarity
+      WorkingDirectory=/opt/openclarity
+      ExecStartPre=mkdir -p /var/opt/openclarity
       ExecStartPre=docker pull ghcr.io/openclarity/openclarity-cli:latest
-      ExecStartPre=docker network create vmclarity
+      ExecStartPre=docker network create openclarity
       ExecStart=docker run --rm --name %n --privileged \
           -v /:/hostfs \
           -v /dev:/dev \
-          -v /opt/vmclarity:/opt/vmclarity \
+          -v /opt/openclarity:/opt/openclarity \
           -v /run:/run \
-          -v /var/opt/vmclarity:/var/opt/vmclarity \
+          -v /var/opt/openclarity:/var/opt/openclarity \
           -v /mnt:/mnt \
-          --network vmclarity \
+          --network openclarity \
           ghcr.io/openclarity/openclarity-cli:latest \
           scan \
           --config /opt/openclarity/scanconfig.yaml \
           --server 10.1.1.1:8888 \
           --mount-attached-volume \
           --asset-scan-id d6ff6f55-5d53-4934-bef5-c3abb70a7f76 \
-          --output /var/opt/vmclarity
+          --output /var/opt/openclarity
       
       [Install]
       WantedBy=multi-user.target
 runcmd:
   - [ systemctl, daemon-reload ]
   - [ systemctl, start, docker.service ]
-  - [ systemctl, start, vmclarity-scanner.service ]
+  - [ systemctl, start, openclarity-scanner.service ]

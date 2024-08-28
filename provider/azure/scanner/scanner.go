@@ -143,9 +143,9 @@ func (s *Scanner) RemoveAssetScan(ctx context.Context, config *provider.ScanJobC
 
 // Example Instance ID:
 //
-// /subscriptions/ecad88af-09d5-4725-8d80-906e51fddf02/resourceGroups/vmclarity-sambetts-dev/providers/Microsoft.Compute/virtualMachines/vmclarity-server
+// /subscriptions/ecad88af-09d5-4725-8d80-906e51fddf02/resourceGroups/openclarity-sambetts-dev/providers/Microsoft.Compute/virtualMachines/openclarity-server
 //
-// Will return "vmclarity-sambetts-dev" and "vmclarity-server".
+// Will return "openclarity-sambetts-dev" and "openclarity-server".
 func resourceGroupAndNameFromInstanceID(instanceID string) (string, string, error) {
 	idParts := strings.Split(instanceID, "/")
 	if len(idParts) != instanceIDPartsLength {
