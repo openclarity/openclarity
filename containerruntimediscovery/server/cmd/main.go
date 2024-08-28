@@ -87,7 +87,7 @@ func init() {
 			"such as :8080 then the server will listen on all available IP addresses of the system.")
 
 	log.InitLogger(logrus.InfoLevel.String(), os.Stderr)
-	logger = logrus.WithField("app", "vmclarity")
+	logger = logrus.WithField("app", "openclarity")
 }
 
 func initConfig() {
