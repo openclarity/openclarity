@@ -48,7 +48,7 @@ import (
 const (
 	defaultInternalServerPort = nat.Port("8080/tcp")
 	defaultPollInterval       = 2 * time.Second
-	defaultPluginNetwork      = "vmclarity-plugins-network"
+	defaultPluginNetwork      = "openclarity-plugins-network"
 )
 
 type containerRuntimeHandler struct {
