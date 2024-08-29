@@ -1,6 +1,6 @@
 module github.com/openclarity/openclarity/plugins/runner
 
-go 1.22.4
+go 1.22.6
 
 require (
 	github.com/docker/docker v26.1.5+incompatible

@@ -1,6 +1,6 @@
 module github.com/openclarity/openclarity/api/client
 
-go 1.22.4
+go 1.22.6
 
 require (
 	github.com/oapi-codegen/oapi-codegen/v2 v2.3.1-0.20240823215434-d232e9efa9f5

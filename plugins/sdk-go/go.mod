@@ -1,6 +1,6 @@
 module github.com/openclarity/openclarity/plugins/sdk-go
 
-go 1.22.4
+go 1.22.6
 
 require (
 	github.com/getkin/kin-openapi v0.127.0

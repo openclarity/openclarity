@@ -1,6 +1,6 @@
 module github.com/openclarity/openclarity/utils
 
-go 1.22.4
+go 1.22.6
 
 require (
 	github.com/anchore/stereoscope v0.0.2
