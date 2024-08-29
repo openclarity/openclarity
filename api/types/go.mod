@@ -5,7 +5,6 @@ go 1.22.4
 require (
 	github.com/oapi-codegen/oapi-codegen/v2 v2.3.1-0.20240823215434-d232e9efa9f5
 	github.com/oapi-codegen/runtime v1.1.1
-	github.com/openclarity/openclarity/core v0.7.2
 	github.com/openclarity/openclarity/plugins/sdk-go v0.7.2
 )
 
@@ -30,7 +29,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace (
-	github.com/openclarity/openclarity/core => ../../core
-	github.com/openclarity/openclarity/plugins/sdk-go => ../../plugins/sdk-go
-)
+replace github.com/openclarity/openclarity/plugins/sdk-go => ../../plugins/sdk-go

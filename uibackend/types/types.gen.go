@@ -174,7 +174,6 @@ type Misconfiguration struct {
 
 	// Remediation Possible fix for the misconfiguration
 	Remediation *string                   `json:"remediation,omitempty"`
-	ScannerName *string                   `json:"scannerName,omitempty"`
 	Severity    *MisconfigurationSeverity `json:"severity,omitempty"`
 }
 

@@ -366,7 +366,6 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 	"Misconfiguration": {
 		Fields: odatasql.Schema{
-			"scannerName": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"location":    odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"category":    odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"id":          odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
@@ -419,10 +418,9 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 	"InfoFinderInfo": {
 		Fields: odatasql.Schema{
-			"scannerName": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
-			"type":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
-			"path":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
-			"data":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"type": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"path": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"data": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 		},
 	},
 	"ExploitScan": {
@@ -1008,7 +1006,6 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	"MisconfigurationFindingInfo": {
 		Fields: odatasql.Schema{
 			"objectType":  odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
-			"scannerName": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"location":    odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"category":    odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 			"id":          odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
@@ -1020,11 +1017,10 @@ var schemaMetas = map[string]odatasql.SchemaMeta{
 	},
 	"InfoFinderFindingInfo": {
 		Fields: odatasql.Schema{
-			"objectType":  odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
-			"scannerName": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
-			"type":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
-			"path":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
-			"data":        odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"objectType": odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"type":       odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"path":       odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
+			"data":       odatasql.FieldMeta{FieldType: odatasql.StringFieldType},
 		},
 	},
 	"RootkitFindingInfo": {
