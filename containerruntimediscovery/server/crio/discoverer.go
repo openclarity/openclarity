@@ -353,6 +353,7 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 
 	manifest := ispec.Manifest{
 		Versioned: imeta.Versioned{
+			//nolint:mnd
 			SchemaVersion: 2,
 		},
 		MediaType: ispec.MediaTypeImageManifest,
@@ -432,7 +433,8 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 	tar := func(srcDir, tarFile string) error {
 		file, err := os.Create(tarFile)
 		if err != nil {
-			return err
+
+			return fmt.Errorf("cannot create file: %w", err)
 		}
 		defer file.Close()
 
@@ -441,32 +443,32 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 
 		err = filepath.Walk(srcDir, func(file string, fi os.FileInfo, err error) error {
 			if err != nil {
-				return err
+				return fmt.Errorf("error during walking directory: %w", err)
 			}
 
 			header, err := tar.FileInfoHeader(fi, file)
 			if err != nil {
-				return err
+				return fmt.Errorf("cannot retrieve file info header: %w", err)
 			}
 
 			header.Name, err = filepath.Rel(srcDir, file)
 			if err != nil {
-				return err
+				return fmt.Errorf("cannot determine file's relative path: %w", err)
 			}
 
 			if err := tw.WriteHeader(header); err != nil {
-				return err
+				return fmt.Errorf("cannot write tar header: %w", err)
 			}
 
 			if !fi.IsDir() {
 				fileContent, err := os.Open(file)
 				if err != nil {
-					return err
+					return fmt.Errorf("cannot open file: %w", err)
 				}
 				defer fileContent.Close()
 
 				if _, err := io.Copy(tw, fileContent); err != nil {
-					return err
+					return fmt.Errorf("error during copy: %w", err)
 				}
 			}
 
@@ -474,7 +476,7 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 		})
 
 		if err != nil {
-			return err
+			return fmt.Errorf("error during walking directory: %w", err)
 		}
 
 		return nil
