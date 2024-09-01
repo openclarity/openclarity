@@ -93,8 +93,6 @@ func (d *discoverer) Images(ctx context.Context) ([]apitypes.ContainerImageInfo,
 		return nil, fmt.Errorf("failed to list images: %w", err)
 	}
 
-	fmt.Printf("%+v\n\n", images)
-
 	result := make([]apitypes.ContainerImageInfo, len(images))
 	for i, image := range images {
 		imageInfo, err := d.getContainerImageInfo(ctx, image.Id)
@@ -198,7 +196,9 @@ func (d *discoverer) ExportImage(ctx context.Context, imageID string) (io.ReadCl
 		return nil, func() {}, fmt.Errorf("error creating policy context: %w", err)
 	}
 	//nolint:errcheck
-	defer policyContext.Destroy()
+	defer func() {
+		_ = policyContext.Destroy()
+	}()
 
 	_, err = copy.Image(ctx, policyContext, dest, src, &copy.Options{
 		SourceCtx:      systemContext,
@@ -214,8 +214,8 @@ func (d *discoverer) ExportImage(ctx context.Context, imageID string) (io.ReadCl
 	}
 
 	clean.Add(func() {
-		destFile.Close()
-		os.Remove(destFilePath)
+		_ = destFile.Close()
+		_ = os.Remove(destFilePath)
 	})
 
 	return destFile, clean.Release(), nil
@@ -224,7 +224,6 @@ func (d *discoverer) ExportImage(ctx context.Context, imageID string) (io.ReadCl
 func (d *discoverer) Containers(ctx context.Context) ([]apitypes.ContainerInfo, error) {
 	containers, err := d.runtimeService.ListContainers(ctx, &v1.ContainerFilter{})
 	if err != nil {
-		fmt.Println(err)
 		return nil, fmt.Errorf("failed to list containers: %w", err)
 	}
 
@@ -232,7 +231,6 @@ func (d *discoverer) Containers(ctx context.Context) ([]apitypes.ContainerInfo, 
 	for i, container := range containers {
 		containerInfo, err := d.getContainerInfo(ctx, container.Id)
 		if err != nil {
-			fmt.Println(err)
 			return nil, fmt.Errorf("unable to get container info: %w", err)
 		}
 
@@ -439,15 +437,19 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 	}
 
 	// Helper function to create the final OCI archive.
-	tar := func(srcDir, tarFile string) error {
+	tarDirectory := func(srcDir, tarFile string) error {
 		file, err := os.Create(tarFile)
 		if err != nil {
 			return fmt.Errorf("cannot create file: %w", err)
 		}
-		defer file.Close()
+		defer func() {
+			_ = file.Close()
+		}()
 
 		tw := tar.NewWriter(file)
-		defer tw.Close()
+		defer func() {
+			_ = tw.Close()
+		}()
 
 		err = filepath.Walk(srcDir, func(file string, fi os.FileInfo, err error) error {
 			if err != nil {
@@ -490,13 +492,13 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 	}
 
 	ociArchivePath := filepath.Join(os.TempDir(), "vmclarity-"+uuid.New().String()+".tar")
-	err = tar(ociDirPath, ociArchivePath)
+	err = tarDirectory(ociDirPath, ociArchivePath)
 	if err != nil {
 		return nil, func() {}, fmt.Errorf("failed to create OCI archive: %w", err)
 	}
 
 	// After creating the archive, we don't need the OCI dir anymore.
-	os.RemoveAll(ociDirPath)
+	_ = os.RemoveAll(ociDirPath)
 
 	ociArchive, err := os.Open(ociArchivePath)
 	if err != nil {
@@ -504,8 +506,8 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 	}
 
 	clean.Add(func() {
-		ociArchive.Close()
-		os.Remove(ociArchivePath)
+		_ = ociArchive.Close()
+		_ = os.Remove(ociArchivePath)
 	})
 
 	return ociArchive, clean.Release(), nil
