@@ -29,6 +29,7 @@ import (
 
 	apitypes "github.com/openclarity/openclarity/api/types"
 	"github.com/openclarity/openclarity/containerruntimediscovery/types"
+	"github.com/openclarity/openclarity/core/log"
 	"github.com/openclarity/openclarity/core/to"
 
 	"github.com/containers/image/v5/copy"
@@ -286,7 +287,10 @@ func (d *discoverer) getContainerInfo(ctx context.Context, containerID string) (
 	}, nil
 }
 
+// nolint:gocognit
 func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (io.ReadCloser, func(), error) {
+	logger := log.GetLoggerFromContextOrDiscard(ctx)
+
 	clean := &types.Cleanup{}
 	defer clean.Clean()
 
@@ -317,7 +321,12 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 	if err != nil {
 		return nil, func() {}, fmt.Errorf("failed to mount layer: %w", err)
 	}
-	defer store.Unmount(layer.ID, true)
+	defer func() {
+		_, err := store.Unmount(layer.ID, true)
+		if err != nil {
+			logger.Warnf("failed to unmount layer: %v", err)
+		}
+	}()
 
 	// Init OCI layout.
 	ociDirPath := filepath.Join(os.TempDir(), uuid.New().String()+"-oci")
@@ -353,7 +362,7 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 
 	manifest := ispec.Manifest{
 		Versioned: imeta.Versioned{
-			//nolint:mnd
+			// nolint:mnd
 			SchemaVersion: 2,
 		},
 		MediaType: ispec.MediaTypeImageManifest,
@@ -433,7 +442,6 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 	tar := func(srcDir, tarFile string) error {
 		file, err := os.Create(tarFile)
 		if err != nil {
-
 			return fmt.Errorf("cannot create file: %w", err)
 		}
 		defer file.Close()
@@ -474,7 +482,6 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 
 			return nil
 		})
-
 		if err != nil {
 			return fmt.Errorf("error during walking directory: %w", err)
 		}
