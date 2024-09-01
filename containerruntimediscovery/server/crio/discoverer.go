@@ -285,7 +285,6 @@ func (d *discoverer) getContainerInfo(ctx context.Context, containerID string) (
 	}, nil
 }
 
-// nolint:gocognit,cyclop
 func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (io.ReadCloser, func(), error) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
@@ -440,64 +439,6 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 		return nil, func() {}, fmt.Errorf("failed to update reference: %w", err)
 	}
 
-	// Helper function to create the final OCI archive.
-	tarDirectory := func(srcDir, tarFile string) error {
-		file, err := os.Create(tarFile)
-		if err != nil {
-			return fmt.Errorf("cannot create file: %w", err)
-		}
-		defer func() {
-			_ = file.Close()
-		}()
-
-		tw := tar.NewWriter(file)
-		defer func() {
-			_ = tw.Close()
-		}()
-
-		err = filepath.Walk(srcDir, func(file string, fi os.FileInfo, err error) error {
-			if err != nil {
-				return fmt.Errorf("error during walking directory: %w", err)
-			}
-
-			header, err := tar.FileInfoHeader(fi, file)
-			if err != nil {
-				return fmt.Errorf("cannot retrieve file info header: %w", err)
-			}
-
-			// Mapping file's path to it's relative path.
-			header.Name, err = filepath.Rel(srcDir, file)
-			if err != nil {
-				return fmt.Errorf("cannot determine file's relative path: %w", err)
-			}
-
-			if err := tw.WriteHeader(header); err != nil {
-				return fmt.Errorf("cannot write tar header: %w", err)
-			}
-
-			if !fi.IsDir() {
-				fileContent, err := os.Open(file)
-				if err != nil {
-					return fmt.Errorf("cannot open file: %w", err)
-				}
-				defer func() {
-					_ = fileContent.Close()
-				}()
-
-				if _, err := io.Copy(tw, fileContent); err != nil {
-					return fmt.Errorf("error during copy: %w", err)
-				}
-			}
-
-			return nil
-		})
-		if err != nil {
-			return fmt.Errorf("error during walking directory: %w", err)
-		}
-
-		return nil
-	}
-
 	ociArchivePath := filepath.Join(os.TempDir(), "vmclarity-"+uuid.New().String()+".tar")
 	err = tarDirectory(ociDirPath, ociArchivePath)
 	if err != nil {
@@ -518,6 +459,64 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 	})
 
 	return ociArchive, clean.Release(), nil
+}
+
+// Helper function to create the final OCI archive.
+func tarDirectory(srcDir, tarFile string) error {
+	file, err := os.Create(tarFile)
+	if err != nil {
+		return fmt.Errorf("cannot create file: %w", err)
+	}
+	defer func() {
+		_ = file.Close()
+	}()
+
+	tw := tar.NewWriter(file)
+	defer func() {
+		_ = tw.Close()
+	}()
+
+	err = filepath.Walk(srcDir, func(file string, fi os.FileInfo, err error) error {
+		if err != nil {
+			return fmt.Errorf("error during walking directory: %w", err)
+		}
+
+		header, err := tar.FileInfoHeader(fi, file)
+		if err != nil {
+			return fmt.Errorf("cannot retrieve file info header: %w", err)
+		}
+
+		// Mapping file's path to it's relative path.
+		header.Name, err = filepath.Rel(srcDir, file)
+		if err != nil {
+			return fmt.Errorf("cannot determine file's relative path: %w", err)
+		}
+
+		if err := tw.WriteHeader(header); err != nil {
+			return fmt.Errorf("cannot write tar header: %w", err)
+		}
+
+		if !fi.IsDir() {
+			fileContent, err := os.Open(file)
+			if err != nil {
+				return fmt.Errorf("cannot open file: %w", err)
+			}
+			defer func() {
+				_ = fileContent.Close()
+			}()
+
+			if _, err := io.Copy(tw, fileContent); err != nil {
+				return fmt.Errorf("error during copy: %w", err)
+			}
+		}
+
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("error during walking directory: %w", err)
+	}
+
+	return nil
 }
 
 func (d *discoverer) Ready(ctx context.Context) (bool, error) {
