@@ -339,7 +339,9 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 		return nil, func() {}, fmt.Errorf("failed to open OCI directory: %w", err)
 	}
 	engineExt := casext.NewEngine(engine)
-	defer engine.Close()
+	defer func() {
+		_ = engine.Close()
+	}()
 
 	// Create new image.
 	g := igen.New()
@@ -411,7 +413,9 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 
 	// Adding the container's merged layer as a blob.
 	reader := ocilayer.GenerateInsertLayer(layerPath, "/", false, &packOptions)
-	defer reader.Close()
+	defer func() {
+		_ = reader.Close()
+	}()
 
 	history := &ispec.History{
 		Author:     "VMClarity",
@@ -475,7 +479,9 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 				if err != nil {
 					return fmt.Errorf("cannot open file: %w", err)
 				}
-				defer fileContent.Close()
+				defer func() {
+					_ = fileContent.Close()
+				}()
 
 				if _, err := io.Copy(tw, fileContent); err != nil {
 					return fmt.Errorf("error during copy: %w", err)
