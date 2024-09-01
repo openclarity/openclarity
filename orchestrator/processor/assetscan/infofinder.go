@@ -29,10 +29,9 @@ func (asp *AssetScanProcessor) reconcileResultInfoFindersToFindings(ctx context.
 		// scan.
 		for _, item := range *assetScan.InfoFinder.Infos {
 			itemFindingInfo := apitypes.InfoFinderFindingInfo{
-				Data:        item.Data,
-				Path:        item.Path,
-				ScannerName: item.ScannerName,
-				Type:        item.Type,
+				Data: item.Data,
+				Path: item.Path,
+				Type: item.Type,
 			}
 
 			findingInfo := apitypes.FindingInfo{}

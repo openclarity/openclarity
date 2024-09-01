@@ -22,29 +22,27 @@ import (
 )
 
 type InfoFinderKey struct {
-	ScannerName string
-	Type        string
-	Data        string
-	Path        string
+	Type string
+	Data string
+	Path string
 }
 
 func (k InfoFinderKey) String() string {
-	return fmt.Sprintf("%s.%s.%s.%s", k.ScannerName, k.Type, k.Data, k.Path)
+	return fmt.Sprintf("%s.%s.%s", k.Type, k.Data, k.Path)
 }
 
 // Filter returns a string that can be used to filter the info finder finding in the database.
 func (k InfoFinderKey) Filter() string {
 	return fmt.Sprintf(
-		"findingInfo/scannerName eq '%s' and findingInfo/type eq '%s' and findingInfo/data eq '%s' and findingInfo/path eq '%s'",
-		k.ScannerName, k.Type, k.Data, k.Path,
+		"findingInfo/type eq '%s' and findingInfo/data eq '%s' and findingInfo/path eq '%s'",
+		k.Type, k.Data, k.Path,
 	)
 }
 
 func GenerateInfoFinderKey(info apitypes.InfoFinderFindingInfo) InfoFinderKey {
 	return InfoFinderKey{
-		ScannerName: *info.ScannerName,
-		Type:        string(*info.Type),
-		Data:        *info.Data,
-		Path:        *info.Path,
+		Type: string(*info.Type),
+		Data: *info.Data,
+		Path: *info.Path,
 	}
 }

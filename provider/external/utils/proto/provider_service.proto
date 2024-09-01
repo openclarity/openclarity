@@ -21,8 +21,8 @@ service Provider {
   // If err is of type ErrorFatal, then AssetScan will be aborted, and RunAssetScan will not be called again.
   // if err is of type ErrorNone, then AssetScan state shift to Ready, and the scanner can run.
 
-  // The VMClarity CLI image is provided and can be used as a scanning tool, or otherwise, you can use your own scanning tool.
-  // In case you don't use the VMClarity CLI, you should update AssetScan state in the backend: Ready, Aborted, Done, InProgress etc.
+  // The OpenClarity CLI image is provided and can be used as a scanning tool, or otherwise, you can use your own scanning tool.
+  // In case you don't use the OpenClarity CLI, you should update AssetScan state in the backend: Ready, Aborted, Done, InProgress etc.
   rpc RunAssetScan(RunAssetScanParams) returns (RunAssetScanResult){}
 
   rpc RemoveAssetScan(RemoveAssetScanParams) returns (RemoveAssetScanResult){}
@@ -65,15 +65,15 @@ message Asset {
 }
 
 // ScanJobConfig
-// Scanner instance - the VM that runs the VMClarity CLI.
-// Scanner CLI - VMClarity CLI tool that does the actual scanning.
+// Scanner instance - the VM that runs the OpenClarity CLI.
+// Scanner CLI - OpenClarity CLI tool that does the actual scanning.
 message ScanJobConfig {
-  // The container image of the scanner CLI. contains the vmclarity-cli and other required scanning tools.
+  // The container image of the scanner CLI. contains the openclarity-cli and other required scanning tools.
   string scannerImage = 1;
   // Scanner CLI config yaml (families config yaml) serialized in json format.
   string scannerCLIConfig = 2;
-  // The VMClarity API address.
-  string vmClarityAddress = 3;
+  // The API server address.
+  string apiserverAddress = 3;
   // The ID of the AssetScan that the scanner CLI should update in the backend.
   ScanMetadata scanMetadata = 4;
   // Configuration for how to run the scanner instance (optional).

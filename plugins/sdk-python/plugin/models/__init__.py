@@ -9,6 +9,7 @@ from plugin.models.malware import Malware
 from plugin.models.metadata import Metadata
 from plugin.models.misconfiguration import Misconfiguration
 from plugin.models.misconfiguration_severity import MisconfigurationSeverity
+from plugin.models.open_clarity_data import OpenClarityData
 from plugin.models.package import Package
 from plugin.models.result import Result
 from plugin.models.rootkit import Rootkit
@@ -17,7 +18,6 @@ from plugin.models.secret import Secret
 from plugin.models.state import State
 from plugin.models.status import Status
 from plugin.models.stop import Stop
-from plugin.models.vm_clarity_data import VMClarityData
 from plugin.models.vulnerability import Vulnerability
 from plugin.models.vulnerability_cvss import VulnerabilityCvss
 from plugin.models.vulnerability_distro import VulnerabilityDistro

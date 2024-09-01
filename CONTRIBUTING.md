@@ -57,7 +57,7 @@ Depending on your IDE/editor of choice, you might need a `go.work` file for the 
 references properly, such as:
 
 ```text
-go 1.22.4
+go 1.22.6
 
 use (
   ./api/client

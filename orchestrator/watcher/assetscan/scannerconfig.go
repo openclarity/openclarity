@@ -23,9 +23,9 @@ const (
 )
 
 type ScannerConfig struct {
-	// Address that the Scanner should use to talk to the VMClarity backend
+	// Address that the Scanner should use to talk to the OpenClarity backend
 	// We use a configuration variable for this instead of discovering it
-	// automatically in case VMClarity backend has multiple IPs (internal
+	// automatically in case OpenClarity backend has multiple IPs (internal
 	// traffic and external traffic for example) so we need the specific
 	// address to use.
 	APIServerAddress string `json:"apiserver-address,omitempty" mapstructure:"apiserver_address"`
@@ -41,7 +41,7 @@ type ScannerConfig struct {
 	YaraRuleServerAddress string `mapstructure:"yara_rule_server_address"`
 
 	// The container image to use once we've booted the scanner virtual
-	// machine, that contains the VMClarity CLI plus all the required
+	// machine, that contains the OpenClarity CLI plus all the required
 	// tools.
 	ScannerImage string `mapstructure:"container_image"`
 

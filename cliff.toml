@@ -122,4 +122,4 @@ sort_commits = "newest"
 
 [remote.github]
 owner = "openclarity"
-repo = "vmclarity"
+repo = "openclarity"

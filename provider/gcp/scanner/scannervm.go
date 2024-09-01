@@ -39,7 +39,7 @@ const (
 )
 
 func scannerVMNameFromJobConfig(config *provider.ScanJobConfig) string {
-	return "vmclarity-scanner-" + config.AssetScanID
+	return "openclarity-scanner-" + config.AssetScanID
 }
 
 func (s *Scanner) ensureScannerVirtualMachine(ctx context.Context, config *provider.ScanJobConfig) (*computepb.Instance, error) {
@@ -86,7 +86,7 @@ func (s *Scanner) ensureScannerVirtualMachine(ctx context.Context, config *provi
 					},
 				},
 			},
-			Description: to.Ptr("VMClarity scanner"),
+			Description: to.Ptr("OpenClarity scanner"),
 			Name:        &instanceName,
 			Disks: []*computepb.AttachedDisk{
 				{
@@ -114,7 +114,7 @@ func (s *Scanner) ensureScannerVirtualMachine(ctx context.Context, config *provi
 			req.InstanceResource.Metadata.Items,
 			&computepb.Items{
 				Key:   to.Ptr("ssh-keys"),
-				Value: to.Ptr("vmclarity:" + s.ScannerSSHPublicKey),
+				Value: to.Ptr("openclarity:" + s.ScannerSSHPublicKey),
 			},
 		)
 	}

@@ -149,11 +149,11 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 	clean := &types.Cleanup{}
 	defer clean.Clean()
 
-	imageName := "vmclarity.io/container-snapshot:" + containerID
+	imageName := "openclarity.io/container-snapshot:" + containerID
 	idresp, err := d.client.ContainerCommit(ctx, containerID, dcontainer.CommitOptions{
 		Reference: imageName,
 		Comment:   fmt.Sprintf("Snapshot of container %s for security scanning", containerID),
-		Author:    "VMClarity",
+		Author:    "OpenClarity",
 		Pause:     false,
 	})
 	if err != nil {

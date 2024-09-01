@@ -1,5 +1,5 @@
 module-sets:
-  vmclarity:
+  openclarity:
     version: v0.0.0
     modules:
       - github.com/openclarity/openclarity/uibackend/types

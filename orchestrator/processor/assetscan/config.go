@@ -23,7 +23,7 @@ import (
 
 const (
 	DefaultPollInterval     = 2 * time.Minute
-	DefaultReconcileTimeout = 5 * time.Minute
+	DefaultReconcileTimeout = 12 * time.Hour
 )
 
 type Config struct {

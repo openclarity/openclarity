@@ -1,6 +1,6 @@
 services:
   postgresql:
-    image: ${OPENCLARITY_POSTGRESQL_CONTAINER_IMAGE:-docker.io/bitnami/postgresql:16.3.0-debian-12-r23}
+    image: ${OPENCLARITY_POSTGRESQL_CONTAINER_IMAGE:-docker.io/bitnami/postgresql:16.4.0-debian-12-r4}
     env_file: ./postgres.env
     ports:
       - "5432:5432"
@@ -10,7 +10,7 @@ services:
       restart_policy:
         condition: on-failure
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d vmclarity -U vmclarity"]
+      test: ["CMD-SHELL", "pg_isready -d openclarity -U openclarity"]
       interval: 10s
       retries: 60
 

@@ -40,7 +40,7 @@ func TestConfig(t *testing.T) {
 				"OPENCLARITY_AWS_SCANNER_REGION":                                "eu-west-1",
 				"OPENCLARITY_AWS_SUBNET_ID":                                     "subnet-038f85dc621fd5b5d",
 				"OPENCLARITY_AWS_SECURITY_GROUP_ID":                             "sg-02cfdc854e18664d4",
-				"OPENCLARITY_AWS_KEYPAIR_NAME":                                  "vmclarity-ssh-key",
+				"OPENCLARITY_AWS_KEYPAIR_NAME":                                  "openclarity-ssh-key",
 				"OPENCLARITY_AWS_SCANNER_INSTANCE_ARCHITECTURE":                 "x86_64",
 				"OPENCLARITY_AWS_SCANNER_INSTANCE_ARCHITECTURE_TO_TYPE_MAPPING": "x86_64:t3.large,arm64:t4g.large",
 				"OPENCLARITY_AWS_SCANNER_INSTANCE_ARCHITECTURE_TO_AMI_MAPPING":  "x86_64:ami-03f1cc6c8b9c0b899,arm64:ami-06972d841707cc4cf",
@@ -51,7 +51,7 @@ func TestConfig(t *testing.T) {
 				ScannerRegion:               "eu-west-1",
 				SubnetID:                    "subnet-038f85dc621fd5b5d",
 				SecurityGroupID:             "sg-02cfdc854e18664d4",
-				KeyPairName:                 "vmclarity-ssh-key",
+				KeyPairName:                 "openclarity-ssh-key",
 				ScannerInstanceArchitecture: apitypes.Amd64,
 				ScannerInstanceArchitectureToTypeMapping: apitypes.FromArchitectureMapping{
 					"x86_64": "t3.large",

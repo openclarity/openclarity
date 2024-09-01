@@ -42,7 +42,6 @@ const (
 	DefaultMountTimeout    = 10 * time.Minute
 )
 
-// ScanCmd represents the scan command.
 var ScanCmd = &cobra.Command{
 	Use:   "scan",
 	Short: "Scan",
@@ -60,7 +59,7 @@ var ScanCmd = &cobra.Command{
 		}
 		server, err := cmd.Flags().GetString("server")
 		if err != nil {
-			logutil.Logger.Fatalf("Unable to get VMClarity server address: %v", err)
+			logutil.Logger.Fatalf("Unable to get OpenClarity server address: %v", err)
 		}
 		output, err := cmd.Flags().GetString("output")
 		if err != nil {
@@ -140,12 +139,9 @@ var ScanCmd = &cobra.Command{
 
 // nolint: gochecknoinits
 func init() {
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-	ScanCmd.Flags().String("config", "", "config file (default is $HOME/.vmclarity.yaml)")
+	ScanCmd.Flags().String("config", "", "config file (default is $HOME/.openclarity.yaml)")
 	ScanCmd.Flags().String("output", "", "set output directory path. Stdout is used if not set.")
-	ScanCmd.Flags().String("server", "", "VMClarity server to export asset scans to, for example: http://localhost:9999/api")
+	ScanCmd.Flags().String("server", "", "OpenClarity server to export asset scans to, for example: http://localhost:9999/api")
 	ScanCmd.Flags().String("asset-scan-id", "", "the AssetScan ID to monitor and report results to")
 	ScanCmd.Flags().Bool("mount-attached-volume", false, "discover for an attached volume and mount it before the scan")
 
@@ -208,17 +204,17 @@ func newCli(config *scanner.Config, server, assetScanID, output string) (*cli.CL
 
 		client, err = apiclient.New(server)
 		if err != nil {
-			return nil, fmt.Errorf("failed to create VMClarity API client: %w", err)
+			return nil, fmt.Errorf("failed to create OpenClarity API client: %w", err)
 		}
 
-		manager, err = state.NewVMClarityState(client, assetScanID)
+		manager, err = state.NewOpenClarityState(client, assetScanID)
 		if err != nil {
-			return nil, fmt.Errorf("failed to create VMClarity state manager: %w", err)
+			return nil, fmt.Errorf("failed to create OpenClarity state manager: %w", err)
 		}
 
-		p, err = presenter.NewVMClarityPresenter(client, assetScanID)
+		p, err = presenter.NewOpenClarityPresenter(client, assetScanID)
 		if err != nil {
-			return nil, fmt.Errorf("failed to create VMClarity presenter: %w", err)
+			return nil, fmt.Errorf("failed to create OpenClarity presenter: %w", err)
 		}
 		presenters = append(presenters, p)
 	} else {

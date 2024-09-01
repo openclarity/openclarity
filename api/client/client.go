@@ -34,7 +34,7 @@ type Client struct {
 func New(serverAddress string) (*Client, error) {
 	api, err := apiclient.NewClientWithResponses(serverAddress)
 	if err != nil {
-		return nil, fmt.Errorf("unable to create VMClarity API client. serverAddress=%v: %w", serverAddress, err)
+		return nil, fmt.Errorf("unable to create OpenClarity API client. serverAddress=%v: %w", serverAddress, err)
 	}
 
 	return &Client{

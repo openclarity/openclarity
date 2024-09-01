@@ -74,7 +74,7 @@ func (p *Provider) RunAssetScan(context.Context, *provider_service.RunAssetScanP
 		// flip the ready to scan bit, so next time we're getting called, ERR_NONE will be returned.
 		p.ReadyToScan = true
 
-		// Tell VMClarity that resources are not ready and RunAssetScan should be called again in 30 seconds from now.
+		// Tell OpenClarity that resources are not ready and RunAssetScan should be called again in 30 seconds from now.
 		return &provider_service.RunAssetScanResult{
 			Err: &provider_service.Error{ErrorType: &provider_service.Error_ErrRetry{
 				ErrRetry: &provider_service.ErrorRetryable{

@@ -29,8 +29,8 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ProviderClient interface {
 	DiscoverAssets(ctx context.Context, in *DiscoverAssetsParams, opts ...grpc.CallOption) (*DiscoverAssetsResult, error)
-	// The VMClarity CLI image is provided and can be used as a scanning tool, or otherwise, you can use your own scanning tool.
-	// In case you don't use the VMClarity CLI, you should update AssetScan state in the backend: Ready, Aborted, Done, InProgress etc.
+	// The OpenClarity CLI image is provided and can be used as a scanning tool, or otherwise, you can use your own scanning tool.
+	// In case you don't use the OpenClarity CLI, you should update AssetScan state in the backend: Ready, Aborted, Done, InProgress etc.
 	RunAssetScan(ctx context.Context, in *RunAssetScanParams, opts ...grpc.CallOption) (*RunAssetScanResult, error)
 	RemoveAssetScan(ctx context.Context, in *RemoveAssetScanParams, opts ...grpc.CallOption) (*RemoveAssetScanResult, error)
 }
@@ -75,8 +75,8 @@ func (c *providerClient) RemoveAssetScan(ctx context.Context, in *RemoveAssetSca
 // for forward compatibility
 type ProviderServer interface {
 	DiscoverAssets(context.Context, *DiscoverAssetsParams) (*DiscoverAssetsResult, error)
-	// The VMClarity CLI image is provided and can be used as a scanning tool, or otherwise, you can use your own scanning tool.
-	// In case you don't use the VMClarity CLI, you should update AssetScan state in the backend: Ready, Aborted, Done, InProgress etc.
+	// The OpenClarity CLI image is provided and can be used as a scanning tool, or otherwise, you can use your own scanning tool.
+	// In case you don't use the OpenClarity CLI, you should update AssetScan state in the backend: Ready, Aborted, Done, InProgress etc.
 	RunAssetScan(context.Context, *RunAssetScanParams) (*RunAssetScanResult, error)
 	RemoveAssetScan(context.Context, *RemoveAssetScanParams) (*RemoveAssetScanResult, error)
 	mustEmbedUnimplementedProviderServer()

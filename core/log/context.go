@@ -24,7 +24,7 @@ import (
 
 type LoggerContextKeyType string
 
-const LoggerContextKey LoggerContextKeyType = "VMClarityContextLogger"
+const LoggerContextKey LoggerContextKeyType = "OpenClarityContextLogger"
 
 func GetLoggerFromContextOrDefault(ctx context.Context) *log.Entry {
 	logger, ok := GetLoggerFromContext(ctx)

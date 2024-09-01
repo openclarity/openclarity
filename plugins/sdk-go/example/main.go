@@ -49,7 +49,7 @@ func (s *Scanner) Start(config types.Config) {
 		time.Sleep(5 * time.Second) //nolint:mnd
 
 		result := types.Result{
-			Vmclarity: types.VMClarityData{
+			Openclarity: types.OpenClarityData{
 				Vulnerabilities: types.Ptr([]types.Vulnerability{
 					{
 						VulnerabilityName: types.Ptr("vulnerability #1"),

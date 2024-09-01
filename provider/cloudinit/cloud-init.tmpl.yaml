@@ -3,39 +3,39 @@ package_upgrade: true
 packages:
   - docker.io
 write_files:
-  - path: /opt/vmclarity/scanconfig.yaml
+  - path: /opt/openclarity/scanconfig.yaml
     permissions: "0644"
     content: |
       {{- .ScannerCLIConfig | nindent 6 }}
-  - path: /etc/systemd/system/vmclarity-scanner.service
+  - path: /etc/systemd/system/openclarity-scanner.service
     permissions: "0644"
     content: |
       [Unit]
-      Description=VMClarity scanner job
+      Description=OpenClarity scanner job
       Requires=docker.service
       After=network.target docker.service
       
       [Service]
       Type=oneshot
-      WorkingDirectory=/opt/vmclarity
-      ExecStartPre=mkdir -p /var/opt/vmclarity
+      WorkingDirectory=/opt/openclarity
+      ExecStartPre=mkdir -p /var/opt/openclarity
       ExecStartPre=docker pull {{ .ScannerImage }}
-      ExecStartPre=docker network create vmclarity
+      ExecStartPre=docker network create openclarity
       ExecStart=docker run --rm --name %n --privileged \
           -v /:/hostfs \
           -v /dev:/dev \
-          -v /opt/vmclarity:/opt/vmclarity \
+          -v /opt/openclarity:/opt/openclarity \
           -v /run:/run \
-          -v /var/opt/vmclarity:/var/opt/vmclarity \
+          -v /var/opt/openclarity:/var/opt/openclarity \
           -v /mnt:/mnt \
-          --network vmclarity \
+          --network openclarity \
           {{ .ScannerImage }} \
           scan \
-          --config /opt/vmclarity/scanconfig.yaml \
-          --server {{ .VMClarityAddress }} \
+          --config /opt/openclarity/scanconfig.yaml \
+          --server {{ .APIServerAddress }} \
           --mount-attached-volume \
           --asset-scan-id {{ .AssetScanID }} \
-          --output /var/opt/vmclarity
+          --output /var/opt/openclarity
       
       [Install]
       WantedBy=multi-user.target
@@ -43,4 +43,4 @@ write_files:
 runcmd:
   - [ systemctl, daemon-reload ]
   - [ systemctl, start, docker.service ]
-  - [ systemctl, start, vmclarity-scanner.service ]
+  - [ systemctl, start, openclarity-scanner.service ]

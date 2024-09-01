@@ -40,8 +40,8 @@ var (
 	logLevel = LogLevelDefaultValue
 	rootCmd  = &cobra.Command{
 		Use:   ExecutableName,
-		Short: "VMClarity Orchestrator",
-		Long:  "VMClarity Orchestrator",
+		Short: "OpenClarity Orchestrator",
+		Long:  "OpenClarity Orchestrator",
 		Version: fmt.Sprintf("Version: %s \nCommit: %s\nBuild Time: %s",
 			version.Version, version.CommitHash, version.BuildTimestamp),
 		SilenceUsage: true,
@@ -53,7 +53,7 @@ func init() {
 		Use:     "run",
 		Run:     runCommand,
 		Short:   "Starts the orchestrator",
-		Long:    "Starts the VMClarity Orchestrator",
+		Long:    "Starts the OpenClarity Orchestrator",
 		Example: ExecutableName + " run",
 	}
 
@@ -66,7 +66,7 @@ func init() {
 		Use:     "version",
 		Run:     versionCommand,
 		Short:   "Displays the version",
-		Long:    "Displays the version of the VMClarity Orchestrator",
+		Long:    "Displays the version of the OpenClarity Orchestrator",
 		Example: ExecutableName + " version",
 	}
 

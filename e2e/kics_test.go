@@ -148,7 +148,7 @@ var _ = ginkgo.Describe("Running a KICS scan", func() {
 				isEmptyFuncs := []func() bool{
 					func() bool { return isEmpty(results.RawJSON) },
 					func() bool { return isEmpty(results.RawSarif) },
-					func() bool { return isEmpty(results.Vmclarity) },
+					func() bool { return isEmpty(results.Openclarity) },
 				}
 
 				for _, f := range isEmptyFuncs {

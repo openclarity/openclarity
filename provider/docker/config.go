@@ -24,7 +24,7 @@ import (
 const (
 	DefaultEnvPrefix   = "OPENCLARITY_DOCKER"
 	DefaultHelperImage = "alpine:3.18.2"
-	DefaultNetworkName = "vmclarity"
+	DefaultNetworkName = "openclarity"
 )
 
 type Config struct {

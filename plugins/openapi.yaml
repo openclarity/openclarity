@@ -207,31 +207,31 @@ components:
       type: object
       description: Describes data saved to a JSON file when a scan finishes successfully.
       required:
-        - vmclarity
+        - openclarity
         - rawJSON
       properties:
         annotations:
           # Can be used to attach some scan data consumable by third-party service.
           # Optional.
           $ref: '#/components/schemas/Annotations'
-        vmclarity:
-          # Specifies concrete scan result data that can be consumed by VMClarity API.
+        openclarity:
+          # Specifies concrete scan result data that can be consumed by OpenClarity API.
           # Required.
-          $ref: '#/components/schemas/VMClarityData'
+          $ref: '#/components/schemas/OpenClarityData'
         rawJSON:
           # Specifies raw scan result data.
           # Required.
           type: null
-          description: Defines scan result data that is not consumed by VMClarity API.
+          description: Defines scan result data that is not consumed by OpenClarity API.
         rawSarif:
           # Specifies raw scan result data in SARIF format.
           # Optional.
           type: null
-          description: Defines scan result data in that is not consumed by the VMClarity API.
+          description: Defines scan result data in that is not consumed by the OpenClarity API.
 
-    VMClarityData:
+    OpenClarityData:
       type: object
-      description: Defines scan result data that can be consumed by VMClarity API.
+      description: Defines scan result data that can be consumed by OpenClarity API.
       properties:
         packages:
           type: array

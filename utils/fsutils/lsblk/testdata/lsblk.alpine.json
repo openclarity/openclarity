@@ -148,7 +148,7 @@
           "disc-zero": false,
           "fsavail": 5184663552,
           "fsroots": [
-            "/var/opt/vmclarity", "/var/lib/docker/containers/ac73bdfd9b3d455e1fb30f4df0ce3a9a89d86e938eb6380798efaa630548e367/hosts", "/var/lib/docker/containers/ac73bdfd9b3d455e1fb30f4df0ce3a9a89d86e938eb6380798efaa630548e367/hostname", "/var/lib/docker/containers/ac73bdfd9b3d455e1fb30f4df0ce3a9a89d86e938eb6380798efaa630548e367/resolv.conf", "/opt/vmclarity"
+            "/var/opt/openclarity", "/var/lib/docker/containers/ac73bdfd9b3d455e1fb30f4df0ce3a9a89d86e938eb6380798efaa630548e367/hosts", "/var/lib/docker/containers/ac73bdfd9b3d455e1fb30f4df0ce3a9a89d86e938eb6380798efaa630548e367/hostname", "/var/lib/docker/containers/ac73bdfd9b3d455e1fb30f4df0ce3a9a89d86e938eb6380798efaa630548e367/resolv.conf", "/opt/openclarity"
           ],
           "fssize": 8132173824,
           "fstype": "ext4",
@@ -191,9 +191,9 @@
           "start": 227328,
           "state": null,
           "subsystems": "block:xen",
-          "mountpoint": "/var/opt/vmclarity",
+          "mountpoint": "/var/opt/openclarity",
           "mountpoints": [
-            "/var/opt/vmclarity", "/etc/hosts", "/etc/hostname", "/etc/resolv.conf", "/opt/vmclarity"
+            "/var/opt/openclarity", "/etc/hosts", "/etc/hostname", "/etc/resolv.conf", "/opt/openclarity"
           ],
           "tran": null,
           "type": "part",

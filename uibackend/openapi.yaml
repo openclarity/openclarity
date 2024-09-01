@@ -1,7 +1,7 @@
 openapi: 3.0.1
 
 info:
-  title: VMClarity UI APIs
+  title: OpenClarity UI APIs
   version: 1.0.0
 
 paths:
@@ -175,8 +175,6 @@ components:
     Misconfiguration:
       type: object
       properties:
-        scannerName:
-          type: string
         id:
           type: string
           description: Check or test ID, if applicable (e.g. Lynis TestID, CIS Docker Benchmark checkpoint code, etc)

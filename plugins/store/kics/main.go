@@ -169,7 +169,7 @@ func (s *Scanner) createConfig(scannerConfig *string) (*ScannerConfig, error) {
 	}
 
 	// Ensure JSON format is always included,
-	// since it's the only format that can be consumed by VMClarity
+	// since it's the only format that can be consumed by OpenClarity
 	config.ReportFormats = ensureJSONFormat(config.ReportFormats)
 
 	return config, nil
@@ -193,14 +193,14 @@ func (s *Scanner) formatOutput(rawOutputDir, outputFile string, reportFormats []
 					errCh <- fmt.Errorf("failed to format JSON output: %w", err)
 				}
 
-				misconfigurations, err := formatter.FormatVMClarityOutput(summaryJSON)
+				misconfigurations, err := formatter.FormatOpenClarityOutput(summaryJSON)
 				if err != nil {
-					errCh <- fmt.Errorf("failed to format VMClarity output: %w", err)
+					errCh <- fmt.Errorf("failed to format OpenClarity output: %w", err)
 				}
 
 				resultMutex.Lock()
 				result.RawJSON = summaryJSON
-				result.Vmclarity.Misconfigurations = misconfigurations
+				result.Openclarity.Misconfigurations = misconfigurations
 				resultMutex.Unlock()
 
 			case "sarif":

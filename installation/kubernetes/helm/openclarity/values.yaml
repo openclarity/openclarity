@@ -432,7 +432,7 @@ postgresql:
     # -- Postgresql container repository
     repository: bitnami/postgresql
     # -- Postgresql container tag
-    tag: 16.3.0-debian-12-r23
+    tag: 16.4.0-debian-12-r4
     # -- Postgresql image digest. If set will override the tag.
     digest: ""
     # -- Postgresql container image pull policy
@@ -458,11 +458,11 @@ postgresql:
     # -- Name of existing secret to use for PostgreSQL credentials
     existingSecret: ""
     # -- Name for a custom user to create
-    username: vmclarity
+    username: openclarity
     # -- Password for the custom user
     password: password1
     # -- Name for a custom database to create
-    database: vmclarity
+    database: openclarity
 
   podSecurityContext:
     # -- Pod security context enabled
@@ -621,7 +621,7 @@ grypeServer:
     # -- Grype server container repository
     repository: openclarity/grype-server
     # -- Grype server container tag
-    tag: v0.7.3
+    tag: v0.7.4
     # -- Grype server image digest. If set will override the tag.
     digest: ""
     # -- Grype server image pull policy

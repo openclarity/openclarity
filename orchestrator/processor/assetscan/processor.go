@@ -130,6 +130,12 @@ func (asp *AssetScanProcessor) Reconcile(ctx context.Context, event AssetScanRec
 		}
 	}
 
+	// Processing into findings is a time-consuming operation, so pull the latest asset scan again from the API
+	assetScan, err = asp.client.GetAssetScan(ctx, event.AssetScanID, apitypes.GetAssetScansAssetScanIDParams{})
+	if err != nil {
+		return fmt.Errorf("failed to get asset scan from API: %w", err)
+	}
+
 	// Mark post-processing completed for this asset scan
 	assetScan.FindingsProcessed = to.Ptr(true)
 	err = asp.client.PatchAssetScan(ctx, assetScan, *assetScan.Id)

@@ -23,7 +23,7 @@ secrets.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | postgresql | 15.5.20 |
+| https://charts.bitnami.com/bitnami | postgresql | 15.5.26 |
 
 ## Values
 
@@ -153,7 +153,7 @@ secrets.
 | grypeServer.image.pullPolicy | string | `"IfNotPresent"` | Grype server image pull policy |
 | grypeServer.image.registry | string | `"ghcr.io"` | Grype server container registry |
 | grypeServer.image.repository | string | `"openclarity/grype-server"` | Grype server container repository |
-| grypeServer.image.tag | string | `"v0.7.3"` | Grype server container tag |
+| grypeServer.image.tag | string | `"v0.7.4"` | Grype server container tag |
 | grypeServer.logLevel | string | `"info"` | Log level for the grype-server service |
 | grypeServer.podSecurityContext.enabled | bool | `true` | Pod security context enabled |
 | grypeServer.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
@@ -227,10 +227,10 @@ secrets.
 | orchestrator.serviceAccount.name | string | `""` | The name of the ServiceAccount to use. If not set and create is true, it will use the component's calculated name. |
 | orchestrator.trivyServerAddress | string | `""` | Address that scanners can use to reach trivy server |
 | orchestrator.yaraRuleServerAddress | string | `""` | Address that scanner can use to reach the yara rule server |
-| postgresql.auth.database | string | `"vmclarity"` | Name for a custom database to create |
+| postgresql.auth.database | string | `"openclarity"` | Name for a custom database to create |
 | postgresql.auth.existingSecret | string | `""` | Name of existing secret to use for PostgreSQL credentials |
 | postgresql.auth.password | string | `"password1"` | Password for the custom user |
-| postgresql.auth.username | string | `"vmclarity"` | Name for a custom user to create |
+| postgresql.auth.username | string | `"openclarity"` | Name for a custom user to create |
 | postgresql.containerSecurityContext.allowPrivilegeEscalation | bool | `false` | Force the child process to run as non-privileged |
 | postgresql.containerSecurityContext.capabilities.drop | list | `["ALL"]` | List of capabilities to be dropped |
 | postgresql.containerSecurityContext.enabled | bool | `true` | Container security context enabled |
@@ -243,7 +243,7 @@ secrets.
 | postgresql.image.pullPolicy | string | `"IfNotPresent"` | Postgresql container image pull policy |
 | postgresql.image.registry | string | `"docker.io"` | Postgresql container registry |
 | postgresql.image.repository | string | `"bitnami/postgresql"` | Postgresql container repository |
-| postgresql.image.tag | string | `"16.3.0-debian-12-r23"` | Postgresql container tag |
+| postgresql.image.tag | string | `"16.4.0-debian-12-r4"` | Postgresql container tag |
 | postgresql.podSecurityContext.enabled | bool | `true` | Pod security context enabled |
 | postgresql.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
 | postgresql.resources.limits | object | `{}` | The resources limits for the postgresql containers |

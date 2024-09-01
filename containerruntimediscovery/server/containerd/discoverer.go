@@ -133,7 +133,7 @@ func (d *discoverer) Images(ctx context.Context) ([]apitypes.ContainerImageInfo,
 		// Ignore our transient images used for snapshoting the
 		// containers they will be cleaned up as soon as the export is
 		// done.
-		if strings.HasPrefix(image.Name(), "vmclarity.io/container-snapshot:") {
+		if strings.HasPrefix(image.Name(), "openclarity.io/container-snapshot:") {
 			continue
 		}
 
@@ -445,9 +445,9 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 		}
 	})
 
-	imageName := "vmclarity.io/container-snapshot:" + containerID
+	imageName := "openclarity.io/container-snapshot:" + containerID
 	_, err = commit.Commit(ctx, d.client, container, &commit.Opts{
-		Author:  "VMClarity",
+		Author:  "OpenClarity",
 		Message: fmt.Sprintf("Snapshot of container %s for security scanning", containerID),
 		Ref:     imageName,
 		Pause:   false,

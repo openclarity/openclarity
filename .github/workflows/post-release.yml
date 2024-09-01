@@ -20,7 +20,7 @@ jobs:
         id: modules
         run: |
           # shellcheck disable=SC2016
-          echo "modules=$(find . -name go.mod -type f -print0 | xargs -0 awk '/module/ {print $2}' | jq -c -R '[.,inputs] | map(sub("^github.com\/openclarity\/vmclarity\/";""))')" >> "$GITHUB_OUTPUT"
+          echo "modules=$(find . -name go.mod -type f -print0 | xargs -0 awk '/module/ {print $2}' | jq -c -R '[.,inputs] | map(sub("^github.com\/openclarity\/openclarity\/";""))')" >> "$GITHUB_OUTPUT"
 
   create-module-tags:
     needs: prepare

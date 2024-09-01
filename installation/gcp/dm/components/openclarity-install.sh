@@ -2,10 +2,10 @@
 
 set -euo pipefail
 
-mkdir -p /etc/vmclarity
-mkdir -p /opt/vmclarity
+mkdir -p /etc/openclarity
+mkdir -p /opt/openclarity
 
-cat << 'EOF' > /etc/vmclarity/deploy.sh
+cat << 'EOF' > /etc/openclarity/deploy.sh
 #!/bin/bash
 set -euo pipefail
 
@@ -33,33 +33,33 @@ apt-get -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin do
 if [ "{DatabaseToUse}" == "Postgresql" ]; then
   # Configure the OpenClarity backend to use the local postgres
   # service
-  echo "OPENCLARITY_APISERVER_DATABASE_DRIVER=POSTGRES" > /etc/vmclarity/apiserver.env
-  echo "OPENCLARITY_APISERVER_DB_NAME=vmclarity" >> /etc/vmclarity/apiserver.env
-  echo "OPENCLARITY_APISERVER_DB_USER=vmclarity" >> /etc/vmclarity/apiserver.env
-  echo "OPENCLARITY_APISERVER_DB_PASS={PostgresDBPassword}" >> /etc/vmclarity/apiserver.env
-  echo "OPENCLARITY_APISERVER_DB_HOST=postgresql" >> /etc/vmclarity/apiserver.env
-  echo "OPENCLARITY_APISERVER_DB_PORT=5432" >> /etc/vmclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_DATABASE_DRIVER=POSTGRES" > /etc/openclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_DB_NAME=openclarity" >> /etc/openclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_DB_USER=openclarity" >> /etc/openclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_DB_PASS={PostgresDBPassword}" >> /etc/openclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_DB_HOST=postgresql" >> /etc/openclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_DB_PORT=5432" >> /etc/openclarity/apiserver.env
 elif [ "{DatabaseToUse}" == "External Postgresql" ]; then
   # Configure the OpenClarity backend to use the postgres
   # database configured by the user.
-  echo "OPENCLARITY_APISERVER_DATABASE_DRIVER=POSTGRES" > /etc/vmclarity/apiserver.env
-  echo "OPENCLARITY_APISERVER_DB_NAME={ExternalDBName}" >> /etc/vmclarity/apiserver.env
-  echo "OPENCLARITY_APISERVER_DB_USER={ExternalDBUsername}" >> /etc/vmclarity/apiserver.env
-  echo "OPENCLARITY_APISERVER_DB_PASS={ExternalDBPassword}" >> /etc/vmclarity/apiserver.env
-  echo "OPENCLARITY_APISERVER_DB_HOST={ExternalDBHost}" >> /etc/vmclarity/apiserver.env
-  echo "OPENCLARITY_APISERVER_DB_PORT={ExternalDBPort}" >> /etc/vmclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_DATABASE_DRIVER=POSTGRES" > /etc/openclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_DB_NAME={ExternalDBName}" >> /etc/openclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_DB_USER={ExternalDBUsername}" >> /etc/openclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_DB_PASS={ExternalDBPassword}" >> /etc/openclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_DB_HOST={ExternalDBHost}" >> /etc/openclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_DB_PORT={ExternalDBPort}" >> /etc/openclarity/apiserver.env
 elif [ "{DatabaseToUse}" == "SQLite" ]; then
   # Configure the OpenClarity backend to use the SQLite DB
   # driver and configure the storage location so that it
   # persists.
-  echo "OPENCLARITY_APISERVER_DATABASE_DRIVER=LOCAL" > /etc/vmclarity/apiserver.env
-  echo "OPENCLARITY_APISERVER_LOCAL_DB_PATH=/data/vmclarity.db" >> /etc/vmclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_DATABASE_DRIVER=LOCAL" > /etc/openclarity/apiserver.env
+  echo "OPENCLARITY_APISERVER_LOCAL_DB_PATH=/data/openclarity.db" >> /etc/openclarity/apiserver.env
 fi
 
 # Replace anywhere in the config.env __CONTROLPLANE_HOST__
 # with the local ipv4 IP address of the OpenClarity server.
 local_ip_address="$(curl http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip -H "Metadata-Flavor: Google")"
-sed -i "s/__CONTROLPLANE_HOST__/${{local_ip_address}}/" /etc/vmclarity/orchestrator.env
+sed -i "s/__CONTROLPLANE_HOST__/${{local_ip_address}}/" /etc/openclarity/orchestrator.env
 
 # Reload the systemd daemon to ensure that the OpenClarity unit
 # has been detected.
@@ -69,8 +69,8 @@ systemctl daemon-reload
 /usr/bin/mkdir -p /opt/grype-server
 /usr/bin/chown -R 1000:1000 /opt/grype-server
 
-# Create directory required for vmclarity apiserver
-/usr/bin/mkdir -p /opt/vmclarity
+# Create directory required for openclarity apiserver
+/usr/bin/mkdir -p /opt/openclarity
 
 # Create directory for exploit db server
 /usr/bin/mkdir -p /opt/exploits
@@ -82,15 +82,15 @@ systemctl daemon-reload
 /usr/bin/mkdir -p /opt/yara-rule-server
 
 # Enable and start/restart OpenClarity backend
-systemctl enable vmclarity.service
-systemctl restart vmclarity.service
+systemctl enable openclarity.service
+systemctl restart openclarity.service
 
-# Add vmclarity user to docker group
-usermod -a -G docker vmclarity
+# Add openclarity user to docker group
+usermod -a -G docker openclarity
 EOF
-chmod 744 /etc/vmclarity/deploy.sh
+chmod 744 /etc/openclarity/deploy.sh
 
-cat << 'EOF' > /etc/vmclarity/yara-rule-server.yaml
+cat << 'EOF' > /etc/openclarity/yara-rule-server.yaml
 enable_json_log: true
 rule_update_schedule: "0 0 * * *"
 rule_sources:
@@ -101,9 +101,9 @@ rule_sources:
     url: "https://github.com/securitymagic/yara/archive/refs/heads/main.zip"
     exclude_regex: ".*index.*.yar"
 EOF
-chmod 644 /etc/vmclarity/yara-rule-server.yaml
+chmod 644 /etc/openclarity/yara-rule-server.yaml
 
-cat << 'EOF' > /etc/vmclarity/orchestrator.env
+cat << 'EOF' > /etc/openclarity/orchestrator.env
 OPENCLARITY_ORCHESTRATOR_PROVIDER=GCP
 
 OPENCLARITY_GCP_PROJECT_ID={ProjectID}
@@ -124,9 +124,9 @@ OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_YARA_RULE_SERVER_ADDRESS=http
 OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_DELETE_POLICY={AssetScanDeletePolicy}
 OPENCLARITY_ORCHESTRATOR_ASSETSCAN_WATCHER_SCANNER_FRESHCLAM_MIRROR=http://__CONTROLPLANE_HOST__:1000/clamav
 EOF
-chmod 644 /etc/vmclarity/orchestrator.env
+chmod 644 /etc/openclarity/orchestrator.env
 
-cat << 'EOF' > /etc/vmclarity/vmclarity.yaml
+cat << 'EOF' > /etc/openclarity/openclarity.yaml
 services:
   apiserver:
     image: {APIServerContainerImage}
@@ -139,7 +139,7 @@ services:
     env_file: ./apiserver.env
     volumes:
       - type: bind
-        source: /opt/vmclarity
+        source: /opt/openclarity
         target: /data
     logging:
       driver: journald
@@ -361,10 +361,10 @@ configs:
     file: ./yara-rule-server.yaml
 EOF
 
-touch /etc/vmclarity/vmclarity.override.yaml
+touch /etc/openclarity/openclarity.override.yaml
 # shellcheck disable=SC2050
 if [ "{DatabaseToUse}" == "Postgresql" ]; then
-  cat << 'EOF' > /etc/vmclarity/vmclarity.override.yaml
+  cat << 'EOF' > /etc/openclarity/openclarity.override.yaml
 services:
   postgresql:
     image: {PostgresqlContainerImage}
@@ -379,7 +379,7 @@ services:
       restart_policy:
         condition: on-failure
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d vmclarity -U vmclarity"]
+      test: ["CMD-SHELL", "pg_isready -d openclarity -U openclarity"]
       interval: 10s
       retries: 60
 
@@ -390,7 +390,7 @@ services:
 EOF
 fi
 
-cat << 'EOF' > /etc/vmclarity/swagger-config.json
+cat << 'EOF' > /etc/openclarity/swagger-config.json
 {{
     "urls": [
         {{
@@ -400,31 +400,31 @@ cat << 'EOF' > /etc/vmclarity/swagger-config.json
     ]
 }}
 EOF
-chmod 644 /etc/vmclarity/swagger-config.json
+chmod 644 /etc/openclarity/swagger-config.json
 
-cat << 'EOF' > /etc/vmclarity/uibackend.env
+cat << 'EOF' > /etc/openclarity/uibackend.env
 ##
 ## UIBackend configuration
 ##
 # OpenClarity API server address
 OPENCLARITY_UIBACKEND_APISERVER_ADDRESS=http://apiserver:8888
 EOF
-chmod 644 /etc/vmclarity/uibackend.env
+chmod 644 /etc/openclarity/uibackend.env
 
-cat << 'EOF' > /etc/vmclarity/trivy-server.env
+cat << 'EOF' > /etc/openclarity/trivy-server.env
 TRIVY_LISTEN=0.0.0.0:9992
 TRIVY_CACHE_DIR=/home/scanner/.cache/trivy
 EOF
-chmod 644 /etc/vmclarity/trivy-server.env
+chmod 644 /etc/openclarity/trivy-server.env
 
-cat << 'EOF' > /etc/vmclarity/postgres.env
-POSTGRESQL_USERNAME=vmclarity
+cat << 'EOF' > /etc/openclarity/postgres.env
+POSTGRESQL_USERNAME=openclarity
 POSTGRESQL_PASSWORD={PostgresDBPassword}
-POSTGRESQL_DATABASE=vmclarity
+POSTGRESQL_DATABASE=openclarity
 EOF
-chmod 644 /etc/vmclarity/postgres.env
+chmod 644 /etc/openclarity/postgres.env
 
-cat << 'EOF' > /etc/vmclarity/gateway.conf
+cat << 'EOF' > /etc/openclarity/gateway.conf
 events {{
     worker_connections 1024;
 }}
@@ -467,9 +467,9 @@ http {{
     }}
 }}
 EOF
-chmod 644 /etc/vmclarity/gateway.conf
+chmod 644 /etc/openclarity/gateway.conf
 
-cat << 'EOF' > /lib/systemd/system/vmclarity.service
+cat << 'EOF' > /lib/systemd/system/openclarity.service
 [Unit]
 Description=OpenClarity
 After=docker.service
@@ -479,12 +479,12 @@ Requires=docker.service
 TimeoutStartSec=0
 Type=oneshot
 RemainAfterExit=true
-ExecStart=/usr/bin/docker compose -p vmclarity -f /etc/vmclarity/vmclarity.yaml -f /etc/vmclarity/vmclarity.override.yaml up -d --wait --remove-orphans
-ExecStop=/usr/bin/docker compose -p vmclarity -f /etc/vmclarity/vmclarity.yaml -f /etc/vmclarity/vmclarity.override.yaml down
+ExecStart=/usr/bin/docker compose -p openclarity -f /etc/openclarity/openclarity.yaml -f /etc/openclarity/openclarity.override.yaml up -d --wait --remove-orphans
+ExecStop=/usr/bin/docker compose -p openclarity -f /etc/openclarity/openclarity.yaml -f /etc/openclarity/openclarity.override.yaml down
 
 [Install]
 WantedBy=multi-user.target
 EOF
-chmod 644 /lib/systemd/system/vmclarity.service
+chmod 644 /lib/systemd/system/openclarity.service
 
-/etc/vmclarity/deploy.sh
+/etc/openclarity/deploy.sh

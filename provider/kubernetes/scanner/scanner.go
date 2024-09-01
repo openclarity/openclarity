@@ -112,7 +112,7 @@ func (s *Scanner) RunAssetScan(ctx context.Context, t *provider.ScanJobConfig) e
 }
 
 func (s *Scanner) RemoveAssetScan(ctx context.Context, t *provider.ScanJobConfig) error {
-	jobName := "vmclarity-scan-" + t.AssetScanID
+	jobName := "openclarity-scan-" + t.AssetScanID
 
 	err := s.ClientSet.BatchV1().Jobs(s.ScannerNamespace).Delete(ctx, jobName, metav1.DeleteOptions{
 		PropagationPolicy: to.Ptr(metav1.DeletePropagationBackground),
@@ -158,7 +158,7 @@ func (s *Scanner) runScannerJob(ctx context.Context, config *provider.ScanJobCon
 		return fmt.Errorf("failed to generate scanner config yaml: %w", err)
 	}
 
-	jobName := "vmclarity-scan-" + config.AssetScanID
+	jobName := "openclarity-scan-" + config.AssetScanID
 
 	configMap := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
@@ -205,9 +205,9 @@ func (s *Scanner) runScannerJob(ctx context.Context, config *provider.ScanJobCon
 							Args: []string{
 								"scan",
 								"--config",
-								"/etc/vmclarity/config.yaml",
+								"/etc/openclarity/config.yaml",
 								"--server",
-								config.VMClarityAddress,
+								config.APIServerAddress,
 								"--asset-scan-id",
 								config.AssetScanID,
 							},
@@ -215,7 +215,7 @@ func (s *Scanner) runScannerJob(ctx context.Context, config *provider.ScanJobCon
 								{
 									Name:      "config",
 									ReadOnly:  true,
-									MountPath: "/etc/vmclarity",
+									MountPath: "/etc/openclarity",
 								},
 								{
 									Name:      "asset-data",

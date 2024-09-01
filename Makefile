@@ -586,38 +586,29 @@ multimod-prerelease: bin/multimod
 	$(MULTIMOD_BIN) prerelease --all-module-sets --skip-go-mod-tidy=true --commit-to-different-branch=false
 
 
-##@ Renovate
+##@ Dependencies
 
-.PHONY: renovate-fix
-renovate-fix: renovate-fix-gomod renovate-fix-helm-docs renovate-fix-bicep renovate-fix-api renovate-fix-format ## Fix all Renovate issues, recommended to run it with the "-i" flag
+.PHONY: dep-tidy
+dep-tidy: gomod-tidy gen ## Fix affected code after dependency updates
 
-.PHONY: renovate-fix-gomod
-renovate-fix-gomod: gomod-tidy ## Fix go.mod files after bumping Go dependency versions
-	$(info --- Fix go.mod files after bumping Go dependency versions)
-	git add ':/**/go.mod' ':/**/go.sum' \
-	&& git commit -m "fix: go mod tidy"
+# Self-hosted Renovate
+# https://docs.renovatebot.com/self-hosted-configuration/
+#
+# NOTE(ramizpolic): The renovate.json contains config for Renovate service.
+# We enrich the base renovate config with self-hosted options to enable
+# additional features such as running post-dependency upgrade tasks.
 
-.PHONY: renovate-fix-helm-docs
-renovate-fix-helm-docs: gen-helm-docs ## Fix Helm Chart documentation after version update
-	$(info --- Fix Helm Chart documentation after version update)
-	git add ':$(subst $(ROOT_DIR),,$(HELM_CHART_DIR))' \
-	&& git commit -m "docs: update Helm docs"
+RENOVATE_OPTS ?=
 
-.PHONY: renovate-fix-bicep
-renovate-fix-bicep: gen-bicep ## Fix Azure Bicep files after version update
-	$(info --- Fix Azure Bicep files after version update)
-	git add ':$(subst $(ROOT_DIR),,$(BICEP_DIR))' \
-	&& git commit -m "fix: generate Bicep template"
+# Set to local platform when running default makefile target to avoid updating remote
+# project data. CI/CD pipeline runs set proper platform using ENV vars to enable
+# syncing dependency updates through issues and PRs.
+RENOVATE_OPTS += --platform $(or $(shell echo $$RENOVATE_PLATFORM),"local")
 
-.PHONY: renovate-fix-api
-renovate-fix-api: gen-api-go gen-api-js ## Fix generated API code after version update
-	$(info --- Generate API code after version update)
-	git add ':$(subst $(ROOT_DIR),,$(API_DIR))' \
-	git add ':$(subst $(ROOT_DIR),,$(UI_DIR))' \
-	&& git commit -m "fix: generate API code"
+# Enable running post-upgrade tasks
+RENOVATE_OPTS += --allowed-post-upgrade-commands '[".*"]'
+RENOVATE_OPTS += --post-upgrade-tasks '{"commands": ["make dep-tidy"], "executionMode": "branch"}'
 
-.PHONY: renovate-fix-format
-renovate-fix-format: format ## Format files after version update
-	$(info --- Run formatters after version update)
-	git add ':$(subst $(ROOT_DIR),,$(UI_DIR))' \
-	&& git commit -m "style: format code"
+.PHONY: renovate ## Run Renovate locally to view available dependency updates
+renovate: bin/renovate
+	$(RENOVATE_BIN) $(RENOVATE_OPTS)

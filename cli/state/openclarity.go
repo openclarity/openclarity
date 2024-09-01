@@ -32,20 +32,31 @@ import (
 )
 
 const (
-	DefaultWaitForVolRetryInterval   = 15 * time.Second
-	effectiveScanConfigAnnotationKey = "openclarity.io/vmclarity-scanner/config"
+	DefaultWaitForVolRetryInterval             = 15 * time.Second
+	effectiveScanConfigAnnotationKey           = "openclarity.io/openclarity-scanner/config"
+	deprecatedeffectiveScanConfigAnnotationKey = "openclarity.io/openclarity-scanner/config"
 )
 
 type AssetScanID = apitypes.AssetScanID
 
-type VMClarityState struct {
+type OpenClarityState struct {
 	client *apiclient.Client
 
 	assetScanID apitypes.AssetScanID
 }
 
+func NewOpenClarityState(client *apiclient.Client, id AssetScanID) (*OpenClarityState, error) {
+	if client == nil {
+		return nil, errors.New("API client must not be nil")
+	}
+	return &OpenClarityState{
+		client:      client,
+		assetScanID: id,
+	}, nil
+}
+
 // nolint:cyclop
-func (v *VMClarityState) WaitForReadyState(ctx context.Context) error {
+func (o *OpenClarityState) WaitForReadyState(ctx context.Context) error {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
 	timer := time.NewTicker(DefaultWaitForVolRetryInterval)
@@ -54,7 +65,7 @@ func (v *VMClarityState) WaitForReadyState(ctx context.Context) error {
 	for {
 		select {
 		case <-timer.C:
-			status, err := v.client.GetAssetScanStatus(ctx, v.assetScanID)
+			status, err := o.client.GetAssetScanStatus(ctx, o.assetScanID)
 			if err != nil {
 				logger.Errorf("failed to get asset scan status: %v", err)
 				break
@@ -79,8 +90,8 @@ func (v *VMClarityState) WaitForReadyState(ctx context.Context) error {
 	}
 }
 
-func (v *VMClarityState) MarkInProgress(ctx context.Context, config *scanner.Config) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
+func (o *OpenClarityState) MarkInProgress(ctx context.Context, config *scanner.Config) error {
+	assetScan, err := o.client.GetAssetScan(ctx, o.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
@@ -105,7 +116,7 @@ func (v *VMClarityState) MarkInProgress(ctx context.Context, config *scanner.Con
 		return fmt.Errorf("failed to add effective scan config annotation: %w", err)
 	}
 
-	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
+	err = o.client.PatchAssetScan(ctx, assetScan, o.assetScanID)
 	if err != nil {
 		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
@@ -113,8 +124,8 @@ func (v *VMClarityState) MarkInProgress(ctx context.Context, config *scanner.Con
 	return nil
 }
 
-func (v *VMClarityState) MarkDone(ctx context.Context) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
+func (o *OpenClarityState) MarkDone(ctx context.Context) error {
+	assetScan, err := o.client.GetAssetScan(ctx, o.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
@@ -126,7 +137,7 @@ func (v *VMClarityState) MarkDone(ctx context.Context) error {
 		nil,
 	)
 
-	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
+	err = o.client.PatchAssetScan(ctx, assetScan, o.assetScanID)
 	if err != nil {
 		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
@@ -134,8 +145,8 @@ func (v *VMClarityState) MarkDone(ctx context.Context) error {
 	return nil
 }
 
-func (v *VMClarityState) MarkFailed(ctx context.Context, errorMessage string) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
+func (o *OpenClarityState) MarkFailed(ctx context.Context, errorMessage string) error {
+	assetScan, err := o.client.GetAssetScan(ctx, o.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
@@ -147,7 +158,7 @@ func (v *VMClarityState) MarkFailed(ctx context.Context, errorMessage string) er
 		to.Ptr(errorMessage),
 	)
 
-	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
+	err = o.client.PatchAssetScan(ctx, assetScan, o.assetScanID)
 	if err != nil {
 		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
@@ -155,33 +166,33 @@ func (v *VMClarityState) MarkFailed(ctx context.Context, errorMessage string) er
 	return nil
 }
 
-func (v *VMClarityState) MarkFamilyScanInProgress(ctx context.Context, familyType families.FamilyType) error {
+func (o *OpenClarityState) MarkFamilyScanInProgress(ctx context.Context, familyType families.FamilyType) error {
 	var err error
 	switch familyType {
 	case families.SBOM:
-		err = v.markSBOMScanInProgress(ctx)
+		err = o.markSBOMScanInProgress(ctx)
 	case families.Vulnerabilities:
-		err = v.markVulnerabilitiesScanInProgress(ctx)
+		err = o.markVulnerabilitiesScanInProgress(ctx)
 	case families.Secrets:
-		err = v.markSecretsScanInProgress(ctx)
+		err = o.markSecretsScanInProgress(ctx)
 	case families.Exploits:
-		err = v.markExploitsScanInProgress(ctx)
+		err = o.markExploitsScanInProgress(ctx)
 	case families.Misconfiguration:
-		err = v.markMisconfigurationsScanInProgress(ctx)
+		err = o.markMisconfigurationsScanInProgress(ctx)
 	case families.Rootkits:
-		err = v.markRootkitsScanInProgress(ctx)
+		err = o.markRootkitsScanInProgress(ctx)
 	case families.Malware:
-		err = v.markMalwareScanInProgress(ctx)
+		err = o.markMalwareScanInProgress(ctx)
 	case families.InfoFinder:
-		err = v.markInfoFinderScanInProgress(ctx)
+		err = o.markInfoFinderScanInProgress(ctx)
 	case families.Plugins:
-		err = v.markPluginsScanInProgress(ctx)
+		err = o.markPluginsScanInProgress(ctx)
 	}
 	return err
 }
 
-func (v *VMClarityState) markExploitsScanInProgress(ctx context.Context) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
+func (o *OpenClarityState) markExploitsScanInProgress(ctx context.Context) error {
+	assetScan, err := o.client.GetAssetScan(ctx, o.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
@@ -196,7 +207,7 @@ func (v *VMClarityState) markExploitsScanInProgress(ctx context.Context) error {
 		nil,
 	)
 
-	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
+	err = o.client.PatchAssetScan(ctx, assetScan, o.assetScanID)
 	if err != nil {
 		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
@@ -204,8 +215,8 @@ func (v *VMClarityState) markExploitsScanInProgress(ctx context.Context) error {
 	return nil
 }
 
-func (v *VMClarityState) markSecretsScanInProgress(ctx context.Context) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
+func (o *OpenClarityState) markSecretsScanInProgress(ctx context.Context) error {
+	assetScan, err := o.client.GetAssetScan(ctx, o.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
@@ -220,7 +231,7 @@ func (v *VMClarityState) markSecretsScanInProgress(ctx context.Context) error {
 		nil,
 	)
 
-	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
+	err = o.client.PatchAssetScan(ctx, assetScan, o.assetScanID)
 	if err != nil {
 		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
@@ -228,8 +239,8 @@ func (v *VMClarityState) markSecretsScanInProgress(ctx context.Context) error {
 	return nil
 }
 
-func (v *VMClarityState) markSBOMScanInProgress(ctx context.Context) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
+func (o *OpenClarityState) markSBOMScanInProgress(ctx context.Context) error {
+	assetScan, err := o.client.GetAssetScan(ctx, o.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
@@ -244,7 +255,7 @@ func (v *VMClarityState) markSBOMScanInProgress(ctx context.Context) error {
 		nil,
 	)
 
-	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
+	err = o.client.PatchAssetScan(ctx, assetScan, o.assetScanID)
 	if err != nil {
 		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
@@ -252,8 +263,8 @@ func (v *VMClarityState) markSBOMScanInProgress(ctx context.Context) error {
 	return nil
 }
 
-func (v *VMClarityState) markVulnerabilitiesScanInProgress(ctx context.Context) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
+func (o *OpenClarityState) markVulnerabilitiesScanInProgress(ctx context.Context) error {
+	assetScan, err := o.client.GetAssetScan(ctx, o.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
@@ -268,7 +279,7 @@ func (v *VMClarityState) markVulnerabilitiesScanInProgress(ctx context.Context) 
 		nil,
 	)
 
-	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
+	err = o.client.PatchAssetScan(ctx, assetScan, o.assetScanID)
 	if err != nil {
 		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
@@ -276,8 +287,8 @@ func (v *VMClarityState) markVulnerabilitiesScanInProgress(ctx context.Context) 
 	return nil
 }
 
-func (v *VMClarityState) markInfoFinderScanInProgress(ctx context.Context) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
+func (o *OpenClarityState) markInfoFinderScanInProgress(ctx context.Context) error {
+	assetScan, err := o.client.GetAssetScan(ctx, o.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
@@ -292,7 +303,7 @@ func (v *VMClarityState) markInfoFinderScanInProgress(ctx context.Context) error
 		nil,
 	)
 
-	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
+	err = o.client.PatchAssetScan(ctx, assetScan, o.assetScanID)
 	if err != nil {
 		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
@@ -300,8 +311,8 @@ func (v *VMClarityState) markInfoFinderScanInProgress(ctx context.Context) error
 	return nil
 }
 
-func (v *VMClarityState) markMalwareScanInProgress(ctx context.Context) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
+func (o *OpenClarityState) markMalwareScanInProgress(ctx context.Context) error {
+	assetScan, err := o.client.GetAssetScan(ctx, o.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
@@ -316,7 +327,7 @@ func (v *VMClarityState) markMalwareScanInProgress(ctx context.Context) error {
 		nil,
 	)
 
-	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
+	err = o.client.PatchAssetScan(ctx, assetScan, o.assetScanID)
 	if err != nil {
 		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
@@ -324,8 +335,8 @@ func (v *VMClarityState) markMalwareScanInProgress(ctx context.Context) error {
 	return nil
 }
 
-func (v *VMClarityState) markMisconfigurationsScanInProgress(ctx context.Context) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
+func (o *OpenClarityState) markMisconfigurationsScanInProgress(ctx context.Context) error {
+	assetScan, err := o.client.GetAssetScan(ctx, o.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
@@ -340,7 +351,7 @@ func (v *VMClarityState) markMisconfigurationsScanInProgress(ctx context.Context
 		nil,
 	)
 
-	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
+	err = o.client.PatchAssetScan(ctx, assetScan, o.assetScanID)
 	if err != nil {
 		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
@@ -348,8 +359,8 @@ func (v *VMClarityState) markMisconfigurationsScanInProgress(ctx context.Context
 	return nil
 }
 
-func (v *VMClarityState) markRootkitsScanInProgress(ctx context.Context) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
+func (o *OpenClarityState) markRootkitsScanInProgress(ctx context.Context) error {
+	assetScan, err := o.client.GetAssetScan(ctx, o.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
@@ -364,7 +375,7 @@ func (v *VMClarityState) markRootkitsScanInProgress(ctx context.Context) error {
 		nil,
 	)
 
-	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
+	err = o.client.PatchAssetScan(ctx, assetScan, o.assetScanID)
 	if err != nil {
 		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
@@ -372,8 +383,8 @@ func (v *VMClarityState) markRootkitsScanInProgress(ctx context.Context) error {
 	return nil
 }
 
-func (v *VMClarityState) markPluginsScanInProgress(ctx context.Context) error {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
+func (o *OpenClarityState) markPluginsScanInProgress(ctx context.Context) error {
+	assetScan, err := o.client.GetAssetScan(ctx, o.assetScanID, apitypes.GetAssetScansAssetScanIDParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get asset scan: %w", err)
 	}
@@ -388,7 +399,7 @@ func (v *VMClarityState) markPluginsScanInProgress(ctx context.Context) error {
 		nil,
 	)
 
-	err = v.client.PatchAssetScan(ctx, assetScan, v.assetScanID)
+	err = o.client.PatchAssetScan(ctx, assetScan, o.assetScanID)
 	if err != nil {
 		return fmt.Errorf("failed to patch asset scan: %w", err)
 	}
@@ -396,8 +407,8 @@ func (v *VMClarityState) markPluginsScanInProgress(ctx context.Context) error {
 	return nil
 }
 
-func (v *VMClarityState) IsAborted(ctx context.Context) (bool, error) {
-	assetScan, err := v.client.GetAssetScan(ctx, v.assetScanID, apitypes.GetAssetScansAssetScanIDParams{
+func (o *OpenClarityState) IsAborted(ctx context.Context) (bool, error) {
+	assetScan, err := o.client.GetAssetScan(ctx, o.assetScanID, apitypes.GetAssetScansAssetScanIDParams{
 		Select: to.Ptr("id,status"),
 	})
 	if err != nil {
@@ -416,16 +427,6 @@ func (v *VMClarityState) IsAborted(ctx context.Context) (bool, error) {
 	return false, nil
 }
 
-func NewVMClarityState(client *apiclient.Client, id AssetScanID) (*VMClarityState, error) {
-	if client == nil {
-		return nil, errors.New("API client must not be nil")
-	}
-	return &VMClarityState{
-		client:      client,
-		assetScanID: id,
-	}, nil
-}
-
 func appendEffectiveScanConfigAnnotation(annotations *apitypes.Annotations, config *scanner.Config) (*apitypes.Annotations, error) {
 	var newAnnotations apitypes.Annotations
 	if annotations != nil {
@@ -433,15 +434,22 @@ func appendEffectiveScanConfigAnnotation(annotations *apitypes.Annotations, conf
 		for _, annotation := range *annotations {
 			if *annotation.Key == effectiveScanConfigAnnotationKey {
 				continue
+			} else if *annotation.Key == deprecatedeffectiveScanConfigAnnotationKey {
+				// change the key to the new one
+				annotation.Key = to.Ptr(effectiveScanConfigAnnotationKey)
+				continue
 			}
+
 			newAnnotations = append(newAnnotations, annotation)
 		}
 	}
+
 	// Add the new effective scan config annotation
 	configJSON, err := json.Marshal(config)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal effective families config: %w", err)
 	}
+
 	newAnnotations = append(newAnnotations, apitypes.Annotations{
 		{
 			Key:   to.Ptr(effectiveScanConfigAnnotationKey),

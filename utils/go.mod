@@ -1,10 +1,10 @@
 module github.com/openclarity/openclarity/utils
 
-go 1.22.4
+go 1.22.6
 
 require (
 	github.com/anchore/stereoscope v0.0.2
-	github.com/go-viper/mapstructure/v2 v2.0.0
+	github.com/go-viper/mapstructure/v2 v2.1.0
 	github.com/moby/sys/mountinfo v0.7.1
 	github.com/onsi/gomega v1.33.1
 	github.com/openclarity/openclarity/core v0.7.2
