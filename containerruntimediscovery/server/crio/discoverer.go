@@ -465,6 +465,7 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 				return fmt.Errorf("cannot retrieve file info header: %w", err)
 			}
 
+			// Mapping file's path to it's relative path.
 			header.Name, err = filepath.Rel(srcDir, file)
 			if err != nil {
 				return fmt.Errorf("cannot determine file's relative path: %w", err)
