@@ -47,8 +47,6 @@ spec:
               name: varlibcontainers
             - mountPath: /var/run/containers
               name: varruncontainers
-            - mountPath: /tmp
-              name: tmpfs
       volumes:
         - name: docker
           hostPath:
@@ -65,7 +63,5 @@ spec:
         - name: varruncontainers
           hostPath:
             path: /var/run/containers
-        - name: tmpfs
-          emptyDir: { }
       serviceAccountName: {{ include "openclarity.crDiscoveryServer.serviceAccountName" . }}
 {{- end -}}
