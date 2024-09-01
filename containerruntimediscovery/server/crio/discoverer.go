@@ -285,6 +285,7 @@ func (d *discoverer) getContainerInfo(ctx context.Context, containerID string) (
 	}, nil
 }
 
+// nolint:cyclop
 func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (io.ReadCloser, func(), error) {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 
