@@ -461,7 +461,7 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 	return ociArchive, clean.Release(), nil
 }
 
-// Helper function to create the final OCI archive.
+// tarDirectory is a helper function to create the final OCI archive.
 func tarDirectory(srcDir, tarFile string) error {
 	file, err := os.Create(tarFile)
 	if err != nil {
