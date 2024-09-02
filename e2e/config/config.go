@@ -123,6 +123,10 @@ func TestSuiteParamsForEnv(t types.EnvironmentType) *TestSuiteParams {
 		// NOTE(paralta) Disabling syft https://github.com/anchore/syft/issues/1545
 		familiesConfig := FullScanFamiliesConfig
 		familiesConfig.Sbom.Analyzers = &[]string{"trivy", "windows"}
+
+		// NOTE(paralta) Disabling plugins since kics does not support oci-archive inputs
+		familiesConfig.Plugins.Enabled = to.Ptr(false)
+
 		return &TestSuiteParams{
 			ServicesReadyTimeout: 5 * time.Minute,
 			ScanTimeout:          5 * time.Minute,
