@@ -97,7 +97,7 @@ var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, mi
 
 			reportFailedConfig.objects = append(
 				reportFailedConfig.objects,
-				APIObject{"assetScan", fmt.Sprintf("scan/id eq '%s'", *apiScanConfig.Id)},
+				APIObject{"assetScan", fmt.Sprintf("scan/id eq '%s'", *(*scans.Items)[0].Id)},
 			)
 
 			ginkgo.By("waiting until scan state changes to done")
