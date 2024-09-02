@@ -348,9 +348,16 @@ func (h *containerRuntimeHandler) getScanInputDirMount(ctx context.Context) (*mo
 				continue
 			}
 
+			var source string
+			if p.Type == mount.TypeVolume {
+				source = p.Name // volume name
+			} else {
+				source = p.Source // actual source on the host
+			}
+
 			return &mount.Mount{
 				Type:   p.Type,
-				Source: p.Source,                                  // actual source on the host
+				Source: source,
 				Target: runtimehandler.RemoteScanInputDirOverride, // override remote path
 			}, nil
 		}
