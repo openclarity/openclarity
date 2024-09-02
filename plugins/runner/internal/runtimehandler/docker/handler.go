@@ -103,6 +103,7 @@ func (h *containerRuntimeHandler) Start(ctx context.Context) error {
 				fmt.Sprintf("%s=http://0.0.0.0:%s", plugin.EnvListenAddress, defaultInternalServerPort.Port()),
 			},
 			ExposedPorts: nat.PortSet{defaultInternalServerPort: struct{}{}},
+			User:         h.getUser(ctx),
 		},
 		&containertypes.HostConfig{
 			PortBindings: map[nat.Port][]nat.PortBinding{
@@ -371,6 +372,19 @@ func (h *containerRuntimeHandler) getScanInputDirMount(ctx context.Context) (*mo
 		Source: h.config.InputDir,
 		Target: runtimehandler.RemoteScanInputDirOverride, // override remote path
 	}, nil
+}
+
+func (h *containerRuntimeHandler) getUser(ctx context.Context) string {
+	// If the host is running in a container, get the user ID and group ID of the host container
+	// to read the mounted volume with the correct permissions.
+	if hostContainer, _ := h.client.GetHostContainer(ctx); hostContainer != nil {
+		userID := os.Getuid()
+		groupID := os.Getgid()
+
+		return fmt.Sprintf("%d:%d", userID, groupID)
+	}
+
+	return ""
 }
 
 // connectHostContainer connects host (container) to plugin network if in container mode
