@@ -65,18 +65,16 @@ var FullScanFamiliesConfig = &apitypes.ScanFamiliesConfig{
 		Enabled:  to.Ptr(true),
 		Scanners: &[]string{"lynis", "cisdocker"},
 	},
-	// TODO: Enable plugins to full scan once it has been verified
-	// and working correctly with the orchestrator
-	// Plugins: &apitypes.PluginsConfig{
-	// 	Enabled:      to.Ptr(true),
-	// 	ScannersList: &[]string{"kics"},
-	// 	ScannersConfig: &map[string]apitypes.PluginScannerConfig{
-	// 		"kics": {
-	// 			Config:    to.Ptr(""),
-	// 			ImageName: to.Ptr("ghcr.io/openclarity/openclarity-plugin-kics:latest"),
-	// 		},
-	// 	},
-	// },
+	Plugins: &apitypes.PluginsConfig{
+		Enabled:      to.Ptr(true),
+		ScannersList: &[]string{"kics"},
+		ScannersConfig: &map[string]apitypes.PluginScannerConfig{
+			"kics": {
+				Config:    to.Ptr(""),
+				ImageName: to.Ptr(""),
+			},
+		},
+	},
 	Rootkits: &apitypes.RootkitsConfig{
 		Enabled:  to.Ptr(true),
 		Scanners: &[]string{"chkrootkit"},
@@ -125,6 +123,10 @@ func TestSuiteParamsForEnv(t types.EnvironmentType) *TestSuiteParams {
 		// NOTE(paralta) Disabling syft https://github.com/anchore/syft/issues/1545
 		familiesConfig := FullScanFamiliesConfig
 		familiesConfig.Sbom.Analyzers = &[]string{"trivy", "windows"}
+
+		// NOTE(paralta) Disabling plugins since kics does not support oci-archive inputs
+		familiesConfig.Plugins.Enabled = to.Ptr(false)
+
 		return &TestSuiteParams{
 			ServicesReadyTimeout: 5 * time.Minute,
 			ScanTimeout:          5 * time.Minute,

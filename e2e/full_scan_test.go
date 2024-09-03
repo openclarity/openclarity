@@ -48,6 +48,14 @@ var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, mi
 				return len(*assets.Items) == 1
 			}, DefaultTimeout, DefaultPeriod).Should(gomega.BeTrue())
 
+			// Set the plugin image name for kics
+			cfg.TestSuiteParams.FamiliesConfig.Plugins.ScannersConfig = &map[string]apitypes.PluginScannerConfig{
+				"kics": {
+					Config:    to.Ptr(""),
+					ImageName: to.Ptr(cfg.TestEnvConfig.Images.PluginKics),
+				},
+			}
+
 			ginkgo.By("applying a scan configuration")
 			apiScanConfig, err := client.PostScanConfig(
 				ctx,
@@ -89,7 +97,7 @@ var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, mi
 
 			reportFailedConfig.objects = append(
 				reportFailedConfig.objects,
-				APIObject{"assetScan", fmt.Sprintf("scan/id eq '%s'", *apiScanConfig.Id)},
+				APIObject{"assetScan", fmt.Sprintf("scan/id eq '%s'", *(*scans.Items)[0].Id)},
 			)
 
 			ginkgo.By("waiting until scan state changes to done")
