@@ -47,6 +47,9 @@ spec:
               name: varlibcontainers
             - mountPath: /var/run/containers
               name: varruncontainers
+            - mountPath: /etc/containers
+              name: etccontainers
+              readOnly: true
       volumes:
         - name: docker
           hostPath:
@@ -63,5 +66,8 @@ spec:
         - name: varruncontainers
           hostPath:
             path: /var/run/containers
+        - name: etccontainers
+          hostPath:
+            path: /etc/containers
       serviceAccountName: {{ include "openclarity.crDiscoveryServer.serviceAccountName" . }}
 {{- end -}}
