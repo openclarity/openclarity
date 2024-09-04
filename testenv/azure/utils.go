@@ -142,7 +142,7 @@ func (e *AzureEnv) setServerConnection(ctx context.Context) error {
 		User:          defaultRemoteUser,
 		Host:          *e.serverHost,
 		Port:          utils.DefaultSSHPort,
-		LocalPort:     8080, //nolint:mnd
+		LocalPort:     8082, //nolint:mnd
 		RemoteAddress: "localhost",
 		RemotePort:    80, //nolint:mnd
 	}
