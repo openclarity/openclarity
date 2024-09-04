@@ -29,6 +29,7 @@ import (
 	"github.com/openclarity/openclarity/testenv"
 	"github.com/openclarity/openclarity/testenv/aws"
 	azureenv "github.com/openclarity/openclarity/testenv/azure"
+	gcpenv "github.com/openclarity/openclarity/testenv/gcp"
 	k8senv "github.com/openclarity/openclarity/testenv/kubernetes"
 	"github.com/openclarity/openclarity/testenv/kubernetes/helm"
 	k8senvtypes "github.com/openclarity/openclarity/testenv/kubernetes/types"
@@ -255,15 +256,22 @@ func NewConfig() (*Config, error) {
 
 	_ = v.BindEnv("aws.region")
 	v.SetDefault("aws.region", aws.DefaultRegion)
+	_ = v.BindEnv("aws.scanner_arch")
+	v.SetDefault("aws.scanner_arch", aws.DefaultScannerArch)
 
 	_ = v.BindEnv("aws.public_key_file")
 	_ = v.BindEnv("aws.private_key_file")
+
+	_ = v.BindEnv("gcp.scanner_arch")
+	v.SetDefault("gcp.scanner_arch", gcpenv.DefaultScannerArch)
 
 	_ = v.BindEnv("gcp.public_key_file")
 	_ = v.BindEnv("gcp.private_key_file")
 
 	_ = v.BindEnv("azure.region")
 	v.SetDefault("azure.region", azureenv.DefaultLocation)
+	_ = v.BindEnv("azure.scanner_arch")
+	v.SetDefault("azure.scanner_arch", azureenv.DefaultScannerArch)
 
 	_ = v.BindEnv("azure.public_key_file")
 	_ = v.BindEnv("azure.private_key_file")

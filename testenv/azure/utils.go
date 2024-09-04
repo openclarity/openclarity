@@ -120,6 +120,7 @@ func (e *AzureEnv) createTestParams() map[string]interface{} {
 	params := make(map[string]interface{})
 
 	params["location"] = map[string]interface{}{"value": e.location}
+	params["scannerVmArchitecture"] = map[string]interface{}{"value": e.scannerArch}
 	params["adminUsername"] = map[string]interface{}{"value": defaultRemoteUser}
 	params["adminSSHKey"] = map[string]interface{}{"value": strings.TrimSpace(string(e.sshKeyPair.PublicKey))}
 	params["deployPostfix"] = map[string]interface{}{"value": e.postfix}

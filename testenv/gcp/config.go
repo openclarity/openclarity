@@ -21,12 +21,19 @@ import (
 	envtypes "github.com/openclarity/openclarity/testenv/types"
 )
 
+const (
+	// DefaultScannerArch is the default architecture to be used for scanner VMs.
+	DefaultScannerArch = "x86_64"
+)
+
 //nolint:containedctx
 type Config struct {
 	WorkDir        string `mapstructure:"work_dir"`
 	EnvName        string `mapstructure:"env_name"`
 	PublicKeyFile  string `mapstructure:"public_key_file"`
 	PrivateKeyFile string `mapstructure:"private_key_file"`
+	// ScannerArch is the atchitecure to be used for scanner VMs
+	ScannerArch string `mapstructure:"scanner_arch"`
 
 	ctx context.Context
 }

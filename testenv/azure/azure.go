@@ -59,6 +59,7 @@ type AzureEnv struct {
 	subscriptionID      string
 	postfix             string
 	location            string
+	scannerArch         string
 	sshKeyPair          *utils.SSHKeyPair
 	sshPortForwardInput *utils.SSHForwardInput
 	sshPortForward      *utils.SSHPortForward
@@ -228,6 +229,7 @@ func New(config *Config, opts ...ConfigOptFn) (*AzureEnv, error) {
 		subscriptionID:          subscriptionID,
 		postfix:                 strings.TrimPrefix(config.EnvName, "openclarity-"),
 		location:                config.Region,
+		scannerArch:             config.ScannerArch,
 		sshKeyPair:              sshKeyPair,
 		workDir:                 config.WorkDir,
 		meta: map[string]interface{}{

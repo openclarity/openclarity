@@ -22,6 +22,8 @@ import (
 const (
 	// DefaultRegion is the default AWS region to be used.
 	DefaultRegion = "eu-central-1"
+	// DefaultScannerArch is the default architecture to be used for scanner VMs.
+	DefaultScannerArch = "x86_64"
 )
 
 // Config defines configuration for AWS environment.
@@ -34,6 +36,8 @@ type Config struct {
 	EnvName string `mapstructure:"env_name"`
 	// Region the AWS region to be used
 	Region string `mapstructure:"region"`
+	// ScannerArch is the atchitecure to be used for scanner VMs
+	ScannerArch string `mapstructure:"scanner_arch"`
 	// PublicKeyFile the public key file to be used for the key pair
 	PublicKeyFile string `mapstructure:"public_key_file"`
 	// PrivateKeyFile the private key file to be used for the key pair

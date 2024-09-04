@@ -35,6 +35,7 @@ import (
 	testenvtypes "github.com/openclarity/openclarity/testenv/types"
 )
 
+// nolint: maintidx
 func TestConfig(t *testing.T) {
 	kubernetesFamiliesConfig := FullScanFamiliesConfig
 	kubernetesFamiliesConfig.Sbom.Analyzers = &[]string{"trivy", "windows"}
@@ -73,13 +74,16 @@ func TestConfig(t *testing.T) {
 				"OPENCLARITY_E2E_KUBERNETES_KUBECONFIG":               "kubeconfig/default.yaml",
 				// testenv.aws
 				"OPENCLARITY_E2E_AWS_REGION":           "us-west-2",
+				"OPENCLARITY_E2E_AWS_SCANNER_ARCH":     "arm64",
 				"OPENCLARITY_E2E_AWS_PRIVATE_KEY_FILE": "/home/openclarity/.ssh/id_rsa",
 				"OPENCLARITY_E2E_AWS_PUBLIC_KEY_FILE":  "/home/openclarity/.ssh/id_rsa.pub",
 				// testenv.gcp
+				"OPENCLARITY_E2E_GCP_SCANNER_ARCH":     "arm64",
 				"OPENCLARITY_E2E_GCP_PRIVATE_KEY_FILE": "/home/openclarity/.ssh/id_rsa",
 				"OPENCLARITY_E2E_GCP_PUBLIC_KEY_FILE":  "/home/openclarity/.ssh/id_rsa.pub",
 				// testenv.azure
 				"OPENCLARITY_E2E_AZURE_REGION":           "polandcentral",
+				"OPENCLARITY_E2E_AZURE_SCANNER_ARCH":     "arm64",
 				"OPENCLARITY_E2E_AZURE_PRIVATE_KEY_FILE": "/home/openclarity/.ssh/id_rsa",
 				"OPENCLARITY_E2E_AZURE_PUBLIC_KEY_FILE":  "/home/openclarity/.ssh/id_rsa.pub",
 				// Benchmark configuration
@@ -149,10 +153,12 @@ func TestConfig(t *testing.T) {
 					AWS: &awsenv.Config{
 						EnvName:        "openclarity-e2e-test",
 						Region:         "us-west-2",
+						ScannerArch:    "arm64",
 						PrivateKeyFile: "/home/openclarity/.ssh/id_rsa",
 						PublicKeyFile:  "/home/openclarity/.ssh/id_rsa.pub",
 					},
 					GCP: &gcpenv.Config{
+						ScannerArch:    "arm64",
 						EnvName:        "openclarity-e2e-test",
 						PrivateKeyFile: "/home/openclarity/.ssh/id_rsa",
 						PublicKeyFile:  "/home/openclarity/.ssh/id_rsa.pub",
@@ -160,6 +166,7 @@ func TestConfig(t *testing.T) {
 					Azure: &azureenv.Config{
 						EnvName:        "openclarity-e2e-test",
 						Region:         "polandcentral",
+						ScannerArch:    "arm64",
 						PrivateKeyFile: "/home/openclarity/.ssh/id_rsa",
 						PublicKeyFile:  "/home/openclarity/.ssh/id_rsa.pub",
 					},
@@ -241,10 +248,12 @@ func TestConfig(t *testing.T) {
 					AWS: &awsenv.Config{
 						EnvName:        "openclarity-testenv",
 						Region:         "eu-central-1",
+						ScannerArch:    "x86_64",
 						PrivateKeyFile: "",
 						PublicKeyFile:  "",
 					},
 					GCP: &gcpenv.Config{
+						ScannerArch:    "x86_64",
 						EnvName:        "openclarity-testenv",
 						PrivateKeyFile: "",
 						PublicKeyFile:  "",
@@ -252,6 +261,7 @@ func TestConfig(t *testing.T) {
 					Azure: &azureenv.Config{
 						EnvName:        "openclarity-testenv",
 						Region:         "eastus",
+						ScannerArch:    "x86_64",
 						PrivateKeyFile: "",
 						PublicKeyFile:  "",
 					},

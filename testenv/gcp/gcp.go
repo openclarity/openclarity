@@ -56,6 +56,7 @@ type GCPEnv struct {
 	iamService      *iam.Service
 	serverIP        *string
 	envName         string
+	scannerArch     string
 
 	sshKeyPair          *utils.SSHKeyPair
 	sshPortForwardInput *utils.SSHForwardInput
@@ -238,5 +239,6 @@ func New(config *Config, opts ...ConfigOptFn) (*GCPEnv, error) {
 		iamService:      iamService,
 		sshKeyPair:      sshKeyPair,
 		envName:         config.EnvName,
+		scannerArch:     config.ScannerArch,
 	}, nil
 }

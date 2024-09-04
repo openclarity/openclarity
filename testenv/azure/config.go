@@ -22,6 +22,8 @@ import (
 const (
 	// DefaultLocation the default Azure region to be used.
 	DefaultLocation = "eastus"
+	// DefaultScannerArch is the default architecture to be used for scanner VMs.
+	DefaultScannerArch = "x86_64"
 )
 
 type ContainerImages = envtypes.ContainerImages[string]
@@ -33,6 +35,8 @@ type Config struct {
 	WorkDir string `mapstructure:"work_dir"`
 	// Region the Azure region to be used
 	Region string `mapstructure:"region"`
+	// ScannerArch is the atchitecure to be used for scanner VMs
+	ScannerArch string `mapstructure:"scanner_arch"`
 	// PublicKeyFile the public key file to be used for the key pair
 	PublicKeyFile string `mapstructure:"public_key_file"`
 	// PrivateKeyFile the private key file to be used for the key pair
