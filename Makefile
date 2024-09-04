@@ -606,6 +606,7 @@ RENOVATE_OPTS ?=
 RENOVATE_OPTS += --platform $(or $(shell echo $$RENOVATE_PLATFORM),"local")
 
 # Enable running post-upgrade tasks
+RENOVATE_OPTS += --persist-repo-data 'true'
 RENOVATE_OPTS += --allowed-post-upgrade-commands '[".*"]'
 RENOVATE_OPTS += --post-upgrade-tasks '{"commands": ["make dep-tidy"], "executionMode": "branch"}'
 
