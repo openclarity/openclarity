@@ -488,7 +488,7 @@ func copyLayer(src string, dst string) error {
 		}
 
 		// Copied from libpod/diff.go.
-		var skipPaths = map[string]bool{
+		skipPaths := map[string]bool{
 			"dev":  true,
 			"proc": true,
 			"run":  true,
@@ -563,7 +563,6 @@ func copyLayer(src string, dst string) error {
 
 		return nil
 	})
-
 	if err != nil {
 		return fmt.Errorf("error during walking directory: %w", err)
 	}
