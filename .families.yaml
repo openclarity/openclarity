@@ -78,6 +78,7 @@ vulnerabilities:
       remote_grype_config:
         grype_server_address: ""
         grype_server_timeout: "2m"
+        grype_server_schemes: []
     trivy:
       timeout: 300 # timeout in seconds
       cache_dir: /tmp/.trivy/cache
@@ -91,6 +92,7 @@ secrets:
   enabled: false
   scanners_list:
     - "gitleaks"
+  strip_input_paths: false
   inputs:
     - input: "/"
       input_type: "rootfs"
@@ -116,6 +118,7 @@ misconfiguration:
     - "cisdocker"
     - "lynis"
     - "fake"
+  strip_input_paths: false
   inputs:
     - input: "/"
       input_type: "rootfs"
@@ -137,6 +140,7 @@ infofinder:
   enabled: false
   scanners_list:
     - "sshTopology"
+  strip_input_paths: false
   inputs:
     - input: "/"
       input_type: "rootfs"
@@ -147,6 +151,7 @@ malware:
   scanners_list:
     - "clam"
     - "yara"
+  strip_input_paths: false
   inputs:
     - input: "/"
       input_type: "rootfs"
@@ -172,11 +177,13 @@ malware:
           url: ""
       yarac_binary_path: "/usr/local/bin/yarac"
       cache_dir: "/tmp/.yara"
+      directories_to_scan: []
 
 rootkits:
   enabled: false
   scanners_list:
     - "chkrootkit"
+  strip_input_paths: false
   inputs:
     - input: "/"
       input_type: "rootfs"
