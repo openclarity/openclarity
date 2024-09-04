@@ -296,12 +296,10 @@
     "helmUpdateSubChartArchives"
   ],
   "prConcurrentLimit": 20,
+  "prHourlyLimit": 10,
   "printConfig": false,
-  "rebaseWhen": "conflicted",
+  "rebaseWhen": "behind-base-branch",
   "reviewersFromCodeOwners": true,
-  "schedule": [
-    "after 8am on Monday"
-  ],
   "semanticCommits": "enabled",
   "timezone": "Etc/UTC",
   "vulnerabilityAlerts": {

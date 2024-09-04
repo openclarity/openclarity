@@ -41,3 +41,5 @@ jobs:
           GITHUB_COM_TOKEN: ${{ steps.auth.outputs.token }}
           # Remove unused fields from PR description
           RENOVATE_PR_BODY_TEMPLATE: "{{{header}}}{{{table}}}{{{warnings}}}{{{notes}}}{{{changelogs}}}"
+          RENOVATE_DEPENDENCY_DASHBOARD_HEADER: ""
+          RENOVATE_DEPENDENCY_DASHBOARD_O_S_V_VULNERABILITY_SUMMARY: "all"
