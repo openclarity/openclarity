@@ -476,7 +476,7 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 	return ociArchive, clean.Release(), nil
 }
 
-// nolint:gocognit
+// nolint:gocognit,cyclop
 func copyLayer(src string, dst string) error {
 	err := filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
