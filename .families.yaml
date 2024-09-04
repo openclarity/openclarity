@@ -204,4 +204,4 @@ plugins:
   scanners_config:
     kics:
       image_name: "ghcr.io/openclarity/openclarity-plugin-kics:latest"
-      config: "{}"
+      config: "{\"preview-lines\": 3, \"report-formats\": [\"json\" ], \"platform\": [], \"max-file-size-flag\": 100, \"disable-secrets\": true, \"query-exec-timeout\": 60, \"silent\": true, \"minimal\": true}"
