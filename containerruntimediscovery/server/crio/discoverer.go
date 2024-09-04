@@ -426,7 +426,7 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 	packOptions := ocilayer.RepackOptions{MapOptions: meta.MapOptions}
 
 	// Adding the container's merged layer as a blob.
-	reader := ocilayer.GenerateInsertLayer(layerPath, "/", false, &packOptions)
+	reader := ocilayer.GenerateInsertLayer(tmpLayerPath, "/", false, &packOptions)
 	defer func() {
 		_ = reader.Close()
 	}()
