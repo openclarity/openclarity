@@ -25,6 +25,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 
 	apitypes "github.com/openclarity/openclarity/api/types"
@@ -58,6 +59,7 @@ const (
 	CRIOSockAddress      = "unix:///var/run/crio/crio.sock"
 	DefaultClientTimeout = 2 * time.Second
 	DefaultImageTag      = "latest"
+	TmpLayerPostfix      = "-crd-server-tmp-layer"
 )
 
 type discoverer struct {
@@ -167,25 +169,19 @@ func (d *discoverer) ExportImage(ctx context.Context, imageID string) (io.ReadCl
 	clean := &types.Cleanup{}
 	defer clean.Clean()
 
-	imageInfo, err := d.getContainerImageInfo(ctx, imageID)
+	_, err := d.getContainerImageInfo(ctx, imageID)
 	if err != nil {
-		return nil, func() {}, fmt.Errorf("failed to get image info by id: %w", err)
+		return nil, func() {}, fmt.Errorf("cannot find image: %w", err)
 	}
 
-	if len(*imageInfo.RepoDigests) == 0 {
-		return nil, func() {}, fmt.Errorf("failed to determine image digest: %w", err)
-	}
-
-	digest := (*imageInfo.RepoDigests)[0]
-
-	src, err := alltransports.ParseImageName("containers-storage:" + digest)
+	src, err := alltransports.ParseImageName("containers-storage:" + imageID)
 	if err != nil {
 		return nil, func() {}, fmt.Errorf("error parsing image name: %w", err)
 	}
 
 	destFilePath := filepath.Join(os.TempDir(), uuid.New().String()+"-image.tar")
 
-	dest, err := alltransports.ParseImageName("docker-archive:" + destFilePath)
+	dest, err := alltransports.ParseImageName("oci-archive:" + destFilePath)
 	if err != nil {
 		return nil, func() {}, fmt.Errorf("error creating destination file: %w", err)
 	}
@@ -326,6 +322,24 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 		}
 	}()
 
+	// Create temp directory for layer.
+	tmpLayerPath := filepath.Join(os.TempDir(), layer.ID+TmpLayerPostfix)
+	err = os.MkdirAll(tmpLayerPath, 0o550) //nolint:mnd
+	if err != nil {
+		return nil, func() {}, fmt.Errorf("failed to create tmp dir for layer: %w", err)
+	}
+	defer func() {
+		_ = os.RemoveAll(tmpLayerPath)
+	}()
+
+	// Copy layer into the tmp dir.
+	// mutator.Add makes changes in the layer and does not support
+	// archiving sockets that a running container may have.
+	err = copyLayer(layerPath, tmpLayerPath)
+	if err != nil {
+		return nil, func() {}, fmt.Errorf("failed to copy layer content into tmp dir: %w", err)
+	}
+
 	// Init OCI layout.
 	ociDirPath := filepath.Join(os.TempDir(), uuid.New().String()+"-oci")
 
@@ -462,6 +476,101 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 	return ociArchive, clean.Release(), nil
 }
 
+func copyLayer(src string, dst string) error {
+	err := filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return fmt.Errorf("error during walking directory: %w", err)
+		}
+
+		relativePath, err := filepath.Rel(src, path)
+		if err != nil {
+			return fmt.Errorf("cannot determine file's relative path: %w", err)
+		}
+
+		// Copied from libpod/diff.go.
+		var skipPaths = map[string]bool{
+			"dev":  true,
+			"proc": true,
+			"run":  true,
+			"sys":  true,
+		}
+
+		if skipPaths[relativePath] {
+			if info.IsDir() {
+				return filepath.SkipDir
+			}
+
+			return nil
+		}
+
+		// Skip root dir
+		if relativePath == "." {
+			return nil
+		}
+
+		// Skip tmp layer paths to prevent recursive walk if we are scanning the cr-discovery-server's container
+		if strings.HasSuffix(relativePath, TmpLayerPostfix) {
+			if info.IsDir() {
+				return filepath.SkipDir
+			}
+
+			return nil
+		}
+
+		// Skip sockets
+		if info.Mode()&os.ModeSocket != 0 {
+			return nil
+		}
+
+		// Skip symlinks
+		if info.Mode()&os.ModeSymlink != 0 {
+			return nil
+		}
+
+		destPath := filepath.Join(dst, relativePath)
+		if info.IsDir() {
+			err := os.MkdirAll(destPath, info.Mode())
+			if err != nil {
+				return fmt.Errorf("cannot create directory: %w", err)
+			}
+		} else {
+			sourceFile, err := os.Open(path)
+			if err != nil {
+				return fmt.Errorf("cannot open source file: %w", err)
+			}
+			defer func() {
+				_ = sourceFile.Close()
+			}()
+
+			destFile, err := os.Create(destPath)
+			if err != nil {
+				return fmt.Errorf("cannot create file: %w", err)
+			}
+			defer func() {
+				_ = destFile.Close()
+			}()
+
+			_, err = io.Copy(destFile, sourceFile)
+			if err != nil {
+				return fmt.Errorf("error during copying file: %w", err)
+			}
+
+			err = os.Chmod(dst, info.Mode())
+			if err != nil {
+				return fmt.Errorf("failed to chmod: %w", err)
+			}
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return fmt.Errorf("error during walking directory: %w", err)
+	}
+
+	return nil
+}
+
 // tarDirectory is a helper function to create the final OCI archive.
 func tarDirectory(srcDir, tarFile string) error {
 	file, err := os.Create(tarFile)
@@ -487,7 +596,7 @@ func tarDirectory(srcDir, tarFile string) error {
 			return fmt.Errorf("cannot retrieve file info header: %w", err)
 		}
 
-		// Mapping file's path to it's relative path.
+		// Mapping file's path to its relative path.
 		header.Name, err = filepath.Rel(srcDir, file)
 		if err != nil {
 			return fmt.Errorf("cannot determine file's relative path: %w", err)

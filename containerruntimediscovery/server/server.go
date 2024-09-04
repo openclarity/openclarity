@@ -114,8 +114,10 @@ func (crds *ContainerRuntimeDiscoveryServer) ExportImage(c echo.Context) error {
 		}
 		return fmt.Errorf("failed to export image %s: %w", id, err)
 	}
-	defer cleanup()
-	defer reader.Close()
+	defer func() {
+		_ = reader.Close()
+		cleanup()
+	}()
 
 	c.Response().Header().Set(echo.HeaderContentType, echo.MIMEOctetStream)
 	c.Response().WriteHeader(http.StatusOK)
@@ -168,8 +170,10 @@ func (crds *ContainerRuntimeDiscoveryServer) ExportContainer(c echo.Context) err
 		}
 		return fmt.Errorf("failed to export container %s: %w", id, err)
 	}
-	defer cleanup()
-	defer reader.Close()
+	defer func() {
+		_ = reader.Close()
+		cleanup()
+	}()
 
 	c.Response().Header().Set(echo.HeaderContentType, echo.MIMEOctetStream)
 	c.Response().WriteHeader(http.StatusOK)
