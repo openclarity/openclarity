@@ -1,0 +1,131 @@
+# Lifecycle
+- name: 'stale'
+  color: '795648'
+  description: 'Denotes an issue or PR that has become stale and will be auto-closed.'
+
+- name: 'no-stale'
+  color: 'd3e1f1'
+  description: 'Denotes an issue or PR that should be preserved from going stale.'
+
+# Size labels
+- name: 'size/XS'
+  color: '009900'
+  description: 'Denotes a PR that changes 0-9 lines'
+
+- name: 'size/S'
+  color: '77bb02'
+  description: 'Denotes a PR that changes 10-99 lines'
+
+- name: 'size/M'
+  color: 'eebb03'
+  description: 'Denotes a PR that changes 100-499 lines'
+
+- name: 'size/L'
+  color: 'ee9902'
+  description: 'Denotes a PR that changes 500-999 lines'
+
+- name: 'size/XL'
+  color: 'ed5500'
+  description: 'Denotes a PR that changes 1000+ lines'
+
+# Kind
+- name: 'kind/docs'
+  color: 'c7def7'
+  description: 'Categorizes issue or PR as related to documentation.'
+
+- name: 'kind/feature'
+  color: 'c7def7'
+  description: 'Categorizes issue or PR as related to a new feature.'
+
+- name: 'kind/refactor'
+  color: 'c7def7'
+  description: 'Categorizes issue or PR as related to cleaning up code, process, or technical debt.'
+
+- name: 'kind/support'
+  color: 'c7def7'
+  description: 'Categorizes issue or PR as support questions.'
+
+- name: 'kind/test'
+  color: 'c7def7'
+  description: 'Categorizes issue or PR as related to testing.'
+
+- name: 'kind/bug'
+  color: 'e11d21'
+  description: 'Categorizes issue or PR as related to a bug.'
+
+- name: 'kind/security'
+  color: 'e11d21'
+  description: 'Categorizes issue or PR as related to security.'
+
+- name: 'kind/regression'
+  color: 'e11d21'
+  description: 'Categorizes issue or PR as related to a regression from a prior release.'
+
+# Area
+- name: 'area/api'
+  color: '0052cc'
+- name: 'area/cli'
+  color: '0052cc'
+- name: 'area/containerruntimediscovery'
+  color: '0052cc'
+- name: 'area/core'
+  color: '0052cc'
+- name: 'area/orchestrator'
+  color: '0052cc'
+- name: 'area/plugin'
+  color: '0052cc'
+- name: 'area/scanner'
+  color: '0052cc'
+- name: 'area/ui'
+  color: '0052cc'
+- name: 'area/uibackend'
+  color: '0052cc'
+- name: 'area/utils'
+  color: '0052cc'
+
+## Providers
+- name: 'area/provider'
+  color: '0052cc'
+- name: 'area/provider/gcp'
+  color: '0052cc'
+- name: 'area/provider/aws'
+  color: '0052cc'
+- name: 'area/provider/azure'
+  color: '0052cc'
+- name: 'area/provider/docker'
+  color: '0052cc'
+- name: 'area/provider/k8s'
+  color: '0052cc'
+
+# Dependencies
+- name: 'dependencies'
+  color: '0052cc'
+
+# Community
+- name: 'triage/duplicate'
+  color: 'c31fb5'
+  description: 'This issue or PR already exists.'
+
+- name: 'triage/on-hold'
+  color: 'bfa808'
+  description: 'Indicates an issue or PR is on hold for some reason.'
+
+- name: 'triage/needs-information'
+  color: 'bfa808'
+  description: 'Indicates an issue or PR needs more information in order to work on it.'
+
+- name: 'triage/not-reproducible'
+  color: 'bfa808'
+  description: 'Indicates an issue or PR can not be reproduced as described.'
+
+- name: 'triage/rejected'
+  color: 'bfa808'
+  description: 'Indicates an issue or PR that can not or will not be resolved.'
+
+- name: 'triage/accepted'
+  color: 'bfa808'
+  description: 'Indicates an issue or PR that was accepted for work.'
+
+- name: 'good first issue'
+  color: '7057ff'
+  description: 'Good for newcomers'
