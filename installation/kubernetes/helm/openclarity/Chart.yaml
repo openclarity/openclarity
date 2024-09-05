@@ -18,3 +18,4 @@ dependencies:
   - name: postgresql
     version: "15.5.27"
     repository: https://charts.bitnami.com/bitnami
+    condition: apiserver.database.postgresql.enabled

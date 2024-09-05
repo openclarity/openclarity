@@ -5,6 +5,32 @@ apiserver:
   # -- Number of replicas for the API Server
   replicas: 1
 
+  database:
+    postgresql:
+      # -- Enable/disable Postgresql database
+      enabled: true
+    externalPostgresql:
+      # -- Enable/disable external Postgresql database
+      enabled: false
+      # -- External Postgreqsl database host
+      host: ""
+      # -- External Postgresql database port
+      port: 5432
+      auth:
+        # -- Name of existing secret to use for PostgreSQL credentials that has the following keys:
+        # username
+        # password
+        # database
+        existingSecret: ""
+    sqlite:
+      # -- Enable/disable SQLite database
+      enabled: false
+      persistence:
+        # -- Access mode for PersistentVolumeClaim
+        accessMode: ReadWriteOnce
+        # -- Size for PersistentVolumeClaim
+        size: 1Gi
+
   image:
     # -- API Server image registry
     registry: ghcr.io
@@ -221,9 +247,9 @@ orchestrator:
     scannerImageVersion: ""
     # -- Scanner VM security group
     scannerSecurityGroup: ""
-    # -- Storage account to use for transfering snapshots between regions
+    # -- Storage account to use for transferring snapshots between regions
     scannerStorageAccountName: ""
-    # -- Storage container to use for transfering snapshots between regions
+    # -- Storage container to use for transferring snapshots between regions
     scannerStorageContainerName: ""
 
   kubernetes: {}
@@ -422,7 +448,8 @@ gateway:
     # -- Annotations set for service
     annotations: {}
     # -- External Traffic Policy configuration
-    # Set the field to Cluster to route external traffic to all ready endpoints and Local to only route to ready node-local endpoints.
+    # Set the field to Cluster to route external traffic to all ready endpoints and Local to only route to ready node
+    # local endpoints.
     externalTrafficPolicy: Cluster
 
 postgresql:
