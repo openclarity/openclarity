@@ -142,6 +142,9 @@ jobs:
             ${{ runner.os }}-go-${{ github.ref_name }}-
             ${{ runner.os }}-go-${{ github.event.repository.default_branch }}-
 
+      - name: Install required libs and tools
+        run: sudo apt-get install libbtrfs-dev libgpgme-dev pkg-config -y
+
       - name: Verify APIs
         run: |
           make gen-api-go

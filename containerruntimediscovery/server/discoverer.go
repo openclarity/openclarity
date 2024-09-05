@@ -21,6 +21,7 @@ import (
 	"fmt"
 
 	"github.com/openclarity/openclarity/containerruntimediscovery/server/containerd"
+	"github.com/openclarity/openclarity/containerruntimediscovery/server/crio"
 	"github.com/openclarity/openclarity/containerruntimediscovery/server/docker"
 	"github.com/openclarity/openclarity/containerruntimediscovery/types"
 	"github.com/openclarity/openclarity/core/log"
@@ -29,6 +30,7 @@ import (
 var discovererFactories = map[string]types.DiscovererFactory{
 	"docker":     docker.New,
 	"containerd": containerd.New,
+	"crio":       crio.New,
 }
 
 // NewDiscoverer tries to create all registered discoverers and returns the

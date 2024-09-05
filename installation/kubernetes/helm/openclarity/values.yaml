@@ -912,6 +912,13 @@ crDiscoveryServer:
     # -- Pod security context fsGroup
     fsGroup: 1001
 
+  # In order to use CRI-O runtime you need to run OpenClarity
+  # with the following configuration:
+  #
+  # containerSecurityContext:
+  #    enabled: true
+  #    privileged: true
+  #    readOnlyRootFilesystem: false
   containerSecurityContext:
     # -- Container security context enabled
     enabled: false
