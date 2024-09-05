@@ -9,6 +9,6 @@ spec:
   ports:
     - name: http
       protocol: TCP
-      port: 80
-      targetPort: 80
+      port: 8080
+      targetPort: 8080
   selector: {{- include "openclarity.ui.labels.matchLabels" . | nindent 4 }}
