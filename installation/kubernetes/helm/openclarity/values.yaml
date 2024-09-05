@@ -437,6 +437,10 @@ postgresql:
     digest: ""
     # -- Postgresql container image pull policy
     pullPolicy: IfNotPresent
+  primary:
+    # -- Postgresql container resource preset
+    # For more info see: https://github.com/bitnami/charts/blob/main/bitnami/common/templates/_resources.tpl#L15
+    resourcesPreset: "small"
 
   resources:
     # -- The resources limits for the postgresql containers
