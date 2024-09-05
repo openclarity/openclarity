@@ -1,0 +1,13 @@
+{{- if .Values.apiserver.database.sqlite.enabled -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "openclarity.apiserver.name" . }}-pvc
+  namespace: {{ .Release.Namespace | quote }}
+spec:
+  accessModes:
+    - {{ .Values.apiserver.database.sqlite.persistence.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.apiserver.database.sqlite.persistence.size | quote }}
+{{- end -}}

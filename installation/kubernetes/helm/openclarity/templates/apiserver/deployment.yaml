@@ -25,6 +25,12 @@ spec:
       tolerations: {{- .Values.apiserver.tolerations | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "openclarity.apiserver.serviceAccountName" . }}
+      {{- if .Values.apiserver.database.sqlite.enabled }}
+      volumes:
+        - name: {{ include "openclarity.apiserver.name" . }}-pv
+          persistentVolumeClaim:
+            claimName: {{ include "openclarity.apiserver.name" . }}-pvc
+      {{- end }}
       containers:
         - name: apiserver
           image: {{ include "openclarity.images.image" ( dict "imageRoot" .Values.apiserver.image "global" .Values.global ) }}
@@ -37,6 +43,7 @@ spec:
           securityContext: {{- omit .Values.apiserver.containerSecurityContext "enabled" | toYaml | nindent 12 }}
           {{- end }}
           env:
+          {{- if .Values.apiserver.database.postgresql.enabled }}
             - name: OPENCLARITY_APISERVER_DATABASE_DRIVER
               value: POSTGRES
             - name: OPENCLARITY_APISERVER_DB_HOST
@@ -52,6 +59,39 @@ spec:
                 secretKeyRef:
                   name: {{ include "postgresql.v1.secretName" .Subcharts.postgresql }}
                   key: password
+          {{- else if .Values.apiserver.database.externalPostgresql.enabled }}
+            - name: OPENCLARITY_APISERVER_DATABASE_DRIVER
+              value: POSTGRES
+            - name: OPENCLARITY_APISERVER_DB_HOST
+              value: {{ .Values.apiserver.database.externalPostgresql.host }}
+            - name: OPENCLARITY_APISERVER_DB_PORT
+              value: {{ .Values.apiserver.database.externalPostgresql.port }}
+            - name: OPENCLARITY_APISERVER_DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.apiserver.database.externalPostgresql.auth.existingSecret }} }}
+                  key: database
+            - name: OPENCLARITY_APISERVER_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.apiserver.database.externalPostgresql.auth.existingSecret }} }}
+                  key: username
+            - name: OPENCLARITY_APISERVER_DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.apiserver.database.externalPostgresql.auth.existingSecret }} }}
+                  key: password
+          {{- else if .Values.apiserver.database.sqlite.enabled }}
+            - name: OPENCLARITY_APISERVER_DATABASE_DRIVER
+              value: LOCAL
+            - name: OPENCLARITY_APISERVER_LOCAL_DB_PATH
+              value: /data/openclarity.db
+          {{- end }}
+          {{- if .Values.apiserver.database.sqlite.enabled }}
+          volumeMounts:
+            - name: {{ include "openclarity.apiserver.name" . }}-pv
+              mountPath: /data
+          {{- end }}
           ports:
             - name: http
               containerPort: 8888

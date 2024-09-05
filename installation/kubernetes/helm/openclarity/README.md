@@ -37,6 +37,14 @@ secrets.
 | apiserver.containerSecurityContext.runAsGroup | int | `1001` | Group ID which the containers should run as |
 | apiserver.containerSecurityContext.runAsNonRoot | bool | `true` | Whether the containers should run as a non-root user |
 | apiserver.containerSecurityContext.runAsUser | int | `1001` | User ID which the containers should run as |
+| apiserver.database.externalPostgresql.auth.existingSecret | string | `""` | Name of existing secret to use for PostgreSQL credentials that has the following keys: username password database |
+| apiserver.database.externalPostgresql.enabled | bool | `false` | Enable/disable external Postgresql database |
+| apiserver.database.externalPostgresql.host | string | `""` | External Postgreqsl database host |
+| apiserver.database.externalPostgresql.port | int | `5432` | External Postgresql database port |
+| apiserver.database.postgresql.enabled | bool | `true` | Enable/disable Postgresql database |
+| apiserver.database.sqlite.enabled | bool | `false` | Enable/disable SQLite database |
+| apiserver.database.sqlite.persistence.accessMode | string | `"ReadWriteOnce"` | Access mode for PersistentVolumeClaim |
+| apiserver.database.sqlite.persistence.size | string | `"1Gi"` | Size for PersistentVolumeClaim |
 | apiserver.image.digest | string | `""` | API Server image digest. If set will override the tag. |
 | apiserver.image.pullPolicy | string | `"IfNotPresent"` | API Server image pull policy |
 | apiserver.image.registry | string | `"ghcr.io"` | API Server image registry |
@@ -133,7 +141,7 @@ secrets.
 | gateway.resources.requests | object | `{}` | The requested resources for the gateway containers |
 | gateway.service.annotations | object | `{}` | Annotations set for service |
 | gateway.service.clusterIP | string | `""` | Dedicated IP address used for service |
-| gateway.service.externalTrafficPolicy | string | `"Cluster"` | External Traffic Policy configuration Set the field to Cluster to route external traffic to all ready endpoints and Local to only route to ready node-local endpoints. |
+| gateway.service.externalTrafficPolicy | string | `"Cluster"` | External Traffic Policy configuration Set the field to Cluster to route external traffic to all ready endpoints and Local to only route to ready node local endpoints. |
 | gateway.service.nodePorts | object | `{"http":""}` | NodePort configurations |
 | gateway.service.ports | object | `{"http":80}` | Port configurations |
 | gateway.service.type | string | `"ClusterIP"` | Service type: ClusterIP, NodePort, LoadBalancer |
@@ -177,8 +185,8 @@ secrets.
 | orchestrator.azure.scannerPublicKey | string | `""` | SSH RSA Public Key to configure the scanner instances with |
 | orchestrator.azure.scannerResourceGroup | string | `""` | ResourceGroup where the scanner instances will be run |
 | orchestrator.azure.scannerSecurityGroup | string | `""` | Scanner VM security group |
-| orchestrator.azure.scannerStorageAccountName | string | `""` | Storage account to use for transfering snapshots between regions |
-| orchestrator.azure.scannerStorageContainerName | string | `""` | Storage container to use for transfering snapshots between regions |
+| orchestrator.azure.scannerStorageAccountName | string | `""` | Storage account to use for transferring snapshots between regions |
+| orchestrator.azure.scannerStorageContainerName | string | `""` | Storage container to use for transferring snapshots between regions |
 | orchestrator.azure.scannerSubnetId | string | `""` | Subnet ID where the scanner instances will be run |
 | orchestrator.azure.scannerVMArchitectureToImageSkuMapping | string | `""` | Scanner VM source image sku mapping |
 | orchestrator.azure.scannerVmArchitecture | string | `""` | Scanner architecture |
