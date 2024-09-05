@@ -243,7 +243,7 @@ secrets.
 | postgresql.image.pullPolicy | string | `"IfNotPresent"` | Postgresql container image pull policy |
 | postgresql.image.registry | string | `"docker.io"` | Postgresql container registry |
 | postgresql.image.repository | string | `"bitnami/postgresql"` | Postgresql container repository |
-| postgresql.image.tag | string | `"16.4.0-debian-12-r4"` | Postgresql container tag |
+| postgresql.image.tag | string | `"16.4.0-debian-12-r6"` | Postgresql container tag |
 | postgresql.podSecurityContext.enabled | bool | `true` | Pod security context enabled |
 | postgresql.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
 | postgresql.primary.resourcesPreset | string | `"small"` | Postgresql container resource preset For more info see: https://github.com/bitnami/charts/blob/main/bitnami/common/templates/_resources.tpl#L15 |
