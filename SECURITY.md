@@ -1,7 +1,7 @@
 # Security Policies and Procedures
 
 This document outlines security procedures and general policies for the
-VMClarity project.
+OpenClarity project.
 
 - [Reporting a Bug](#reporting-a-bug)
 - [Disclosure Policy](#disclosure-policy)
@@ -9,9 +9,9 @@ VMClarity project.
 
 ## Reporting a Bug
 
-The VMClarity team and community take all security bugs in
-VMClarity seriously. Thank you for improving the security of
-VMClarity. We appreciate your efforts and responsible disclosure and
+The OpenClarity team and community take all security bugs in
+OpenClarity seriously. Thank you for improving the security of
+OpenClarity. We appreciate your efforts and responsible disclosure and
 will make every effort to acknowledge your contributions.
 
 Report security bugs by emailing `oss-security@cisco.com`.

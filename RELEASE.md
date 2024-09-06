@@ -1,6 +1,6 @@
 # Release
 
-This document outlines the process for creating a new release for VMClarity using the [Go MultiMod Releaser](https://github.com/open-telemetry/opentelemetry-go-build-tools/tree/main/multimod). All code block examples provided below correspond to an update to version `v0.7.0`, please update accordingly.
+This document outlines the process for creating a new release for OpenClarity using the [Go MultiMod Releaser](https://github.com/open-telemetry/opentelemetry-go-build-tools/tree/main/multimod). All code block examples provided below correspond to an update to version `v0.7.0`, please update accordingly.
 
 ## 1. Update the New Release Version
 
@@ -9,9 +9,9 @@ This document outlines the process for creating a new release for VMClarity usin
 git checkout -b release/v0.7.0
 ```
 
-* Modify the `versions.yaml` file to update the version for VMClarity's module-set. Keep in mind that the same version is applied to all modules.
+* Modify the `versions.yaml` file to update the version for OpenClarity's module-set. Keep in mind that the same version is applied to all modules.
 ```diff
-  vmclarity:
+  openclarity:
 -    version: v0.6.0
 +    version: v0.7.0
 ```
@@ -83,4 +83,4 @@ Please note that the release tag is not necessarily associated with the "release
   latest_version = "0.7.0" # Used in some installation commands
 ```
 
-* From the release page, download the AWS Cloudformation files (`aws-cloudformation-v0.7.0.tar.gz`), extract the archive locally and upload its contents to the S3 bucket used for storing them for VMClarity installation.
+* From the release page, download the AWS Cloudformation files (`aws-cloudformation-v0.7.0.tar.gz`), extract the archive locally and upload its contents to the S3 bucket used for storing them for OpenClarity installation.

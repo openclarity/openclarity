@@ -432,10 +432,10 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 	}()
 
 	history := &ispec.History{
-		Author:     "VMClarity",
+		Author:     "OpenClarity",
 		Comment:    fmt.Sprintf("Snapshot of container %s for security scanning", container.ID),
 		Created:    &created,
-		CreatedBy:  "VMClarity",
+		CreatedBy:  "OpenClarity",
 		EmptyLayer: false,
 	}
 
@@ -454,7 +454,7 @@ func (d *discoverer) ExportContainer(ctx context.Context, containerID string) (i
 		return nil, func() {}, fmt.Errorf("failed to update reference: %w", err)
 	}
 
-	ociArchivePath := filepath.Join(os.TempDir(), "vmclarity-"+uuid.New().String()+".tar")
+	ociArchivePath := filepath.Join(os.TempDir(), "openclarity-"+uuid.New().String()+".tar")
 	err = tarDirectory(ociDirPath, ociArchivePath)
 	if err != nil {
 		return nil, func() {}, fmt.Errorf("failed to create OCI archive: %w", err)
