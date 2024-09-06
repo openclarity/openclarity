@@ -5,7 +5,6 @@ import BackRouteButton from "components/BackRouteButton";
 import ContentContainer from "components/ContentContainer";
 import Loader from "components/Loader";
 import Title from "components/Title";
-import { useFetch } from "hooks";
 
 import "./details-page-wrapper.scss";
 
@@ -13,7 +12,6 @@ const DetailsContentWrapper = ({
   data,
   getTitleData,
   detailsContent: DetailsContent,
-  fetchData,
 }) => {
   const { title, subTitle } = getTitleData(data);
 
@@ -24,7 +22,7 @@ const DetailsContentWrapper = ({
         {!!subTitle && <div className="details-page-title-sub">{subTitle}</div>}
       </div>
       <ContentContainer>
-        <DetailsContent data={data} fetchData={fetchData} />
+        <DetailsContent data={data} />
       </ContentContainer>
     </div>
   );
@@ -33,23 +31,17 @@ const DetailsContentWrapper = ({
 const DetailsPageWrapper = ({
   className,
   backTitle,
-  url,
-  expand,
-  select,
   getTitleData,
   detailsContent,
+  data,
+  isError,
+  isLoading,
   withPadding = false,
 }) => {
   const { pathname } = useLocation();
   const params = useParams();
   const { id } = params;
   const innerPath = params["*"];
-
-  const expandParams = !!expand ? `$expand=${expand}` : "";
-  const selectParams = !!select ? `$select=${select}` : "";
-  const [{ loading, data, error }, fetchData] = useFetch(
-    `${url}/${id}${!!expandParams || !!selectParams ? "?" : ""}${selectParams}${!!selectParams ? "&" : ""}${expandParams}`,
-  );
 
   return (
     <div
@@ -64,14 +56,12 @@ const DetailsPageWrapper = ({
           "",
         )}
       />
-      {loading ? (
-        <Loader />
-      ) : !!error ? null : (
+      {isLoading && <Loader />}
+      {!isLoading && !isError && (
         <DetailsContentWrapper
           detailsContent={detailsContent}
           getTitleData={getTitleData}
           data={data}
-          fetchData={fetchData}
         />
       )}
     </div>

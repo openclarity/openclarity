@@ -1,15 +1,14 @@
 import React from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import DetailsPageWrapper from "components/DetailsPageWrapper";
-import { APIS } from "utils/systemConsts";
+import { useQuery } from "@tanstack/react-query";
 import ConfigurationActionsDisplay from "../ConfigurationActionsDisplay";
+import QUERY_KEYS from "../../../../api/constants";
+import { openClarityApi } from "../../../../api/openClarityApi";
 import TabConfiguration from "./TabConfiguration";
-
 import "./configuration-details.scss";
 
-export const SCAN_CONFIGS_SCAN_TAB_PATH = "scans";
-
-const DetailsContent = ({ data, fetchData }) => {
+const DetailsContent = ({ data }) => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const params = useParams();
@@ -23,7 +22,6 @@ const DetailsContent = ({ data, fetchData }) => {
         <ConfigurationActionsDisplay
           data={data}
           onDelete={() => navigate(pathname.replace(`/${id}/${innerTab}`, ""))}
-          onUpdate={fetchData}
         />
       </div>
       <TabConfiguration data={data} />
@@ -31,15 +29,28 @@ const DetailsContent = ({ data, fetchData }) => {
   );
 };
 
-const ConfigurationDetails = () => (
-  <DetailsPageWrapper
-    className="configuration-details-page-wrapper"
-    backTitle="Scan configurations"
-    url={APIS.SCAN_CONFIGS}
-    select="id,name,scanTemplate/scope,scanTemplate/assetScanTemplate/scanFamiliesConfig,scheduled,scanTemplate/maxParallelScanners,scanTemplate/assetScanTemplate/scannerInstanceCreationConfig"
-    getTitleData={(data) => ({ title: data?.name })}
-    detailsContent={DetailsContent}
-  />
-);
+const ConfigurationDetails = () => {
+  const { id } = useParams();
+  const { data, isError, isLoading } = useQuery({
+    queryKey: [QUERY_KEYS.scanConfigs, id],
+    queryFn: () =>
+      openClarityApi.getScanConfigsScanConfigID(
+        id,
+        "id,name,scanTemplate/scope,scanTemplate/assetScanTemplate/scanFamiliesConfig,scheduled,scanTemplate/maxParallelScanners,scanTemplate/assetScanTemplate/scannerInstanceCreationConfig",
+      ),
+  });
+
+  return (
+    <DetailsPageWrapper
+      className="configuration-details-page-wrapper"
+      backTitle="Scan configurations"
+      getTitleData={(data) => ({ title: data?.name })}
+      detailsContent={DetailsContent}
+      data={data?.data}
+      isError={isError}
+      isLoading={isLoading}
+    />
+  );
+};
 
 export default ConfigurationDetails;

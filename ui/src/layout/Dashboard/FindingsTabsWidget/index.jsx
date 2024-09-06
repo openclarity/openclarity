@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import classnames from "classnames";
 import { get } from "lodash";
-import { useFetch } from "hooks";
 import Loader from "components/Loader";
 import Tabs from "components/Tabs";
 import IconWithTooltip from "components/IconWithTooltip";
@@ -88,12 +87,12 @@ const FindingsTabsWidget = ({
   findingsItems,
   className,
   title,
-  url,
   getHeaderItems,
   getBodyItems,
+  isError,
+  isLoading,
+  data,
 }) => {
-  const [{ data, error, loading }] = useFetch(url, { urlPrefix: "ui" });
-
   const WIDGET_TAB_ITEMS = findingsItems.map(({ dataKey, icon, title }) => ({
     id: dataKey,
     customTitle: ({ isActive }) => (
@@ -121,9 +120,9 @@ const FindingsTabsWidget = ({
         tabItemPadding={15}
       />
       <div className="tabbed-widget-table-wrapper">
-        {loading ? (
+        {isLoading ? (
           <Loader />
-        ) : error ? null : (
+        ) : isError ? null : (
           <WidgetContent
             data={!!data ? data[selectedTabId] : []}
             getHeaderItems={getHeaderItems}

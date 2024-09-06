@@ -4,9 +4,11 @@ import { getHighestVersionCvssData, formatNumber } from "utils/utils";
 import {
   FINDINGS_MAPPING,
   VULNERABILITY_FINDINGS_ITEM,
-  APIS,
 } from "utils/systemConsts";
+import { useQuery } from "@tanstack/react-query";
 import FindingsTabsWidget from "../FindingsTabsWidget";
+import QUERY_KEYS from "../../../api/constants";
+import { openClarityUIBackend } from "../../../api/openClarityApi";
 
 const FINDINGS_ITEMS = [
   VULNERABILITY_FINDINGS_ITEM,
@@ -65,30 +67,39 @@ const TABS_COLUMNS_MAPPING = {
   },
 };
 
-const FindingsImpactWidget = ({ className }) => (
-  <FindingsTabsWidget
-    className={className}
-    findingsItems={FINDINGS_ITEMS}
-    title="Findings impact"
-    widgetName="findings-impact"
-    url={APIS.DASHBOARD_FINDINGS_IMPACT}
-    getHeaderItems={(selectedId) => {
-      const { headerItems = [] } = TABS_COLUMNS_MAPPING[selectedId] || {};
+const FindingsImpactWidget = ({ className }) => {
+  const { data, isError, isLoading } = useQuery({
+    queryKey: [QUERY_KEYS.findingsImpact],
+    queryFn: () => openClarityUIBackend.dashboardFindingsImpactGet(),
+  });
 
-      return [...headerItems, "Affected assets"];
-    }}
-    getBodyItems={(selectedId) => {
-      const { bodyItems = [] } = TABS_COLUMNS_MAPPING[selectedId] || {};
+  return (
+    <FindingsTabsWidget
+      className={className}
+      findingsItems={FINDINGS_ITEMS}
+      title="Findings impact"
+      widgetName="findings-impact"
+      getHeaderItems={(selectedId) => {
+        const { headerItems = [] } = TABS_COLUMNS_MAPPING[selectedId] || {};
 
-      return [
-        ...bodyItems,
-        {
-          customDisplay: ({ affectedAssetsCount }) =>
-            formatNumber(affectedAssetsCount),
-        },
-      ];
-    }}
-  />
-);
+        return [...headerItems, "Affected assets"];
+      }}
+      getBodyItems={(selectedId) => {
+        const { bodyItems = [] } = TABS_COLUMNS_MAPPING[selectedId] || {};
+
+        return [
+          ...bodyItems,
+          {
+            customDisplay: ({ affectedAssetsCount }) =>
+              formatNumber(affectedAssetsCount),
+          },
+        ];
+      }}
+      data={data?.data}
+      isError={isError}
+      isLoading={isLoading}
+    />
+  );
+};
 
 export default FindingsImpactWidget;

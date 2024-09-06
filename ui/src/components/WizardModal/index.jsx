@@ -1,28 +1,28 @@
 import React, { useState, useEffect } from "react";
 import classnames from "classnames";
 import { Formik, Form, useFormikContext } from "formik";
-import { cloneDeep, isNull, isEmpty } from "lodash";
-import { useFetch, FETCH_METHODS, usePrevious } from "hooks";
+import { cloneDeep } from "lodash";
 import Button from "components/Button";
 import Modal from "components/Modal";
 import Loader from "components/Loader";
 import Title from "components/Title";
 import Arrow, { ARROW_NAMES } from "components/Arrow";
+import { useMutation } from "@tanstack/react-query";
+import { openClarityApi } from "../../api/openClarityApi";
 
 import "./wizard-modal.scss";
 
-const Wizard = ({
+function Wizard({
   steps,
   onClose,
-  submitUrl,
   onSubmitSuccess,
   getSubmitParams,
-}) => {
+  isEditForm,
+}) {
   const {
     values,
     isSubmitting,
     isValidating,
-    setSubmitting,
     status,
     setStatus,
     isValid,
@@ -40,10 +40,25 @@ const Wizard = ({
 
   const disableStepDone = isSubmitting || isValidating || !isValid;
 
-  const [{ loading, data, error }, submitFormData] = useFetch(submitUrl, {
-    loadOnMount: false,
+  const scanConfigMutation = useMutation({
+    mutationFn: () => {
+      const submitParams = getSubmitParams(cloneDeep(values));
+      if (isEditForm) {
+        return openClarityApi.putScanConfigsScanConfigID(
+          values.id,
+          submitParams.submitData,
+        );
+      }
+      return openClarityApi.postScanConfigs(submitParams.submitData);
+    },
+    onSuccess: () => {
+      onSubmitSuccess();
+    },
+    onError: (error) => {
+      setStatus(error.message);
+      setErrors(error.errors);
+    },
   });
-  const prevLoading = usePrevious(loading);
 
   const onStepClick = (stepId) => {
     if (disableStepDone || stepId === activeStepId) {
@@ -53,54 +68,11 @@ const Wizard = ({
     setActiveStepId(stepId);
   };
 
-  const handleSubmit = () => {
-    const submitQueryParams = !!getSubmitParams
-      ? getSubmitParams(cloneDeep(values))
-      : {};
-    submitFormData({
-      method: FETCH_METHODS.POST,
-      submitData: values,
-      ...submitQueryParams,
-    });
-  };
-
   useEffect(() => {
     validateForm();
   }, [activeStepId, validateForm]);
 
-  useEffect(() => {
-    if (prevLoading && !loading) {
-      setSubmitting(false);
-      setStatus(null);
-
-      if (isNull(error)) {
-        if (!!onSubmitSuccess) {
-          onSubmitSuccess(data);
-        }
-      } else {
-        const { message, errors } = error;
-
-        if (!!message) {
-          setStatus(message);
-        }
-
-        if (!isEmpty(errors)) {
-          setErrors(errors);
-        }
-      }
-    }
-  }, [
-    prevLoading,
-    loading,
-    error,
-    data,
-    setSubmitting,
-    setStatus,
-    onSubmitSuccess,
-    setErrors,
-  ]);
-
-  if (isSubmitting) {
+  if (scanConfigMutation.isPending) {
     return <Loader />;
   }
 
@@ -145,13 +117,16 @@ const Wizard = ({
         <Button tertiary onClick={onClose}>
           Cancel
         </Button>
-        <Button onClick={handleSubmit} disabled={disableStepDone}>
+        <Button
+          onClick={() => scanConfigMutation.mutate()}
+          disabled={disableStepDone}
+        >
           Save
         </Button>
       </div>
     </Form>
   );
-};
+}
 
 const WizardModal = ({ title, initialValues, onClose, validate, ...props }) => (
   <Modal

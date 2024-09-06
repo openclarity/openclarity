@@ -6,7 +6,7 @@ import { useMutation } from "@tanstack/react-query";
 import { openClarityApi } from "../../../../api/openClarityApi";
 import "./scan-actions-display.scss";
 
-const ScanActionsDisplay = ({ data, onUpdate }) => {
+const ScanActionsDisplay = ({ data, refetch }) => {
   const {
     id,
     status: { state },
@@ -23,8 +23,8 @@ const ScanActionsDisplay = ({ data, onUpdate }) => {
         },
       }),
     onSuccess: () => {
-      if (onUpdate !== undefined) {
-        onUpdate();
+      if (refetch !== undefined) {
+        refetch();
       }
     },
   });
