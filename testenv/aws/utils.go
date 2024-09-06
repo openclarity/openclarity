@@ -89,7 +89,7 @@ func (e *AWSEnv) afterSetUp(ctx context.Context) error {
 		User:          DefaultRemoteUser,
 		Host:          e.server.PublicIP,
 		Port:          utils.DefaultSSHPort,
-		LocalPort:     8080, //nolint:mnd
+		LocalPort:     8081, //nolint:mnd
 		RemoteAddress: "localhost",
 		RemotePort:    80, //nolint:mnd
 	}

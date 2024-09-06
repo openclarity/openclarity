@@ -562,7 +562,7 @@ Resources:
                     # Name of the SSH KeyPair to use for Scanner instance launch
                     OPENCLARITY_AWS_KEYPAIR_NAME=${KeyName}
                     # Architecture for Scanner instance. Make sure that there is a valid mapping defined in OPENCLARITY_AWS_INSTANCE_ARCHITECTURE_TO_TYPE_MAPPING and OPENCLARITY_AWS_INSTANCE_ARCHITECTURE_TO_AMI_MAPPING
-                    # for this architecture. 
+                    # for this architecture.
                     OPENCLARITY_AWS_SCANNER_INSTANCE_ARCHITECTURE=${ScannerInstanceArchitecture}
                     # Comma separated list of architecture:instance_type pairs used by the Provider to determine the instance type
                     # for the Scanner instance based on the Targets architecture.
@@ -1248,7 +1248,7 @@ Parameters:
     Description: >
       The architecture to be used for Scanner instance which prevents the Provider to dynamically determine it based on the Target architecture.
     Type: String
-    Default: ''
+    Default: x86_64
     AllowedValues:
       - ''
       - x86_64

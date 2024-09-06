@@ -120,6 +120,7 @@ func (e *AzureEnv) createTestParams() map[string]interface{} {
 	params := make(map[string]interface{})
 
 	params["location"] = map[string]interface{}{"value": e.location}
+	params["scannerVmArchitecture"] = map[string]interface{}{"value": e.scannerArch}
 	params["adminUsername"] = map[string]interface{}{"value": defaultRemoteUser}
 	params["adminSSHKey"] = map[string]interface{}{"value": strings.TrimSpace(string(e.sshKeyPair.PublicKey))}
 	params["deployPostfix"] = map[string]interface{}{"value": e.postfix}
@@ -141,7 +142,7 @@ func (e *AzureEnv) setServerConnection(ctx context.Context) error {
 		User:          defaultRemoteUser,
 		Host:          *e.serverHost,
 		Port:          utils.DefaultSSHPort,
-		LocalPort:     8080, //nolint:mnd
+		LocalPort:     8082, //nolint:mnd
 		RemoteAddress: "localhost",
 		RemotePort:    80, //nolint:mnd
 	}

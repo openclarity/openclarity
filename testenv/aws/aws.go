@@ -57,6 +57,7 @@ type AWSEnv struct {
 	templateURL         string
 	workDir             string
 	region              string
+	scannerArch         string
 	sshKeyPair          *utils.SSHKeyPair
 	sshPortForwardInput *utils.SSHForwardInput
 	sshPortForward      *utils.SSHPortForward
@@ -94,6 +95,10 @@ func (e *AWSEnv) SetUp(ctx context.Context) error {
 					ParameterKey:   aws.String("KeyName"),
 					ParameterValue: &e.stackName,
 				},
+				{
+					ParameterKey:   aws.String("ScannerInstanceArchitecture"),
+					ParameterValue: &e.scannerArch,
+				},
 			},
 		},
 	)
@@ -126,6 +131,9 @@ func (e *AWSEnv) TearDown(ctx context.Context) error {
 	if e.sshPortForward != nil {
 		e.sshPortForward.Stop()
 	}
+
+	// Give time for OpenClarity to clean up the scanner VM or else the stack deletion will fail
+	time.Sleep(DefaultSSHPortReadyTimeout)
 
 	// Delete the CloudFormation stack
 	_, err := e.client.DeleteStack(
@@ -219,14 +227,15 @@ func New(config *Config, opts ...ConfigOptFn) (*AWSEnv, error) {
 	}
 
 	return &AWSEnv{
-		client:     client,
-		ec2Client:  ec2Client,
-		s3Client:   s3Client,
-		stackName:  config.EnvName,
-		workDir:    config.WorkDir,
-		region:     config.Region,
-		sshKeyPair: sshKeyPair,
-		testAsset:  &asset.Asset{},
+		client:      client,
+		ec2Client:   ec2Client,
+		s3Client:    s3Client,
+		stackName:   config.EnvName,
+		workDir:     config.WorkDir,
+		region:      config.Region,
+		scannerArch: config.ScannerArch,
+		sshKeyPair:  sshKeyPair,
+		testAsset:   &asset.Asset{},
 		meta: map[string]interface{}{
 			"environment": "aws",
 			"name":        config.EnvName,
