@@ -1,0 +1,35 @@
+name: Sync Project
+
+on:
+  schedule:
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  sync-stale:
+    name: Sync stale items
+    uses: openclarity/.github/.github/workflows/_stale.yml@main
+    with:
+      days-until-stale: 60
+      days-until-close: 14
+      stale-label: "stale"
+      exempt-label: "no-stale"
+
+  sync-labels:
+    name: Sync labels
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          sparse-checkout: .github/labels.yml
+
+      - uses: EndBug/label-sync@52074158190acb45f3077f9099fea818aa43f97a # v2.3.3
+        with:
+          dry-run: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+          config-file: .github/labels.yml
+          delete-other-labels: false

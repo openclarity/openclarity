@@ -1,4 +1,4 @@
-name: Lint PR Title
+name: Sync PR
 
 on:
   pull_request_target:
@@ -12,8 +12,8 @@ permissions:
   pull-requests: write
 
 jobs:
-  main:
-    name: Validate PR title
+  validate:
+    name: Validate PR
     runs-on: ubuntu-latest
     steps:
       - uses: amannn/action-semantic-pull-request@0723387faaf9b38adef4775cd42cfd5155ed6017 # v5.5.3
@@ -82,9 +82,34 @@ jobs:
             ```
             ${{ steps.lint_pr_title.outputs.error_message }}
             ```
+
       # Hide error message if the PR title has been fixed
       - if: ${{ steps.lint_pr_title.outputs.error_message == null }}
         uses: marocchino/sticky-pull-request-comment@331f8f5b4215f0445d3c07b4967662a32a2d3e31 # v2.9.0
         with:
           header: pr-title-lint-error
           delete: true
+
+  label:
+    name: Label PR
+    runs-on: ubuntu-latest
+    steps:
+      - uses: codelytv/pr-size-labeler@c7a55a022747628b50f3eb5bf863b9e796b8f274 # v1.10.1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          xs_label: 'size/XS'
+          xs_max_size: '10'
+          s_label: 'size/S'
+          s_max_size: '100'
+          m_label: 'size/M'
+          m_max_size: '500'
+          l_label: 'size/L'
+          l_max_size: '1000'
+          xl_label: 'size/XL'
+          fail_if_xl: 'false'
+          message_if_xl: >
+            This PR exceeds the recommended size of 1000 lines.
+            Please make sure you are NOT addressing multiple issues with one PR.
+            Note that this PR might take longer to review due to large size.
+          files_to_ignore: |
+            "*.md"
