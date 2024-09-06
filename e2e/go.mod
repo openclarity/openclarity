@@ -8,13 +8,13 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/onsi/ginkgo/v2 v2.20.1
 	github.com/onsi/gomega v1.34.1
-	github.com/openclarity/openclarity/api/client v0.7.2
-	github.com/openclarity/openclarity/api/types v0.7.2
-	github.com/openclarity/openclarity/core v0.7.2
-	github.com/openclarity/openclarity/scanner v0.7.2
-	github.com/openclarity/openclarity/testenv v0.7.2
-	github.com/openclarity/openclarity/uibackend/client v0.7.2
-	github.com/openclarity/openclarity/uibackend/types v0.7.2
+	github.com/openclarity/openclarity/api/client v1.0.0
+	github.com/openclarity/openclarity/api/types v1.0.0
+	github.com/openclarity/openclarity/core v1.0.0
+	github.com/openclarity/openclarity/scanner v1.0.0
+	github.com/openclarity/openclarity/testenv v1.0.0
+	github.com/openclarity/openclarity/uibackend/client v1.0.0
+	github.com/openclarity/openclarity/uibackend/types v1.0.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.19.0
 )
@@ -368,11 +368,11 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/open-policy-agent/opa v0.68.0 // indirect
 	github.com/openclarity/grype-server/api v0.0.0-20240808094111-65a244e79a8f // indirect
-	github.com/openclarity/openclarity/installation v0.7.2 // indirect
-	github.com/openclarity/openclarity/plugins/runner v0.7.2 // indirect
-	github.com/openclarity/openclarity/plugins/sdk-go v0.7.2 // indirect
-	github.com/openclarity/openclarity/utils v0.7.2 // indirect
-	github.com/openclarity/openclarity/workflow v0.7.2 // indirect
+	github.com/openclarity/openclarity/installation v1.0.0 // indirect
+	github.com/openclarity/openclarity/plugins/runner v1.0.0 // indirect
+	github.com/openclarity/openclarity/plugins/sdk-go v1.0.0 // indirect
+	github.com/openclarity/openclarity/utils v1.0.0 // indirect
+	github.com/openclarity/openclarity/workflow v1.0.0 // indirect
 	github.com/openclarity/yara-rule-server v0.3.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0 // indirect
