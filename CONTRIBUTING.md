@@ -1,6 +1,6 @@
 # How to Contribute
 
-Thanks for your interest in contributing to VMClarity! Here are a few general guidelines on contributing and
+Thanks for your interest in contributing to OpenClarity! Here are a few general guidelines on contributing and
 reporting bugs that we ask you to review. Following these guidelines helps to communicate that you respect the time of
 the contributors managing and developing this open source project. In return, they should reciprocate that respect in
 addressing your issue, assessing changes, and helping you finalize your pull requests. In that spirit of mutual respect,
@@ -17,9 +17,9 @@ any real-time space e.g., Slack, Discord, etc.
 - [Development](#development)
   - [Dependencies](#dependencies)
   - [Development Environment](#development-environment)
-  - [Running the VMClarity stack locally using Docker](#running-the-vmclarity-stack-locally-using-docker)
-  - [Building VMClarity Binaries](#building-vmclarity-binaries)
-  - [Building VMClarity Containers](#building-vmclarity-containers)
+  - [Running the OpenClarity stack locally using Docker](#running-the-openclarity-stack-locally-using-docker)
+  - [Building OpenClarity Binaries](#building-openclarity-binaries)
+  - [Building OpenClarity Containers](#building-openclarity-containers)
   - [Linting](#linting)
   - [Unit Tests](#unit-tests)
   - [Testing End to End](#testing-end-to-end)
@@ -87,14 +87,14 @@ use (
 )
 ```
 
-### Running the VMClarity stack locally using Docker
+### Running the OpenClarity stack locally using Docker
 
-For testing the changes across the whole stack, VMClarity can be ran with Docker provider locally, after the images have
-been [built](#building-vmclarity-containers) and their tags have been updated in the
+For testing the changes across the whole stack, OpenClarity can be ran with Docker provider locally, after the images have
+been [built](#building-openclarity-containers) and their tags have been updated in the
 `installation/docker/image_override.env` file:
 
 ```shell
-docker compose --project-name vmclarity \
+docker compose --project-name openclarity \
                --file installation/docker/docker-compose.yml \
                --env-file installation/docker/image_override.env \
                up -d --wait --remove-orphans
@@ -115,29 +115,29 @@ ensure that Docker can communicate with them if they are ran on local network.
 Some environment variables could also be necessary for you to export in your shell before running the component, inspect
 the contents of the corresponding `.env` file in the `installation/docker` directory!
 
-To clean up the VMClarity stack locally, run:
+To clean up the OpenClarity stack locally, run:
 
 ```shell
-docker compose --project-name vmclarity \
+docker compose --project-name openclarity \
                --file installation/docker/docker-compose.yml \
                down --remove-orphans --volumes
 ```
 
-### Building VMClarity Binaries
+### Building OpenClarity Binaries
 
-Makefile targets are provided to compile and build the VMClarity binaries. `make build` can be used to build all the
+Makefile targets are provided to compile and build the OpenClarity binaries. `make build` can be used to build all the
 components, while `make build-all-go` and `make ui` only builds the go modules or the UI.
 
-### Building VMClarity Containers
+### Building OpenClarity Containers
 
-`make docker` can be used to build the VMClarity containers for all the components. Specific targets for example `make
+`make docker` can be used to build the OpenClarity containers for all the components. Specific targets for example `make
 docker-cli` and `make docker-ui-backend` are also provided.
 
-In order to also publish the VMClarity containers to a registry, please set the `DOCKER_PUSH` environment variable to
+In order to also publish the OpenClarity containers to a registry, please set the `DOCKER_PUSH` environment variable to
 `true`. You can override the destination registry as well:
 
 ```shell
-DOCKER_REGISTRY=docker.io/my-vmclarity-images DOCKER_PUSH=true make docker
+DOCKER_REGISTRY=docker.io/my-openclarity-images DOCKER_PUSH=true make docker
 ```
 
 You must be logged into the docker registry locally before using this target.
@@ -179,8 +179,8 @@ go test ./cli/cmd/... -run Test_isSupportedFS
 
 - After making changes to the API schema in `api/openapi.yaml`, you can run `make gen-api-go` and `make gen-api-js` to regenerate the models,
 client and server code.
-- Run `make gen-bicep` for generating bicep files after modifying them for installing VMClarity on Azure.
-- Run `make gen-helm-docs` for generating the docs after making changes to VMClarity's Helm chart.
+- Run `make gen-bicep` for generating bicep files after modifying them for installing OpenClarity on Azure.
+- Run `make gen-helm-docs` for generating the docs after making changes to OpenClarity's Helm chart.
 
 ### Formatting
 
@@ -205,7 +205,7 @@ directory. For example you could use something similar in VSCode's `settings.jso
 `make e2e-docker` can be used run the end-to-end tests in the repository locally using Docker. `make e2e-k8s` can also
 be used to run end-to-end tests for Kubernetes provider using Docker.
 
-For details on how to test VMClarity, please check the testing guide [here](docs/test_e2e.md) on how to perform a test
+For details on how to test OpenClarity, please check the testing guide [here](docs/test_e2e.md) on how to perform a test
 on AWS and the instructions [here](e2e/README.md) on how to run and add new tests.
 
 ### Troubleshooting and Debugging
@@ -222,16 +222,16 @@ reserve breaking changes until the next major version release.
 
 ## Other Ways to Contribute
 
-We welcome anyone that wants to contribute to VMClarity to triage and reply to open issues to help troubleshoot
+We welcome anyone that wants to contribute to OpenClarity to triage and reply to open issues to help troubleshoot
 and fix existing bugs. Here is what you can do:
 
 - Help ensure that existing issues follows the recommendations from the _[Reporting Issues](#reporting-issues)_ section,
   providing feedback to the issue's author on what might be missing.
 - Review and update the existing content of our [Wiki](https://github.com/openclarity/openclarity/wiki) with up-to-date
   instructions and code samples.
-- Review existing pull requests, and testing patches against real existing applications that use VMClarity.
+- Review existing pull requests, and testing patches against real existing applications that use OpenClarity.
 - Write a test, or add a missing test case to an existing test.
 
-Thanks again for your interest on contributing to VMClarity!
+Thanks again for your interest on contributing to OpenClarity!
 
 :heart:
