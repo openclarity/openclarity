@@ -62,8 +62,8 @@ github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826/go.mod h1:TaXosZuwd
 github.com/nxadm/tail v1.4.4/go.mod h1:kenIhsEOeOJmVchQTgglprH7qJGnHDVpk1VPCcaMI8A=
 github.com/nxadm/tail v1.4.8 h1:nPr65rt6Y5JFSKQO7qToXr7pePgD6Gwiw05lkbyAQTE=
 github.com/nxadm/tail v1.4.8/go.mod h1:+ncqLTQzXmGhMZNUePPaPqPvBxHAIsmXswZKocGu+AU=
-github.com/oapi-codegen/oapi-codegen/v2 v2.3.1-0.20240823215434-d232e9efa9f5 h1:v1Go6tsT4lfcVzlSXjg6CfSGGgG8kWXPHOthLkx8eV8=
-github.com/oapi-codegen/oapi-codegen/v2 v2.3.1-0.20240823215434-d232e9efa9f5/go.mod h1:ZBPUgGu64Z0KswMMFH+qiCjpZmnyXB0khpUR/z79tmg=
+github.com/oapi-codegen/oapi-codegen/v2 v2.3.1-0.20240908200014-2be24b11ae0f h1:BcTtRDZXgLzjmTb0SPiru35wlmvvmGeXd9ZdK+vPCuw=
+github.com/oapi-codegen/oapi-codegen/v2 v2.3.1-0.20240908200014-2be24b11ae0f/go.mod h1:ZBPUgGu64Z0KswMMFH+qiCjpZmnyXB0khpUR/z79tmg=
 github.com/oapi-codegen/runtime v1.1.1 h1:EXLHh0DXIJnWhdRPN2w4MXAzFyE4CskzhNLUmtpMYro=
 github.com/oapi-codegen/runtime v1.1.1/go.mod h1:SK9X900oXmPWilYR5/WKPzt3Kqxn/uS/+lbpREv+eCg=
 github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
