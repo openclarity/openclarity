@@ -43,10 +43,11 @@ const (
 )
 
 type TestSuiteParams struct {
-	ServicesReadyTimeout time.Duration
-	ScanTimeout          time.Duration
-	Scope                string
-	FamiliesConfig       *apitypes.ScanFamiliesConfig
+	ServicesReadyTimeout      time.Duration
+	ScanTimeout               time.Duration
+	FindingsProcessingTimeout time.Duration
+	Scope                     string
+	FamiliesConfig            *apitypes.ScanFamiliesConfig
 }
 
 var FullScanFamiliesConfig = &apitypes.ScanFamiliesConfig{
@@ -105,10 +106,11 @@ func TestSuiteParamsForEnv(t types.EnvironmentType) *TestSuiteParams {
 		familiesConfig.Malware.Enabled = to.Ptr(false)
 
 		return &TestSuiteParams{
-			ServicesReadyTimeout: 10 * time.Minute,
-			ScanTimeout:          20 * time.Minute,
-			Scope:                fmt.Sprintf(scope, "tags"),
-			FamiliesConfig:       familiesConfig,
+			ServicesReadyTimeout:      10 * time.Minute,
+			ScanTimeout:               20 * time.Minute,
+			Scope:                     fmt.Sprintf(scope, "tags"),
+			FindingsProcessingTimeout: 10 * time.Minute,
+			FamiliesConfig:            familiesConfig,
 		}
 	case types.EnvironmentTypeAzure:
 		// NOTE(paralta) Disabling malware due to long scan times
@@ -116,17 +118,19 @@ func TestSuiteParamsForEnv(t types.EnvironmentType) *TestSuiteParams {
 		familiesConfig.Malware.Enabled = to.Ptr(false)
 
 		return &TestSuiteParams{
-			ServicesReadyTimeout: 20 * time.Minute,
-			ScanTimeout:          40 * time.Minute,
-			Scope:                fmt.Sprintf(scope, "tags"),
-			FamiliesConfig:       FullScanFamiliesConfig,
+			ServicesReadyTimeout:      20 * time.Minute,
+			ScanTimeout:               40 * time.Minute,
+			FindingsProcessingTimeout: 120 * time.Minute,
+			Scope:                     fmt.Sprintf(scope, "tags"),
+			FamiliesConfig:            FullScanFamiliesConfig,
 		}
 	case types.EnvironmentTypeDocker:
 		return &TestSuiteParams{
-			ServicesReadyTimeout: 5 * time.Minute,
-			ScanTimeout:          5 * time.Minute,
-			Scope:                fmt.Sprintf(scope, "labels"),
-			FamiliesConfig:       FullScanFamiliesConfig,
+			ServicesReadyTimeout:      5 * time.Minute,
+			ScanTimeout:               5 * time.Minute,
+			Scope:                     fmt.Sprintf(scope, "labels"),
+			FindingsProcessingTimeout: 10 * time.Minute,
+			FamiliesConfig:            FullScanFamiliesConfig,
 		}
 	case types.EnvironmentTypeKubernetes:
 		// NOTE(paralta) Disabling syft https://github.com/anchore/syft/issues/1545
@@ -137,10 +141,11 @@ func TestSuiteParamsForEnv(t types.EnvironmentType) *TestSuiteParams {
 		familiesConfig.Plugins.Enabled = to.Ptr(false)
 
 		return &TestSuiteParams{
-			ServicesReadyTimeout: 5 * time.Minute,
-			ScanTimeout:          5 * time.Minute,
-			Scope:                fmt.Sprintf(scope, "labels") + " and assetInfo/containerName eq 'alpine'",
-			FamiliesConfig:       familiesConfig,
+			ServicesReadyTimeout:      5 * time.Minute,
+			ScanTimeout:               5 * time.Minute,
+			Scope:                     fmt.Sprintf(scope, "labels") + " and assetInfo/containerName eq 'alpine'",
+			FindingsProcessingTimeout: 10 * time.Minute,
+			FamiliesConfig:            familiesConfig,
 		}
 	default:
 		return &TestSuiteParams{}
