@@ -213,7 +213,6 @@ e2e-aws: ## Run end-to-end test suite on AWS
 E2E_ENV_AZURE = $(E2E_ENV)
 E2E_ENV_AZURE += OPENCLARITY_E2E_PLATFORM=azure
 E2E_ENV_AZURE += OPENCLARITY_E2E_ENV_NAME=openclarity-e2e-test-azure
-E2E_ENV_AZURE += OPENCLARITY_E2E_AZURE_REGION=polandcentral
 
 .PHONY: e2e-azure
 e2e-azure: ## Run end-to-end test suite on Azure
