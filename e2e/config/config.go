@@ -122,7 +122,7 @@ func TestSuiteParamsForEnv(t types.EnvironmentType) *TestSuiteParams {
 			ScanTimeout:               40 * time.Minute,
 			FindingsProcessingTimeout: 120 * time.Minute,
 			Scope:                     fmt.Sprintf(scope, "tags"),
-			FamiliesConfig:            FullScanFamiliesConfig,
+			FamiliesConfig:            familiesConfig,
 		}
 	case types.EnvironmentTypeDocker:
 		return &TestSuiteParams{
