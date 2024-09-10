@@ -247,7 +247,7 @@ func TestConfig(t *testing.T) {
 						},
 					},
 					AWS: &awsenv.Config{
-						EnvName:        "openclarity-testenv",
+						EnvName:        "testenv",
 						Region:         "eu-central-1",
 						ScannerArch:    "x86_64",
 						PrivateKeyFile: "",
@@ -255,12 +255,12 @@ func TestConfig(t *testing.T) {
 					},
 					GCP: &gcpenv.Config{
 						ScannerArch:    "x86_64",
-						EnvName:        "openclarity-testenv",
+						EnvName:        "testenv",
 						PrivateKeyFile: "",
 						PublicKeyFile:  "",
 					},
 					Azure: &azureenv.Config{
-						EnvName:        "openclarity-testenv",
+						EnvName:        "testenv",
 						Region:         "eastus",
 						ScannerArch:    "x86_64",
 						PrivateKeyFile: "",

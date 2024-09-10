@@ -33,7 +33,7 @@ import (
 )
 
 const (
-	DefaultEnvName  = "openclarity-testenv"
+	DefaultEnvName  = "testenv"
 	DefaultPlatform = types.EnvironmentTypeDocker
 )
 
