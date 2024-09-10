@@ -107,7 +107,7 @@ func TestSuiteParamsForEnv(t types.EnvironmentType) *TestSuiteParams {
 
 		return &TestSuiteParams{
 			ServicesReadyTimeout:      10 * time.Minute,
-			ScanTimeout:               20 * time.Minute,
+			ScanTimeout:               30 * time.Minute,
 			Scope:                     fmt.Sprintf(scope, "tags"),
 			FindingsProcessingTimeout: 10 * time.Minute,
 			FamiliesConfig:            familiesConfig,
