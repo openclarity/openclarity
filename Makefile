@@ -168,7 +168,9 @@ fix: bin/golangci-lint $(FIXGOMODULES) ## Fix linter errors in Go source code
 
 E2E_TARGETS =
 E2E_ENV =
-ifneq ($(CI),true)
+
+# Check if the CI environment is set to false to run the e2e tests with local images
+ifeq ($(CI),false)
 	E2E_TARGETS += docker
 	E2E_ENV += OPENCLARITY_E2E_APISERVER_IMAGE=$(DOCKER_REGISTRY)/openclarity-api-server:$(DOCKER_TAG)
 	E2E_ENV += OPENCLARITY_E2E_ORCHESTRATOR_IMAGE=$(DOCKER_REGISTRY)/openclarity-orchestrator:$(DOCKER_TAG)
@@ -196,6 +198,9 @@ E2E_ENV_K8S += OPENCLARITY_E2E_ENV_NAME=openclarity-e2e-test-k8s
 e2e-k8s: $(E2E_TARGETS) ## Run end-to-end test suite on Kubernetes
 	$(E2E_ENV_K8S) $(E2E_COMMAND)
 
+# Run cloud end-to-end test suite with latest images in the registry, otherwise push images to registry is required
+E2E_ENV =
+
 E2E_ENV_AWS = $(E2E_ENV)
 E2E_ENV_AWS += OPENCLARITY_E2E_PLATFORM=aws
 E2E_ENV_AWS += OPENCLARITY_E2E_ENV_NAME=openclarity-e2e-test-aws
@@ -208,7 +213,6 @@ e2e-aws: ## Run end-to-end test suite on AWS
 E2E_ENV_AZURE = $(E2E_ENV)
 E2E_ENV_AZURE += OPENCLARITY_E2E_PLATFORM=azure
 E2E_ENV_AZURE += OPENCLARITY_E2E_ENV_NAME=openclarity-e2e-test-azure
-E2E_ENV_AZURE += OPENCLARITY_E2E_AZURE_REGION=polandcentral
 
 .PHONY: e2e-azure
 e2e-azure: ## Run end-to-end test suite on Azure

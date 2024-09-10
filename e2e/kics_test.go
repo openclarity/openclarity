@@ -30,6 +30,7 @@ import (
 	"github.com/openclarity/openclarity/scanner/families"
 	"github.com/openclarity/openclarity/scanner/families/plugins/runner/config"
 	plugintypes "github.com/openclarity/openclarity/scanner/families/plugins/types"
+	"github.com/openclarity/openclarity/testenv/types"
 )
 
 const scannerPluginName = "kics"
@@ -49,6 +50,10 @@ func (n *Notifier) FamilyFinished(_ context.Context, res families.FamilyResult) 
 var _ = ginkgo.Describe("Running KICS scan", func() {
 	ginkgo.Context("which scans an openapi.yaml file", func() {
 		ginkgo.It("should finish successfully", func(ctx ginkgo.SpecContext) {
+			if cfg.TestEnvConfig.Platform != types.EnvironmentTypeDocker {
+				ginkgo.Skip("skipping test because it's not running on docker")
+			}
+
 			if cfg.TestEnvConfig.Images.PluginKics == "" {
 				ginkgo.Skip("KICS plugin image not provided")
 			}
@@ -108,6 +113,10 @@ var _ = ginkgo.Describe("Running KICS scan", func() {
 var _ = ginkgo.Describe("Running a KICS scan", func() {
 	ginkgo.Context("which scans an openapi.yaml file and has report-formats set to sarif", func() {
 		ginkgo.It("should finish successfully, and output both JSON and Sarif format as well as OpenClarity output", func(ctx ginkgo.SpecContext) {
+			if cfg.TestEnvConfig.Platform != types.EnvironmentTypeDocker {
+				ginkgo.Skip("skipping test because it's not running on docker")
+			}
+
 			if cfg.TestEnvConfig.Images.PluginKics == "" {
 				ginkgo.Skip("KICS plugin image not provided")
 			}

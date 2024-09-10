@@ -128,7 +128,7 @@ var _ = ginkgo.Describe("Running a full scan (exploits, info finder, malware, mi
 					}
 				}
 				return false
-			}, DefaultTimeout*2, DefaultPeriod).Should(gomega.BeTrue())
+			}, cfg.TestSuiteParams.FindingsProcessingTimeout, DefaultPeriod).Should(gomega.BeTrue())
 
 			ginkgo.By("waiting until findings trends dashboard is populated with vulnerabilities")
 			gomega.Eventually(func() bool {

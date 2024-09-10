@@ -37,10 +37,10 @@ const (
 )
 
 var imageReference = &armcompute.ImageReference{
-	Offer:     to.Ptr("0001-com-ubuntu-minimal-focal"),
+	Offer:     to.Ptr("0001-com-ubuntu-minimal-jammy"),
 	Publisher: to.Ptr("Canonical"),
-	SKU:       to.Ptr("minimal-20_04-lts"),
-	Version:   to.Ptr("20.04.202004230"),
+	SKU:       to.Ptr("minimal-22_04-lts"),
+	Version:   to.Ptr("22.04.202409030"),
 }
 
 func (e *AzureEnv) createAssetVM(ctx context.Context, location, resourceGroupName string) error {
