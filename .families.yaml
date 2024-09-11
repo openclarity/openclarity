@@ -59,7 +59,6 @@ vulnerabilities:
     #   input_type: "image"
     - input: "/mnt/"
       input_type: "sbom"
-  input_from_sbom: true # TBD
   local_image_scan: true # Scan images from local docker daemon (true) or from remote registry (false)
   registry: # Registry configuration
     skip-verify-tls: false
@@ -117,7 +116,6 @@ exploits:
   inputs: # List of inputs to scan
     - input: "CVE-2024-5535,CVE-2023-3446"
       input_type: "csv"
-  input_from_vuln: true # TBD
   scanners_config: # Configuration for each scanner
     exploit_db:
       base_url: "http://localhost:1326" # Base URL for the ExploitDB server
