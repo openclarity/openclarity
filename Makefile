@@ -192,7 +192,7 @@ e2e-docker: $(E2E_TARGETS) ## Run end-to-end test suite on Docker
 
 E2E_ENV_K8S = $(E2E_ENV)
 E2E_ENV_K8S += OPENCLARITY_E2E_PLATFORM=kubernetes
-E2E_ENV_K8S += OPENCLARITY_E2E_ENV_NAME=openclarity-e2e-test-k8s
+E2E_ENV_K8S += OPENCLARITY_E2E_ENV_NAME=testenv-k8s
 
 .PHONY: e2e-k8s
 e2e-k8s: $(E2E_TARGETS) ## Run end-to-end test suite on Kubernetes
@@ -203,7 +203,7 @@ E2E_ENV =
 
 E2E_ENV_AWS = $(E2E_ENV)
 E2E_ENV_AWS += OPENCLARITY_E2E_PLATFORM=aws
-E2E_ENV_AWS += OPENCLARITY_E2E_ENV_NAME=openclarity-e2e-test-aws
+E2E_ENV_AWS += OPENCLARITY_E2E_ENV_NAME=testenv-aws
 E2E_ENV_AWS += OPENCLARITY_E2E_AWS_REGION=eu-central-1
 
 .PHONY: e2e-aws
@@ -212,7 +212,7 @@ e2e-aws: ## Run end-to-end test suite on AWS
 
 E2E_ENV_AZURE = $(E2E_ENV)
 E2E_ENV_AZURE += OPENCLARITY_E2E_PLATFORM=azure
-E2E_ENV_AZURE += OPENCLARITY_E2E_ENV_NAME=openclarity-e2e-test-azure
+E2E_ENV_AZURE += OPENCLARITY_E2E_ENV_NAME=testenv-azure
 
 .PHONY: e2e-azure
 e2e-azure: ## Run end-to-end test suite on Azure
@@ -220,7 +220,7 @@ e2e-azure: ## Run end-to-end test suite on Azure
 
 E2E_ENV_GCP = $(E2E_ENV)
 E2E_ENV_GCP += OPENCLARITY_E2E_PLATFORM=gcp
-E2E_ENV_GCP += OPENCLARITY_E2E_ENV_NAME=openclarity-e2e-test-gcp
+E2E_ENV_GCP += OPENCLARITY_E2E_ENV_NAME=testenv-gcp
 
 .PHONY: e2e-gcp
 e2e-gcp: ## Run end-to-end test suite on GCP
