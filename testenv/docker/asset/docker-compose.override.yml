@@ -1,6 +1,6 @@
 services:
   alpine:
-    image: alpine:3.18.2@sha256:82d1e9d7ed48a7523bdebc18cf6290bdb97b82302a8a9c27d4fe885949ea94d1
+    image: alpine:3.17.0@sha256:c0d488a800e4127c334ad20d61d7bc21b4097540327217dfab52262adc02380c
     command: ["sleep", "infinity"]
     networks:
       - asset
