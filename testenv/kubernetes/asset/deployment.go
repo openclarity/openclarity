@@ -60,7 +60,7 @@ func NewDeploymentFromConfig(config *Config) (*appsv1.Deployment, error) {
 					Containers: []corev1.Container{
 						{
 							Name:    "alpine",
-							Image:   "alpine:3.18.2",
+							Image:   "alpine:3.17.0@sha256:c0d488a800e4127c334ad20d61d7bc21b4097540327217dfab52262adc02380c",
 							Command: []string{"sleep", "infinity"},
 						},
 					},
