@@ -7,7 +7,7 @@ require (
 	github.com/docker/go-connections v0.5.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-multierror v1.1.1
-	github.com/oapi-codegen/oapi-codegen/v2 v2.3.1-0.20240908200014-2be24b11ae0f
+	github.com/oapi-codegen/oapi-codegen/v2 v2.3.1-0.20240915195924-0502e95d86bb
 	github.com/openclarity/openclarity/core v0.7.2
 	github.com/openclarity/openclarity/plugins/sdk-go v0.7.2
 	github.com/openclarity/openclarity/utils v0.7.2

@@ -210,8 +210,8 @@ github.com/morikuni/aec v1.0.0/go.mod h1:BbKIizmSmc5MMPqRYbxO4ZU0S0+P200+tUnFx7P
 github.com/nxadm/tail v1.4.4/go.mod h1:kenIhsEOeOJmVchQTgglprH7qJGnHDVpk1VPCcaMI8A=
 github.com/nxadm/tail v1.4.8 h1:nPr65rt6Y5JFSKQO7qToXr7pePgD6Gwiw05lkbyAQTE=
 github.com/nxadm/tail v1.4.8/go.mod h1:+ncqLTQzXmGhMZNUePPaPqPvBxHAIsmXswZKocGu+AU=
-github.com/oapi-codegen/oapi-codegen/v2 v2.3.1-0.20240908200014-2be24b11ae0f h1:BcTtRDZXgLzjmTb0SPiru35wlmvvmGeXd9ZdK+vPCuw=
-github.com/oapi-codegen/oapi-codegen/v2 v2.3.1-0.20240908200014-2be24b11ae0f/go.mod h1:ZBPUgGu64Z0KswMMFH+qiCjpZmnyXB0khpUR/z79tmg=
+github.com/oapi-codegen/oapi-codegen/v2 v2.3.1-0.20240915195924-0502e95d86bb h1:dpz9FkizPWtXnbox+kgmBWlHCwu3QI90hue/eBSHroc=
+github.com/oapi-codegen/oapi-codegen/v2 v2.3.1-0.20240915195924-0502e95d86bb/go.mod h1:ZBPUgGu64Z0KswMMFH+qiCjpZmnyXB0khpUR/z79tmg=
 github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
 github.com/onsi/ginkgo v1.10.2/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
 github.com/onsi/ginkgo v1.12.1/go.mod h1:zj2OWP4+oCPe1qIXoGWkgMRwljMUYCdkwsT2108oapk=
