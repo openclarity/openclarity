@@ -6,7 +6,7 @@ require (
 	github.com/getkin/kin-openapi v0.127.0
 	github.com/go-playground/validator/v10 v10.22.0
 	github.com/labstack/echo/v4 v4.12.0
-	github.com/oapi-codegen/oapi-codegen/v2 v2.3.1-0.20240908200014-2be24b11ae0f
+	github.com/oapi-codegen/oapi-codegen/v2 v2.3.1-0.20240915195924-0502e95d86bb
 )
 
 require (
