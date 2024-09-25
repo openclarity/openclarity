@@ -8,9 +8,9 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/oapi-codegen/oapi-codegen/v2 v2.3.1-0.20240915195924-0502e95d86bb
-	github.com/openclarity/openclarity/core v0.7.2
-	github.com/openclarity/openclarity/plugins/sdk-go v0.7.2
-	github.com/openclarity/openclarity/utils v0.7.2
+	github.com/openclarity/openclarity/core v1.0.0
+	github.com/openclarity/openclarity/plugins/sdk-go v1.0.0
+	github.com/openclarity/openclarity/utils v1.0.0
 )
 
 require (

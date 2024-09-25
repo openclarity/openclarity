@@ -3,8 +3,8 @@ module github.com/openclarity/openclarity/containerruntimediscovery/server
 go 1.22.6
 
 require (
-	github.com/openclarity/openclarity/api/types v0.7.2
-	github.com/openclarity/openclarity/containerruntimediscovery/types v0.7.2
+	github.com/openclarity/openclarity/api/types v1.0.0
+	github.com/openclarity/openclarity/containerruntimediscovery/types v1.0.0
 )
 
 require (
@@ -16,7 +16,7 @@ require (
 	github.com/docker/docker v26.1.5+incompatible
 	github.com/google/uuid v1.6.0
 	github.com/labstack/echo/v4 v4.12.0
-	github.com/openclarity/openclarity/core v0.7.2
+	github.com/openclarity/openclarity/core v1.0.0
 	github.com/opencontainers/image-spec v1.1.0
 	github.com/opencontainers/umoci v0.4.7
 	github.com/sirupsen/logrus v1.9.3
@@ -139,7 +139,7 @@ require (
 	github.com/oapi-codegen/oapi-codegen/v2 v2.3.1-0.20240915195924-0502e95d86bb // indirect
 	github.com/oapi-codegen/runtime v1.1.1 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
-	github.com/openclarity/openclarity/plugins/sdk-go v0.7.2 // indirect
+	github.com/openclarity/openclarity/plugins/sdk-go v1.0.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/runc v1.1.14 // indirect
 	github.com/opencontainers/runtime-spec v1.2.0 // indirect
