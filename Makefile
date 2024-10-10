@@ -483,7 +483,7 @@ $(DIST_DIR)/aws-cloudformation-$(VERSION).tar.gz: $(DIST_DIR)/aws-cloudformation
 $(DIST_DIR)/aws-cloudformation-$(VERSION).bundle: $(CFN_FILES) | $(CFN_DIST_DIR)
 	$(info --- Generate Cloudformation bundle)
 	cp -vR $(CFN_DIR)/* $(CFN_DIST_DIR)/
-	sed -i -E 's@\(ghcr\.io\/openclarity\/openclarity\-\(api-server|cli|orchestrator|ui-backend|ui\)\):latest@\1:$(VERSION)@' $(CFN_DIST_DIR)/OpenClarity.cfn
+	sed -i -E 's@(ghcr\.io\/openclarity\/openclarity\-(api-server|cli|orchestrator|ui-backend|ui)):latest@\1:$(VERSION)@' $(CFN_DIST_DIR)/OpenClarity.cfn
 	@touch $@
 
 $(CFN_DIST_DIR)/LICENSE: $(ROOT_DIR)/LICENSE | $(CFN_DIST_DIR)
@@ -506,7 +506,7 @@ $(DIST_DIR)/azure-bicep-$(VERSION).tar.gz: $(DIST_DIR)/azure-bicep-$(VERSION).bu
 $(DIST_DIR)/azure-bicep-$(VERSION).bundle: $(BICEP_FILES) bin/bicep | $(BICEP_DIST_DIR)
 	$(info --- Generate Bicep bundle)
 	cp -vR $(BICEP_DIR)/* $(BICEP_DIST_DIR)/
-	sed -i -E 's@\(ghcr\.io\/openclarity\/openclarity\-\(api-server|cli|orchestrator|ui-backend|ui\)\):latest@\1:$(VERSION)@' \
+	sed -i -E 's@(ghcr\.io\/openclarity\/openclarity\-(api-server|cli|orchestrator|ui-backend|ui)):latest@\1:$(VERSION)@' \
 		$(BICEP_DIST_DIR)/*.bicep $(BICEP_DIST_DIR)/openclarity-UI.json
 	$(BICEP_BIN) build $(BICEP_DIST_DIR)/openclarity.bicep
 	@touch $@
@@ -530,7 +530,7 @@ $(DIST_DIR)/docker-compose-$(VERSION).tar.gz: $(DIST_DIR)/docker-compose-$(VERSI
 $(DIST_DIR)/docker-compose-$(VERSION).bundle: $(DOCKER_COMPOSE_FILES) | $(DOCKER_COMPOSE_DIST_DIR)
 	$(info --- Generate Docker Compose bundle)
 	cp -vR $(DOCKER_COMPOSE_DIR)/* $(DOCKER_COMPOSE_DIST_DIR)/
-	sed -i -E 's@\(ghcr\.io\/openclarity\/openclarity\-\(api-server|cli|orchestrator|ui-backend|ui\)\):latest@\1:$(VERSION)@' \
+	sed -i -E 's@(ghcr\.io\/openclarity\/openclarity\-(api-server|cli|orchestrator|ui-backend|ui)):latest@\1:$(VERSION)@' \
 		$(DOCKER_COMPOSE_DIST_DIR)/*.yml $(DOCKER_COMPOSE_DIST_DIR)/*.yaml $(DOCKER_COMPOSE_DIST_DIR)/*.env
 	@touch $@
 
@@ -554,7 +554,7 @@ $(DIST_DIR)/gcp-deployment-$(VERSION).tar.gz: $(DIST_DIR)/gcp-deployment-$(VERSI
 $(DIST_DIR)/gcp-deployment-$(VERSION).bundle: $(GCP_DM_FILES) | $(GCP_DM_DIST_DIR)
 	$(info --- Generate Google Cloud Deployment bundle)
 	cp -vR $(GCP_DM_DIR)/* $(GCP_DM_DIST_DIR)/
-	sed -i -E 's@\(ghcr\.io\/openclarity\/openclarity\-\(api-server|cli|orchestrator|ui-backend|ui\)\):latest@\1:$(VERSION)@' \
+	sed -i -E 's@(ghcr\.io\/openclarity\/openclarity\-(api-server|cli|orchestrator|ui-backend|ui)):latest@\1:$(VERSION)@' \
 		$(GCP_DM_DIST_DIR)/openclarity.py.schema $(GCP_DM_DIST_DIR)/components/openclarity-server.py.schema
 	@touch $@
 
