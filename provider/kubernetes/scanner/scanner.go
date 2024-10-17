@@ -186,7 +186,7 @@ func (s *Scanner) runScannerJob(ctx context.Context, config *provider.ScanJobCon
 					InitContainers: []corev1.Container{
 						{
 							Name:    "download-asset",
-							Image:   "yauritux/busybox-curl:latest",
+							Image:   "curlimages/curl:latest",
 							Command: []string{"/bin/sh", "-c"},
 							Args:    []string{fmt.Sprintf("curl -v %s -o %s", sourceURL, archiveLocation)},
 							VolumeMounts: []corev1.VolumeMount{
