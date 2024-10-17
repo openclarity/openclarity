@@ -266,7 +266,7 @@
                             "type": "Microsoft.Common.TextBox",
                             "label": "Trivy Server Container Image",
                             "subLabel": "",
-                            "defaultValue": "docker.io/aquasec/trivy:0.52.1",
+                            "defaultValue": "docker.io/aquasec/trivy:0.56.2",
                             "toolTip": "Trivy Server Container Image",
                             "constraints": {
                                 "required": false,
