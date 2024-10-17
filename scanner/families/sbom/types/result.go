@@ -42,9 +42,12 @@ func (r *Result) EncodeToBytes(outputFormat string) ([]byte, error) {
 		return nil, fmt.Errorf("unable to parse output format: %w", err)
 	}
 
-	bomBytes, err := converter.CycloneDxToBytes(r.SBOM, f)
-	if err != nil {
-		return nil, fmt.Errorf("unable to encode results to bytes: %w", err)
+	bomBytes := []byte{}
+	if r.SBOM != nil {
+		bomBytes, err = converter.CycloneDxToBytes(r.SBOM, f)
+		if err != nil {
+			return nil, fmt.Errorf("unable to encode results to bytes: %w", err)
+		}
 	}
 
 	return bomBytes, nil
