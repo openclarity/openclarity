@@ -20,7 +20,7 @@ bin/licensei-$(LICENSEI_VERSION): | $(BIN_DIR)
 
 ACTIONLINT_BIN := $(BIN_DIR)/actionlint
 # renovate: datasource=go depName=github.com/rhysd/actionlint versioning=semver
-ACTIONLINT_VERSION := 1.7.1
+ACTIONLINT_VERSION := 1.7.3
 
 bin/actionlint: bin/actionlint-$(ACTIONLINT_VERSION)
 	@ln -sf actionlint-$(ACTIONLINT_VERSION) bin/actionlint
@@ -53,7 +53,7 @@ $(AZURECLI_VENV)/bin/az: | $(BIN_DIR)
 
 BICEP_BIN := $(BIN_DIR)/bicep
 # renovate: datasource=github-releases depName=Azure/bicep versioning=semver
-BICEP_VERSION := 0.29.47
+BICEP_VERSION := 0.30.23
 BICEP_OSTYPE := $(OSTYPE)
 BICEP_ARCH := $(ARCHTYPE)
 
@@ -99,7 +99,7 @@ $(CFNLINT_VENV)/bin/cfn-lint: | $(BIN_DIR)
 GOLANGCI_BIN := $(BIN_DIR)/golangci-lint
 GOLANGCI_CONFIG := $(ROOT_DIR)/.golangci.yml
 # renovate: datasource=go depName=github.com/golangci/golangci-lint versioning=semver
-GOLANGCI_VERSION := 1.59.1
+GOLANGCI_VERSION := 1.61.0
 
 bin/golangci-lint: bin/golangci-lint-$(GOLANGCI_VERSION)
 	@ln -sf golangci-lint-$(GOLANGCI_VERSION) bin/golangci-lint
@@ -130,7 +130,7 @@ bin/yq-$(YQ_VERSION): | $(BIN_DIR)
 
 HELM_BIN := $(BIN_DIR)/helm
 # renovate: datasource=github-releases depName=helm/helm versioning=semver
-HELM_VERSION := 3.15.3
+HELM_VERSION := 3.16.2
 
 bin/helm: bin/helm-$(HELM_VERSION)
 	@ln -sf $(notdir $<) $@
@@ -174,7 +174,7 @@ bin/helm-docs-$(HELMDOCS_VERSION): | $(BIN_DIR)
 
 GITCLIFF_BIN := $(BIN_DIR)/git-cliff
 # renovate: datasource=github-releases depName=orhun/git-cliff versioning=semver
-GITCLIFF_VERSION := 2.4.0
+GITCLIFF_VERSION := 2.6.1
 GITCLIFF_OSTYPE := $(OSTYPE)
 GITCLIFF_ARCH := $(ARCHTYPE)
 GITCLIFF_URL =
@@ -206,7 +206,7 @@ bin/git-cliff-$(GITCLIFF_VERSION): | $(BIN_DIR)
 
 TYPOS_BIN := $(BIN_DIR)/typos
 # renovate: datasource=github-releases depName=crate-ci/typos versioning=semver
-TYPOS_VERSION := 1.23.6
+TYPOS_VERSION := 1.26.0
 TYPOS_OSTYPE := $(OSTYPE)
 TYPOS_ARCH := $(ARCHTYPE)
 TYPOS_URL =
