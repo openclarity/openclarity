@@ -69,12 +69,12 @@ require (
 	github.com/ProtonMail/go-crypto v1.1.0-alpha.2 // indirect
 	github.com/VividCortex/ewma v1.2.0 // indirect
 	github.com/acobaugh/osrelease v0.1.0 // indirect
-	github.com/adrg/xdg v0.4.0 // indirect
+	github.com/adrg/xdg v0.5.0 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/alecthomas/chroma v0.10.0 // indirect
-	github.com/anchore/clio v0.0.0-20241009121115-f96f2cf3aef0 // indirect
-	github.com/anchore/fangs v0.0.0-20240508143433-f016b099950f // indirect
+	github.com/anchore/clio v0.0.0-20241015191535-f538a9016e10 // indirect
+	github.com/anchore/fangs v0.0.0-20241014201141-b6e4b3469f10 // indirect
 	github.com/anchore/go-collections v0.0.0-20240216171411-9321230ce537 // indirect
 	github.com/anchore/go-logger v0.0.0-20230725134548-c21dafa1ec5a // indirect
 	github.com/anchore/go-macholibre v0.0.0-20220308212642-53e6d0aaf6fb // indirect

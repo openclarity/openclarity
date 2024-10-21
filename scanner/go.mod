@@ -6,7 +6,7 @@ require (
 	github.com/CycloneDX/cyclonedx-go v0.8.0
 	github.com/CycloneDX/cyclonedx-gomod v1.7.0
 	github.com/Portshift/dockle v0.3.2-0.20240611055957-53ff8586f9c7
-	github.com/anchore/clio v0.0.0-20241009121115-f96f2cf3aef0
+	github.com/anchore/clio v0.0.0-20241015191535-f538a9016e10
 	github.com/anchore/grype v0.78.0
 	github.com/anchore/stereoscope v0.0.3-0.20240624202600-753b5576fe42
 	github.com/anchore/syft v1.5.0
@@ -82,11 +82,11 @@ require (
 	github.com/ProtonMail/go-crypto v1.1.0-alpha.2 // indirect
 	github.com/VividCortex/ewma v1.2.0 // indirect
 	github.com/acobaugh/osrelease v0.1.0 // indirect
-	github.com/adrg/xdg v0.4.0 // indirect
+	github.com/adrg/xdg v0.5.0 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/alecthomas/chroma v0.10.0 // indirect
-	github.com/anchore/fangs v0.0.0-20240508143433-f016b099950f // indirect
+	github.com/anchore/fangs v0.0.0-20241014201141-b6e4b3469f10 // indirect
 	github.com/anchore/go-collections v0.0.0-20240216171411-9321230ce537 // indirect
 	github.com/anchore/go-logger v0.0.0-20230725134548-c21dafa1ec5a // indirect
 	github.com/anchore/go-macholibre v0.0.0-20220308212642-53e6d0aaf6fb // indirect
@@ -354,7 +354,7 @@ require (
 	github.com/owenrumney/squealer v1.2.2 // indirect
 	github.com/pborman/indent v1.2.1 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
-	github.com/pelletier/go-toml/v2 v2.1.1 // indirect
+	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/pierrec/lz4/v4 v4.1.15 // indirect
@@ -396,7 +396,7 @@ require (
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/spf13/cobra v1.8.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/spf13/viper v1.18.2 // indirect
+	github.com/spf13/viper v1.19.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/stretchr/testify v1.9.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
