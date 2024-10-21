@@ -301,8 +301,8 @@ github.com/VividCortex/ewma v1.2.0 h1:f58SaIzcDXrSy3kWaHNvuJgJ3Nmz59Zji6XoJR/q1o
 github.com/VividCortex/ewma v1.2.0/go.mod h1:nz4BbCtbLyFDeC9SUHbtcT5644juEuWfUAUnGx7j5l4=
 github.com/acobaugh/osrelease v0.1.0 h1:Yb59HQDGGNhCj4suHaFQQfBps5wyoKLSSX/J/+UifRE=
 github.com/acobaugh/osrelease v0.1.0/go.mod h1:4bFEs0MtgHNHBrmHCt67gNisnabCRAlzdVasCEGHTWY=
-github.com/adrg/xdg v0.4.0 h1:RzRqFcjH4nE5C6oTAxhBtoE2IRyjBSa62SCbyPidvls=
-github.com/adrg/xdg v0.4.0/go.mod h1:N6ag73EX4wyxeaoeHctc1mas01KZgsj5tYiAIwqJE/E=
+github.com/adrg/xdg v0.5.0 h1:dDaZvhMXatArP1NPHhnfaQUqWBLBsmx1h1HXQdMoFCY=
+github.com/adrg/xdg v0.5.0/go.mod h1:dDdY4M4DF9Rjy4kHPeNL+ilVF+p2lK8IdM9/rTSGcI4=
 github.com/agext/levenshtein v1.2.3 h1:YB2fHEn0UJagG8T1rrWknE3ZQzWM06O8AMAatNn7lmo=
 github.com/agext/levenshtein v1.2.3/go.mod h1:JEDfjyjHDjOF/1e4FlBE/PkbqA9OfWu2ki2W0IB5558=
 github.com/agnivade/levenshtein v1.1.1 h1:QY8M92nrzkmr798gCo3kmMyqXFzdQVpxLlGPRBij0P8=
@@ -321,10 +321,10 @@ github.com/alicebob/miniredis/v2 v2.32.1 h1:Bz7CciDnYSaa0mX5xODh6GUITRSx+cVhjNoO
 github.com/alicebob/miniredis/v2 v2.32.1/go.mod h1:AqkLNAfUm0K07J28hnAyyQKf/x0YkCY/g5DCtuL01Mw=
 github.com/anchore/archiver/v3 v3.5.2 h1:Bjemm2NzuRhmHy3m0lRe5tNoClB9A4zYyDV58PaB6aA=
 github.com/anchore/archiver/v3 v3.5.2/go.mod h1:e3dqJ7H78uzsRSEACH1joayhuSyhnonssnDhppzS1L4=
-github.com/anchore/clio v0.0.0-20241009121115-f96f2cf3aef0 h1:BG2XzQtp5ymnJsACzoAUChcstBjdaHcr2OQDXqZS3Ls=
-github.com/anchore/clio v0.0.0-20241009121115-f96f2cf3aef0/go.mod h1:wmKIvLpE5GXaVXgkSLIfjME9amk/2/XcJML8dzgVL2M=
-github.com/anchore/fangs v0.0.0-20240508143433-f016b099950f h1:NOhzafCyNYFi88qxkBFjMzQo4dRa1vDhBzx+0Uovx8Q=
-github.com/anchore/fangs v0.0.0-20240508143433-f016b099950f/go.mod h1:sVpRS2yNCw6tLVpvA1QSDVWTJVpCuAm8JNZgn4Sjz/k=
+github.com/anchore/clio v0.0.0-20241015191535-f538a9016e10 h1:3xmanFdoQEH0REvPA+gLm3Km0/981F4z2a/7ADTlv8k=
+github.com/anchore/clio v0.0.0-20241015191535-f538a9016e10/go.mod h1:h6Ly2hlKjQoPtI3rA8oB5afSmB/XimhcY55xbuW4Dwo=
+github.com/anchore/fangs v0.0.0-20241014201141-b6e4b3469f10 h1:w+HibE+e/heP6ysADh7sWxg5LhYdVqrpB1A4Hmgjyx8=
+github.com/anchore/fangs v0.0.0-20241014201141-b6e4b3469f10/go.mod h1:s0L1//Sxn6Rq0Dcxx+dmT/RRmD9HhsaJjJkPUJHLJLM=
 github.com/anchore/go-collections v0.0.0-20240216171411-9321230ce537 h1:GjNGuwK5jWjJMyVppBjYS54eOiiSNv4Ba869k4wh72Q=
 github.com/anchore/go-collections v0.0.0-20240216171411-9321230ce537/go.mod h1:1aiktV46ATCkuVg0O573ZrH56BUawTECPETbZyBcqT8=
 github.com/anchore/go-logger v0.0.0-20230725134548-c21dafa1ec5a h1:nJ2G8zWKASyVClGVgG7sfM5mwoZlZ2zYpIzN2OhjWkw=
