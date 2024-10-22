@@ -173,7 +173,8 @@ func ConvertScanJobConfig(config *provider.ScanJobConfig) (*provider_service.Sca
 		ret.ScannerInstanceCreationConfig.MaxPrice = *config.MaxPrice
 	}
 	if config.RetryMaxAttempts != nil {
-		ret.ScannerInstanceCreationConfig.RetryMaxAttempts = int32(*config.RetryMaxAttempts)
+		// // TODO Check RetryMaxAttempts integer conversion overflow
+		ret.ScannerInstanceCreationConfig.RetryMaxAttempts = int32(*config.RetryMaxAttempts) //nolint:gosec
 	}
 
 	return &ret, nil

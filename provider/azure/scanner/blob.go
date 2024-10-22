@@ -31,10 +31,10 @@ import (
 )
 
 var (
-	estimatedBlobCopyTime    = 2 * time.Minute
-	estimatedBlobAbortTime   = 2 * time.Minute
-	estimatedBlobDeleteTime  = 2 * time.Minute
-	snapshotSASAccessSeconds = 3600
+	estimatedBlobCopyTime          = 2 * time.Minute
+	estimatedBlobAbortTime         = 2 * time.Minute
+	estimatedBlobDeleteTime        = 2 * time.Minute
+	snapshotSASAccessSeconds int32 = 3600
 )
 
 func blobNameFromJobConfig(config *provider.ScanJobConfig) string {
@@ -86,7 +86,7 @@ func (s *Scanner) ensureBlobFromSnapshot(ctx context.Context, config *provider.S
 	// it.
 	poller, err := s.SnapshotsClient.BeginGrantAccess(ctx, s.ScannerResourceGroup, *snapshot.Name, armcompute.GrantAccessData{
 		Access:            to.Ptr(armcompute.AccessLevelRead),
-		DurationInSeconds: to.Ptr[int32](int32(snapshotSASAccessSeconds)),
+		DurationInSeconds: to.Ptr[int32](snapshotSASAccessSeconds),
 	}, nil)
 	if err != nil {
 		_, err := utils.HandleAzureRequestError(err, "granting SAS access to snapshot %s", *snapshot.Name)

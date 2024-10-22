@@ -153,6 +153,7 @@ func (d *discoverer) getContainerImageInfo(ctx context.Context, imageID string) 
 		return apitypes.ContainerImageInfo{}, fmt.Errorf("failed to parse image status result: %w", err)
 	}
 
+	// TODO Check Size integer conversion overflow
 	return apitypes.ContainerImageInfo{
 		Architecture: to.Ptr(i.ImageSpec.Architecture),
 		ImageID:      image.Id,
@@ -161,7 +162,7 @@ func (d *discoverer) getContainerImageInfo(ctx context.Context, imageID string) 
 		RepoDigests:  &image.RepoDigests,
 		ObjectType:   "ContainerImageInfo",
 		Os:           to.Ptr(i.ImageSpec.OS),
-		Size:         to.Ptr(int64(image.Size_)),
+		Size:         to.Ptr(int64(image.Size_)), //nolint:gosec
 	}, nil
 }
 

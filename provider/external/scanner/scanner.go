@@ -53,7 +53,7 @@ func (s *Scanner) RunAssetScan(ctx context.Context, t *provider.ScanJobConfig) e
 		return nil
 	case *provider_service.Error_ErrRetry:
 		retryableErr := res.GetErr().GetErrRetry()
-		return provider.RetryableErrorf(time.Second*time.Duration(retryableErr.After), retryableErr.Err)
+		return provider.RetryableErrorf(time.Second*time.Duration(retryableErr.After), "failed to run asset scan: %v", retryableErr.Err)
 	case *provider_service.Error_ErrFatal:
 		fatalErr := res.GetErr().GetErrFatal()
 		return provider.FatalErrorf("failed to run asset scan: %v", fatalErr.Err)

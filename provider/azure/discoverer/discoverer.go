@@ -82,7 +82,7 @@ func (d *Discoverer) processVirtualMachineListIntoAssetTypes(ctx context.Context
 func (d *Discoverer) getRootVolumeInfo(ctx context.Context, vm *armcompute.VirtualMachine) *apitypes.RootVolume {
 	logger := log.GetLoggerFromContextOrDiscard(ctx)
 	ret := &apitypes.RootVolume{
-		SizeGB:    int(to.ValueOrZero(vm.Properties.StorageProfile.OSDisk.DiskSizeGB)),
+		SizeGB:    to.ValueOrZero(vm.Properties.StorageProfile.OSDisk.DiskSizeGB),
 		Encrypted: apitypes.RootVolumeEncryptedUnknown,
 	}
 	osDiskID, err := arm.ParseResourceID(to.ValueOrZero(vm.Properties.StorageProfile.OSDisk.ManagedDisk.ID))
@@ -98,7 +98,7 @@ func (d *Discoverer) getRootVolumeInfo(ctx context.Context, vm *armcompute.Virtu
 		return ret
 	}
 	ret.Encrypted = isEncrypted(osDisk)
-	ret.SizeGB = int(to.ValueOrZero(osDisk.Disk.Properties.DiskSizeGB))
+	ret.SizeGB = to.ValueOrZero(osDisk.Disk.Properties.DiskSizeGB)
 
 	return ret
 }

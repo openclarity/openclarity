@@ -1144,7 +1144,7 @@ type ResourceCleanupStatusState string
 // RootVolume Information about VM root volume
 type RootVolume struct {
 	Encrypted RootVolumeEncrypted `json:"encrypted"`
-	SizeGB    int                 `json:"sizeGB"`
+	SizeGB    int32               `json:"sizeGB"`
 }
 
 // RootVolumeEncrypted defines model for RootVolume.Encrypted.
