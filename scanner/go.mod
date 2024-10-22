@@ -10,7 +10,7 @@ require (
 	github.com/anchore/grype v0.78.0
 	github.com/anchore/stereoscope v0.0.3-0.20240624202600-753b5576fe42
 	github.com/anchore/syft v1.5.0
-	github.com/aquasecurity/trivy v0.51.4
+	github.com/aquasecurity/trivy v0.56.2
 	github.com/aquasecurity/trivy-db v0.0.0-20240602051612-79d0fbd1e246
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/containers/image/v5 v5.31.1
