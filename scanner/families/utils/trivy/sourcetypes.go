@@ -32,14 +32,14 @@ func SourceToTrivySource(sourceType common.InputType) (artifact.TargetKind, erro
 	switch sourceType {
 	case common.IMAGE:
 		return artifact.TargetContainerImage, nil
-	case common.DOCKERARCHIVE, common.OCIARCHIVE, common.OCIDIR:
-		return artifact.TargetImageArchive, nil
 	case common.ROOTFS:
 		return artifact.TargetRootfs, nil
 	case common.DIR, common.FILE, common.CSV:
 		return artifact.TargetFilesystem, nil
 	case common.SBOM:
 		return artifact.TargetSBOM, nil
+	case common.DOCKERARCHIVE, common.OCIARCHIVE, common.OCIDIR:
+	default:
 	}
 	return "Unknown", fmt.Errorf("unable to convert source type %v to trivy type", sourceType)
 }
