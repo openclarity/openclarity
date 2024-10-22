@@ -22,12 +22,12 @@ require (
 	github.com/jinzhu/copier v0.4.0
 	github.com/onsi/gomega v1.33.1
 	github.com/openclarity/grype-server/api v0.0.0-20240808094111-65a244e79a8f
-	github.com/openclarity/openclarity/api/types v1.0.0
-	github.com/openclarity/openclarity/core v1.0.0
-	github.com/openclarity/openclarity/plugins/runner v1.0.0
-	github.com/openclarity/openclarity/plugins/sdk-go v1.0.0
-	github.com/openclarity/openclarity/utils v1.0.0
-	github.com/openclarity/openclarity/workflow v1.0.0
+	github.com/openclarity/openclarity/api/types v1.1.0
+	github.com/openclarity/openclarity/core v1.1.0
+	github.com/openclarity/openclarity/plugins/runner v1.1.0
+	github.com/openclarity/openclarity/plugins/sdk-go v1.1.0
+	github.com/openclarity/openclarity/utils v1.1.0
+	github.com/openclarity/openclarity/workflow v1.1.0
 	github.com/openclarity/yara-rule-server v0.3.0
 	github.com/package-url/packageurl-go v0.1.3
 	github.com/rs/zerolog v1.33.0
