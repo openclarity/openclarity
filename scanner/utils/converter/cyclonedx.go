@@ -42,7 +42,8 @@ const (
 
 func (c SbomFormat) String() string {
 	strings := []string{"unknown", "cyclonedx-json", "cyclonedx-xml", "spdx-json", "spdx-keyvalue", "syft"}
-	if int(c) >= len(strings) {
+	// TODO Check c integer conversion overflow
+	if int(c) >= len(strings) { //nolint:gosec
 		return "unknown"
 	}
 	return strings[c]

@@ -153,7 +153,7 @@ func getVMInfoFromInstance(i types.Instance) (apitypes.AssetType, error) {
 		Platform:         i.Platform,
 		RootVolume: apitypes.RootVolume{
 			Encrypted: i.RootVolumeEncrypted,
-			SizeGB:    int(i.RootVolumeSizeGB),
+			SizeGB:    i.RootVolumeSizeGB,
 		},
 		SecurityGroups: to.Ptr(i.SecurityGroups),
 		Tags:           to.Ptr(i.Tags),
@@ -202,7 +202,7 @@ func (d *Discoverer) getInstancesFromDescribeInstancesOutput(ctx context.Context
 				VpcID:               *instance.VpcId,
 				SecurityGroups:      getSecurityGroupsIDs(instance.SecurityGroups),
 				RootDeviceName:      to.ValueOrZero(instance.RootDeviceName),
-				RootVolumeSizeGB:    int32(rootVol.SizeGB),
+				RootVolumeSizeGB:    rootVol.SizeGB,
 				RootVolumeEncrypted: rootVol.Encrypted,
 				Ec2Client:           d.Ec2Client,
 			})
@@ -271,7 +271,7 @@ func getRootVolumeInfo(ctx context.Context, client *ec2.Client, i ec2types.Insta
 			}
 
 			return &apitypes.RootVolume{
-				SizeGB:    int(to.ValueOrZero(describeOut.Volumes[0].Size)),
+				SizeGB:    to.ValueOrZero(describeOut.Volumes[0].Size),
 				Encrypted: encryptedToAPI(describeOut.Volumes[0].Encrypted),
 			}, nil
 		}

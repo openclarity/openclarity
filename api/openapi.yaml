@@ -2228,6 +2228,7 @@ components:
       properties:
         sizeGB:
           type: integer
+          format: int32
         encrypted:
           type: string
           enum:
