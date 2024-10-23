@@ -1,6 +1,6 @@
 module github.com/openclarity/openclarity/e2e
 
-go 1.22.6
+go 1.23.2
 
 require (
 	github.com/fbiville/markdown-table-formatter v0.3.0
