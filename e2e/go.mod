@@ -171,7 +171,7 @@ require (
 	github.com/distribution/reference v0.6.0 // indirect
 	github.com/dlclark/regexp2 v1.4.0 // indirect
 	github.com/docker/buildx v0.17.1 // indirect
-	github.com/docker/cli v27.3.0-rc.2+incompatible // indirect
+	github.com/docker/cli v27.3.1+incompatible // indirect
 	github.com/docker/cli-docs-tool v0.8.0 // indirect
 	github.com/docker/compose/v2 v2.29.7 // indirect
 	github.com/docker/distribution v2.8.3+incompatible // indirect
