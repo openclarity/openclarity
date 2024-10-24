@@ -43,7 +43,7 @@ func (r *Result) EncodeToBytes(outputFormat string) ([]byte, error) {
 	}
 
 	bomBytes := []byte{}
-	if r.SBOM != nil {
+	if r != nil && r.SBOM != nil {
 		bomBytes, err = converter.CycloneDxToBytes(r.SBOM, f)
 		if err != nil {
 			return nil, fmt.Errorf("unable to encode results to bytes: %w", err)
