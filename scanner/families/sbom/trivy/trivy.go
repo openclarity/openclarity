@@ -22,11 +22,11 @@ import (
 	"os"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	trivyCache "github.com/aquasecurity/trivy/pkg/cache"
 	"github.com/aquasecurity/trivy/pkg/commands/artifact"
 	trivyfTypes "github.com/aquasecurity/trivy/pkg/fanal/types"
 	trivyFlag "github.com/aquasecurity/trivy/pkg/flag"
 	trivyTypes "github.com/aquasecurity/trivy/pkg/types"
-	trivyFsutils "github.com/aquasecurity/trivy/pkg/utils/fsutils"
 
 	"github.com/openclarity/openclarity/core/log"
 	"github.com/openclarity/openclarity/scanner/common"
@@ -79,7 +79,7 @@ func (a *Analyzer) Scan(ctx context.Context, sourceType common.InputType, userIn
 		return nil, fmt.Errorf("unsupported input type=%s", sourceType)
 	}
 
-	cacheDir := trivyFsutils.CacheDir()
+	cacheDir := trivyCache.DefaultDir()
 	if a.config.CacheDir != "" {
 		cacheDir = a.config.CacheDir
 	}
@@ -100,11 +100,11 @@ func (a *Analyzer) Scan(ctx context.Context, sourceType common.InputType, userIn
 			ListAllPkgs:  true,                       // By default, Trivy only includes packages with vulnerabilities, for full SBOM set true.
 		},
 		DBOptions: dbOptions,
-		VulnerabilityOptions: trivyFlag.VulnerabilityOptions{
-			VulnType: trivyTypes.VulnTypes, // Trivy disables analyzers for language packages if VulnTypeLibrary not in VulnType list
-		},
 		ImageOptions: trivyFlag.ImageOptions{
 			ImageSources: trivyfTypes.AllImageSources,
+		},
+		PackageOptions: trivyFlag.PackageOptions{
+			PkgTypes: trivyTypes.PkgTypes, // Trivy disables analyzers for language packages if PkgTypeLibrary not in PkgType list
 		},
 	}
 

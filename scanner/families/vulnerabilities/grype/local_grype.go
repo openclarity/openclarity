@@ -26,7 +26,7 @@ import (
 
 	"github.com/anchore/clio"
 	"github.com/anchore/grype/grype"
-	"github.com/anchore/grype/grype/db"
+	"github.com/anchore/grype/grype/db/legacy/distribution"
 	"github.com/anchore/grype/grype/grypeerr"
 	"github.com/anchore/grype/grype/matcher"
 	"github.com/anchore/grype/grype/matcher/dotnet"
@@ -77,7 +77,7 @@ func (s *LocalScanner) Scan(ctx context.Context, inputType common.InputType, use
 
 	// TODO: make `loading DB` and `gathering packages` work in parallel
 	// https://github.com/anchore/grype/blob/7e8ee40996ba3a4defb5e887ab0177d99cd0e663/cmd/root.go#L240
-	dbConfig := db.Config{
+	dbConfig := distribution.Config{
 		DBRootDir:           s.config.DBRootDir,
 		ListingURL:          s.config.GetListingURL(),
 		ValidateByHashOnGet: false,
@@ -182,7 +182,7 @@ func createVulnerabilityMatcher(store *store.Store) *grype.VulnerabilityMatcher 
 	}
 }
 
-func validateDBLoad(loadErr error, status *db.Status) error {
+func validateDBLoad(loadErr error, status *distribution.Status) error {
 	if loadErr != nil {
 		return fmt.Errorf("failed to load vulnerability db: %w", loadErr)
 	}

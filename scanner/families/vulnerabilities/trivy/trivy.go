@@ -27,12 +27,12 @@ import (
 	"strings"
 
 	trivyDBTypes "github.com/aquasecurity/trivy-db/pkg/types"
+	trivyCache "github.com/aquasecurity/trivy/pkg/cache"
 	"github.com/aquasecurity/trivy/pkg/commands/artifact"
 	trivyfTypes "github.com/aquasecurity/trivy/pkg/fanal/types"
 	trivyFlag "github.com/aquasecurity/trivy/pkg/flag"
 	trivyLog "github.com/aquasecurity/trivy/pkg/log"
 	trivyTypes "github.com/aquasecurity/trivy/pkg/types"
-	trivyFsutils "github.com/aquasecurity/trivy/pkg/utils/fsutils"
 	sloglogrus "github.com/samber/slog-logrus/v2"
 	"github.com/sirupsen/logrus"
 
@@ -242,7 +242,7 @@ func (a *Scanner) createTrivyOptions(output string, userInput string) (trivyFlag
 		return trivyFlag.Options{}, fmt.Errorf("unable to get all trivy severities: %w", err)
 	}
 
-	cacheDir := trivyFsutils.CacheDir()
+	cacheDir := trivyCache.DefaultDir()
 	if a.config.CacheDir != "" {
 		cacheDir = a.config.CacheDir
 	}
@@ -271,11 +271,11 @@ func (a *Scanner) createTrivyOptions(output string, userInput string) (trivyFlag
 			Severities:   severities,            // All the severities from the above
 		},
 		DBOptions: dbOptions,
-		VulnerabilityOptions: trivyFlag.VulnerabilityOptions{
-			VulnType: trivyTypes.VulnTypes, // Scan all vuln types trivy supports
-		},
 		ImageOptions: trivyFlag.ImageOptions{
 			ImageSources: trivyfTypes.AllImageSources,
+		},
+		PackageOptions: trivyFlag.PackageOptions{
+			PkgTypes: trivyTypes.PkgTypes, // Trivy disables analyzers for language packages if PkgTypeLibrary not in PkgType list
 		},
 	}
 

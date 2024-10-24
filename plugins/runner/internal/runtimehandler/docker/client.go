@@ -87,8 +87,7 @@ func (c *dockerClient) GetOrCreateBridgeNetwork(ctx context.Context, networkName
 		ctx,
 		networkName,
 		dockertypes.NetworkCreate{
-			CheckDuplicate: true,
-			Driver:         "bridge",
+			Driver: "bridge",
 		},
 	)
 	if err != nil {

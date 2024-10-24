@@ -23,7 +23,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/docker/docker/api/types"
 	containertypes "github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 	imagetypes "github.com/docker/docker/api/types/image"
@@ -183,7 +182,7 @@ func (s *Scanner) prepareAssetScanVolume(ctx context.Context, config *provider.S
 	}()
 
 	// Copy asset data to ephemeral container
-	err = s.DockerClient.CopyToContainer(ctx, containerResp.ID, "/data", assetContents, types.CopyToContainerOptions{})
+	err = s.DockerClient.CopyToContainer(ctx, containerResp.ID, "/data", assetContents, containertypes.CopyToContainerOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to copy asset to container: %w", err)
 	}
@@ -234,9 +233,8 @@ func (s *Scanner) createScanNetwork(ctx context.Context) (string, error) {
 	networkResp, err := s.DockerClient.NetworkCreate(
 		ctx,
 		s.NetworkName,
-		types.NetworkCreate{
-			CheckDuplicate: true,
-			Driver:         "bridge",
+		network.CreateOptions{
+			Driver: "bridge",
 		},
 	)
 	if err != nil {
@@ -287,7 +285,7 @@ func (s *Scanner) copyScanConfigToContainer(ctx context.Context, containerID str
 	defer preparedArchive.Close()
 
 	// Copy scan config file to container
-	err = s.DockerClient.CopyToContainer(ctx, containerID, dst, preparedArchive, types.CopyToContainerOptions{})
+	err = s.DockerClient.CopyToContainer(ctx, containerID, dst, preparedArchive, containertypes.CopyToContainerOptions{})
 	if err != nil {
 		return fmt.Errorf("failed to copy config file to container: %w", err)
 	}
@@ -387,7 +385,7 @@ func (s *Scanner) getContainerIDFromName(ctx context.Context, containerName stri
 }
 
 func (s *Scanner) getNetworkIDFromName(ctx context.Context, networkName string) (string, error) {
-	networks, err := s.DockerClient.NetworkList(ctx, types.NetworkListOptions{
+	networks, err := s.DockerClient.NetworkList(ctx, network.ListOptions{
 		Filters: filters.NewArgs(filters.Arg("name", networkName)),
 	})
 	if err != nil {
