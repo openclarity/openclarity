@@ -53,7 +53,7 @@ const AssetScansTable = () => {
         accessor: (assetScan) =>
           assetScan.asset.assetInfo.location ||
           assetScan.asset.assetInfo.repoDigests?.[0] ||
-          assetScan.asset.assetInfo.image.repoDigests?.[0],
+          assetScan.asset.assetInfo.image?.repoDigests?.[0],
       },
       {
         Header: "Scan name",
