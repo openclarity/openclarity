@@ -161,7 +161,7 @@ secrets.
 | grypeServer.image.pullPolicy | string | `"IfNotPresent"` | Grype server image pull policy |
 | grypeServer.image.registry | string | `"ghcr.io"` | Grype server container registry |
 | grypeServer.image.repository | string | `"openclarity/grype-server"` | Grype server container repository |
-| grypeServer.image.tag | string | `"v0.7.4"` | Grype server container tag |
+| grypeServer.image.tag | string | `"v0.7.5"` | Grype server container tag |
 | grypeServer.logLevel | string | `"info"` | Log level for the grype-server service |
 | grypeServer.podSecurityContext.enabled | bool | `true` | Pod security context enabled |
 | grypeServer.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
