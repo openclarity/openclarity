@@ -85,7 +85,7 @@ properties:
     description: The container image to use for the exploit db server
   trivyServerContainerImage:
     type: string
-    default: docker.io/aquasec/trivy:0.56.2
+    default: docker.io/aquasec/trivy:0.57.0
     description: The container image to use for the trivy server
   grypeServerContainerImage:
     type: string
