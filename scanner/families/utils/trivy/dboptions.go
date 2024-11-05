@@ -24,34 +24,43 @@ import (
 )
 
 func GetTrivyDBOptions() (flag.DBOptions, error) {
-	var dbRepository, javaDBRepository name.Reference
-	var err error
-
 	// Get the Trivy CVE DB URL default value from the trivy
 	// configuration, we may want to make this configurable in the
 	// future.
 	dbRepoDefaultValue := flag.DBRepositoryFlag.Default
-	if dbRepoDefaultValue == "" {
+	if len(dbRepoDefaultValue) == 0 {
 		return flag.DBOptions{}, errors.New("unable to get trivy DB repo config")
 	}
-	if dbRepository, err = name.ParseReference(dbRepoDefaultValue, name.WithDefaultTag("")); err != nil {
-		return flag.DBOptions{}, fmt.Errorf("invalid db repository: %w", err)
+
+	dbRepositories := []name.Reference{}
+	for _, value := range dbRepoDefaultValue {
+		dbRepository, err := name.ParseReference(value, name.WithDefaultTag(""))
+		if err != nil {
+			return flag.DBOptions{}, fmt.Errorf("invalid db repository: %w", err)
+		}
+		dbRepositories = append(dbRepositories, dbRepository)
 	}
 
 	// Get the Trivy JAVA DB URL default value from the trivy
 	// configuration, we may want to make this configurable in the
 	// future.
 	javaDBRepoDefaultValue := flag.JavaDBRepositoryFlag.Default
-	if javaDBRepoDefaultValue == "" {
+	if len(javaDBRepoDefaultValue) == 0 {
 		return flag.DBOptions{}, errors.New("unable to get trivy java DB repo config")
 	}
-	if javaDBRepository, err = name.ParseReference(dbRepoDefaultValue, name.WithDefaultTag("")); err != nil {
-		return flag.DBOptions{}, fmt.Errorf("invalid db repository: %w", err)
+
+	javaDBRepositories := []name.Reference{}
+	for _, value := range javaDBRepoDefaultValue {
+		javaDBRepository, err := name.ParseReference(value, name.WithDefaultTag(""))
+		if err != nil {
+			return flag.DBOptions{}, fmt.Errorf("invalid db repository: %w", err)
+		}
+		javaDBRepositories = append(javaDBRepositories, javaDBRepository)
 	}
 
 	return flag.DBOptions{
-		DBRepository:     dbRepository,     // Use the default trivy source for the vuln DB
-		JavaDBRepository: javaDBRepository, // Use the default trivy source for the java DB
-		NoProgress:       true,             // Disable the interactive progress bar
+		DBRepositories:     dbRepositories,     // Use the default trivy source for the vuln DB
+		JavaDBRepositories: javaDBRepositories, // Use the default trivy source for the java DB
+		NoProgress:         true,               // Disable the interactive progress bar
 	}, nil
 }
