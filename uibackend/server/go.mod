@@ -12,11 +12,11 @@ require (
 	github.com/oapi-codegen/oapi-codegen/v2 v2.3.1-0.20240915195924-0502e95d86bb
 	github.com/oapi-codegen/runtime v1.1.1
 	github.com/onsi/gomega v1.33.1
-	github.com/openclarity/openclarity/api/client v1.1.0
-	github.com/openclarity/openclarity/api/types v1.1.0
-	github.com/openclarity/openclarity/core v1.1.0
-	github.com/openclarity/openclarity/scanner v1.1.0
-	github.com/openclarity/openclarity/uibackend/types v1.1.0
+	github.com/openclarity/openclarity/api/client v1.1.1
+	github.com/openclarity/openclarity/api/types v1.1.1
+	github.com/openclarity/openclarity/core v1.1.1
+	github.com/openclarity/openclarity/scanner v1.1.1
+	github.com/openclarity/openclarity/uibackend/types v1.1.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
@@ -43,7 +43,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
-	github.com/openclarity/openclarity/plugins/sdk-go v1.1.0 // indirect
+	github.com/openclarity/openclarity/plugins/sdk-go v1.1.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
