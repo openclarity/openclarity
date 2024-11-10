@@ -1,0 +1,44 @@
+{{- if .Values.gateway.ingress.enabled -}}
+{{- $servicePort := .Values.gateway.service.ports.http -}}
+{{- $gatewayServiceName := include "openclarity.gateway.name" . -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $gatewayServiceName }}-ingress
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "openclarity.gateway.ingress.labels.standard" . | nindent 4 }}
+  {{- if .Values.gateway.ingress.annotations }}
+  annotations:
+    {{- .Values.gateway.ingress.annotations | toYaml | nindent 4 }}
+  {{- end }}
+spec:
+{{- if .Values.gateway.ingress.tls }}
+  tls:
+  {{- range .Values.gateway.ingress.tls }}
+    - hosts:
+      {{- range .hosts }}
+        - {{ . | quote }}
+      {{- end }}
+      secretName: {{ .secretName }}
+  {{- end }}
+{{- end }}
+{{- if .Values.gateway.ingress.ingressClassName }}
+  ingressClassName: {{ .Values.gateway.ingress.ingressClassName }}
+{{- end }}
+  rules:
+  {{- range .Values.gateway.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+        {{- range (.paths | default (list (dict "pathType" "Prefix" "path" "/"))) }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ $gatewayServiceName }}
+                port:
+                  number: {{ $servicePort }}
+        {{- end }}
+  {{- end }}
+{{- end }}
