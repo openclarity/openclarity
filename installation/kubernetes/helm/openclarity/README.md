@@ -134,6 +134,13 @@ secrets.
 | gateway.image.registry | string | `"docker.io"` | Gateway service container registry |
 | gateway.image.repository | string | `"nginxinc/nginx-unprivileged"` | Gateway service container repository |
 | gateway.image.tag | string | `"1.27.2"` | Gateway service container tag |
+| gateway.ingress.annotations | object | `{}` |  |
+| gateway.ingress.enabled | bool | `false` |  |
+| gateway.ingress.hosts[0].host | string | `"chart-example.local"` |  |
+| gateway.ingress.hosts[0].paths | list | `[]` |  |
+| gateway.ingress.ingressClassName | string | `""` |  |
+| gateway.ingress.labels | object | `{}` |  |
+| gateway.ingress.tls | list | `[]` |  |
 | gateway.podSecurityContext.enabled | bool | `true` | Pod security context enabled |
 | gateway.podSecurityContext.fsGroup | int | `101` | Pod security context fsGroup |
 | gateway.replicas | int | `1` | Number of replicas for the gateway |
