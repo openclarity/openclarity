@@ -135,10 +135,10 @@ secrets.
 | gateway.image.repository | string | `"nginxinc/nginx-unprivileged"` | Gateway service container repository |
 | gateway.image.tag | string | `"1.27.2"` | Gateway service container tag |
 | gateway.ingress.annotations | object | `{}` |  |
-| gateway.ingress.enabled | bool | `false` |  |
+| gateway.ingress.enabled | bool | `false` | Be careful when using ingress. As there is no authentication on openclarity, your instance may be accessible. Make sure the ingress remains internal if you decide to enable it. |
 | gateway.ingress.hosts[0].host | string | `"chart-example.local"` |  |
 | gateway.ingress.hosts[0].paths | list | `[]` |  |
-| gateway.ingress.ingressClassName | string | `""` |  |
+| gateway.ingress.ingressClassName | string | `""` | Optionally use ingressClassName instead of default ingress class. |
 | gateway.ingress.labels | object | `{}` |  |
 | gateway.ingress.tls | list | `[]` |  |
 | gateway.podSecurityContext.enabled | bool | `true` | Pod security context enabled |
