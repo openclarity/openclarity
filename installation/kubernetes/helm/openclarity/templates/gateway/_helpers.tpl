@@ -31,3 +31,13 @@ Create the name of the service account to use
     {{ default "default" .Values.gateway.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Kubernetes standard labels for gateway Ingress
+*/}}
+{{- define "openclarity.gateway.ingress.labels.standard" -}}
+{{ include "openclarity.labels.standard" . }}
+{{ if .Values.gateway.ingress.labels -}}
+{{ toYaml .Values.gateway.ingress.labels }}
+{{- end -}}
+{{- end -}}

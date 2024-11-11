@@ -452,6 +452,30 @@ gateway:
     # local endpoints.
     externalTrafficPolicy: Cluster
 
+  ingress:
+    # -- Be careful when using ingress. As there is no authentication on openclarity, your instance may be accessible.
+    # Make sure the ingress remains internal if you decide to enable it.
+    enabled: false
+    labels: {}
+    annotations: {}
+
+    # -- Optionally use ingressClassName instead of default ingress class.
+    ingressClassName: ""
+
+    hosts:
+      # Hostname you want to use to access the UI
+      - host: chart-example.local
+        # paths will default to:
+        # paths:
+        #   - pathType: Prefix
+        #     path: /
+        paths: []
+
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
 postgresql:
   image:
     # -- Postgresql container registry
