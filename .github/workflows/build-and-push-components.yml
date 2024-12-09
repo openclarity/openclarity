@@ -81,7 +81,7 @@ jobs:
 
       - name: List targets
         id: targets
-        uses: docker/bake-action/subaction/list-targets@2e3d19baedb14545e5d41222653874f25d5b4dfb # v5.10.0
+        uses: docker/bake-action/subaction/list-targets@3fc70e1131fee40a422dd8dd0ff22014ae20a1f3 # v5.11.0
         with:
           target: ${{ inputs.bake-group }}
 
@@ -103,7 +103,7 @@ jobs:
         uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3.7.1
 
       - name: Cache Docker layers
-        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ github.ref }}
@@ -118,7 +118,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build
-        uses: docker/bake-action@2e3d19baedb14545e5d41222653874f25d5b4dfb # v5.10.0
+        uses: docker/bake-action@3fc70e1131fee40a422dd8dd0ff22014ae20a1f3 # v5.11.0
         id: bake
         with:
           targets: ${{ matrix.targets }}

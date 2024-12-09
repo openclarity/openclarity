@@ -19,7 +19,7 @@ jobs:
           go-version-file: '.go-version'
 
       - name: License cache
-        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: |
             .licensei.cache
@@ -132,7 +132,7 @@ jobs:
           df -h
 
       - name: Setup Go caching
-        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: |
             ~/.cache/go-build
@@ -160,7 +160,7 @@ jobs:
         run: make vet
 
       - name: Cache golangci-lint cache
-        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: ${{ github.workspace }}/.golangci.cache
           key: golangci-${{ github.ref_name }}-${{ hashFiles('**/go.sum') }}
