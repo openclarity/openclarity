@@ -117,6 +117,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Create cache directory
+        run: mkdir -p /tmp/.buildx-cache
+
       - name: Build
         uses: docker/bake-action@3fc70e1131fee40a422dd8dd0ff22014ae20a1f3 # v5.11.0
         id: bake
