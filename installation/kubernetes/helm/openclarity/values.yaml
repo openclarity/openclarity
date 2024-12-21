@@ -67,7 +67,7 @@ apiserver:
     capabilities:
       # -- List of capabilities to be dropped
       drop:
-        - ALL
+      - ALL
 
   # -- API Server log level
   logLevel: info
@@ -129,7 +129,7 @@ orchestrator:
     capabilities:
       # -- List of capabilities to be dropped
       drop:
-        - ALL
+      - ALL
 
   # -- Orchestrator service log level
   logLevel: info
@@ -313,7 +313,7 @@ ui:
     capabilities:
       # -- List of capabilities to be dropped
       drop:
-        - ALL
+      - ALL
 
 uibackend:
   # -- Number of replicas for the UI Backend service
@@ -371,7 +371,7 @@ uibackend:
     capabilities:
       # -- List of capabilities to be dropped
       drop:
-        - ALL
+      - ALL
 
   # -- Log level for the UI backend service
   logLevel: info
@@ -432,7 +432,7 @@ gateway:
     capabilities:
       # -- List of capabilities to be dropped
       drop:
-        - ALL
+      - ALL
 
   service:
     # -- Service type: ClusterIP, NodePort, LoadBalancer
@@ -463,13 +463,13 @@ gateway:
     ingressClassName: ""
 
     hosts:
-      # Hostname you want to use to access the UI
-      - host: chart-example.local
-        # paths will default to:
-        # paths:
-        #   - pathType: Prefix
-        #     path: /
-        paths: []
+    # Hostname you want to use to access the UI
+    - host: chart-example.local
+      # paths will default to:
+      # paths:
+      #   - pathType: Prefix
+      #     path: /
+      paths: []
 
     tls: []
     #  - secretName: chart-example-tls
@@ -543,7 +543,7 @@ postgresql:
     capabilities:
       # -- List of capabilities to be dropped
       drop:
-        - ALL
+      - ALL
 
   service:
     ports:
@@ -606,7 +606,7 @@ exploitDBServer:
     capabilities:
       # -- List of capabilities to be dropped
       drop:
-        - ALL
+      - ALL
 
 trivyServer:
   # -- Number of replicas for the trivy server service
@@ -664,7 +664,7 @@ trivyServer:
     capabilities:
       # -- List of capabilities to be dropped
       drop:
-        - ALL
+      - ALL
 
 grypeServer:
   # -- Number of replicas for the grype server service
@@ -722,7 +722,7 @@ grypeServer:
     capabilities:
       # -- List of capabilities to be dropped
       drop:
-        - ALL
+      - ALL
 
   # -- Log level for the grype-server service
   logLevel: info
@@ -783,7 +783,7 @@ freshclamMirror:
     capabilities:
       # -- List of capabilities to be dropped
       drop:
-        - ALL
+      - ALL
 
 swaggerUI:
   # -- Number of replicas for the swagger-ui service
@@ -841,7 +841,7 @@ swaggerUI:
     capabilities:
       # -- List of capabilities to be dropped
       drop:
-        - ALL
+      - ALL
 
 yaraRuleServer:
   # -- Number of replicas for the Yara Rule Server service
@@ -899,7 +899,7 @@ yaraRuleServer:
     capabilities:
       # -- List of capabilities to be dropped
       drop:
-        - ALL
+      - ALL
 
 crDiscoveryServer:
   image:
@@ -913,6 +913,9 @@ crDiscoveryServer:
     digest: ""
     # -- Container Runtime Discovery Server image pull policy
     pullPolicy: IfNotPresent
+  env:
+    name: CONTAINERD_SOCK_ADDRESS
+    value: /run/k3s/containerd/containerd.sock
 
   resources:
     # -- The resources limits for the container runtime discovery server containers
@@ -961,4 +964,4 @@ crDiscoveryServer:
     capabilities:
       # -- List of capabilities to be dropped
       drop:
-        - ALL
+      - ALL
