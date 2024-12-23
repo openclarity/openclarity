@@ -61,7 +61,7 @@ param freshclamMirrorContainerImage string = 'ghcr.io/openclarity/freshclam-mirr
 param yaraRuleServerContainerImage string = 'ghcr.io/openclarity/yara-rule-server:v0.3.0'
 
 @description('Postgres Container Image')
-param postgresContainerImage string = 'docker.io/bitnami/postgresql:16.3.0-debian-12-r13'
+param postgresContainerImage string = 'docker.io/bitnami/postgresql:16.6.0-debian-12-r2'
 
 @description('Asset Scan Delete Policy')
 @allowed([
