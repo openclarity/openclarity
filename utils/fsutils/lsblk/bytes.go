@@ -23,12 +23,12 @@ import (
 
 type Bytes int
 
-func (b Bytes) Int() int {
-	return int(b)
+func (b *Bytes) Int() int {
+	return int(*b)
 }
 
-func (b Bytes) String() string {
-	return fmt.Sprintf("%d", b)
+func (b *Bytes) String() string {
+	return fmt.Sprintf("%d", *b)
 }
 
 func (b *Bytes) UnmarshalJSON(data []byte) error {

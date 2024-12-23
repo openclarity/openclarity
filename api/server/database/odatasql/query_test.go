@@ -81,7 +81,7 @@ type Address struct {
 	Country string `json:"Country,omitempty"`
 }
 
-type StereoType struct {
+type StereoType struct { //nolint:recvcheck
 	union json.RawMessage
 }
 

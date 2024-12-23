@@ -130,11 +130,11 @@ func (l *DockerImageLoader) Load(ctx context.Context, nodes []nodes.Node) error 
 	return nil
 }
 
-func (l DockerImageLoader) Type() ImageLoaderType {
+func (l *DockerImageLoader) Type() ImageLoaderType {
 	return ImageLoaderTypeDocker
 }
 
-func (l DockerImageLoader) String() string {
+func (l *DockerImageLoader) String() string {
 	return string(ImageLoaderTypeDocker)
 }
 

@@ -47,6 +47,6 @@ func (s *Service) GetState() envtypes.ServiceState {
 	return s.State
 }
 
-func (s Service) String() string {
+func (s *Service) String() string {
 	return s.ID
 }

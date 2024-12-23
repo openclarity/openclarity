@@ -25,7 +25,7 @@ import (
 )
 
 // The ScheduleWindow represents a timeframe defined by the start and end timestamps.
-type ScheduleWindow struct {
+type ScheduleWindow struct { //nolint:recvcheck
 	start time.Time
 	end   time.Time
 }
@@ -101,7 +101,7 @@ func NewScheduleWindow(now time.Time, size time.Duration) *ScheduleWindow {
 
 // OperationTime is a single point in time defined by the time parameter. Providing an optional cron parameter makes the
 // OperationTime recurring in case the cron expression represents a recurring cadence.
-type OperationTime struct {
+type OperationTime struct { //nolint:recvcheck
 	time time.Time
 	cron *cronexpr.Expression
 }

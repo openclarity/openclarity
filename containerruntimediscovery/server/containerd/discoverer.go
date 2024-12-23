@@ -259,7 +259,7 @@ func (d *discoverer) getContainerImageInfo(ctx context.Context, image containerd
 	}, nil
 }
 
-func (d discoverer) getSnapshotterName(ctx context.Context) string {
+func (d *discoverer) getSnapshotterName(ctx context.Context) string {
 	name := d.snapshotterName
 	label, _ := d.client.GetLabel(ctx, defaults.DefaultSnapshotterNSLabel)
 	if label != "" {
