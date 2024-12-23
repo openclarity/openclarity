@@ -67,6 +67,8 @@ secrets.
 | crDiscoveryServer.containerSecurityContext.runAsGroup | int | `1001` | Group ID which the containers should run as |
 | crDiscoveryServer.containerSecurityContext.runAsNonRoot | bool | `true` | Whether the containers should run as a non-root user |
 | crDiscoveryServer.containerSecurityContext.runAsUser | int | `1001` | User ID which the containers should run as |
+| crDiscoveryServer.env.name | string | `"CONTAINERD_SOCK_ADDRESS"` |  |
+| crDiscoveryServer.env.value | string | `"/run/k3s/containerd/containerd.sock"` |  |
 | crDiscoveryServer.image.digest | string | `""` | Container Runtime Discovery Server image digest. If set will override the tag. |
 | crDiscoveryServer.image.pullPolicy | string | `"IfNotPresent"` | Container Runtime Discovery Server image pull policy |
 | crDiscoveryServer.image.registry | string | `"ghcr.io"` | Container Runtime Discovery Server container registry |
