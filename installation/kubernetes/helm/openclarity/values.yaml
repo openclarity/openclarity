@@ -902,6 +902,9 @@ yaraRuleServer:
       - ALL
 
 crDiscoveryServer:
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
   image:
     # -- Container Runtime Discovery Server container registry
     registry: ghcr.io
