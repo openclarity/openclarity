@@ -59,6 +59,7 @@ secrets.
 | apiserver.serviceAccount.automountServiceAccountToken | bool | `false` | Allows auto mount of ServiceAccountToken on the serviceAccount created. Can be set to false if pods using this serviceAccount do not need to use K8s API. |
 | apiserver.serviceAccount.create | bool | `true` | Enable creation of ServiceAccount |
 | apiserver.serviceAccount.name | string | `""` | The name of the ServiceAccount to use. If not set and create is true, it will use the component's calculated name. |
+| crDiscoveryServer.affinity | object | `{}` |  |
 | crDiscoveryServer.containerSecurityContext.allowPrivilegeEscalation | bool | `false` | Force the child process to run as non-privileged |
 | crDiscoveryServer.containerSecurityContext.capabilities.drop | list | `["ALL"]` | List of capabilities to be dropped |
 | crDiscoveryServer.containerSecurityContext.enabled | bool | `false` | Container security context enabled |
@@ -74,6 +75,7 @@ secrets.
 | crDiscoveryServer.image.registry | string | `"ghcr.io"` | Container Runtime Discovery Server container registry |
 | crDiscoveryServer.image.repository | string | `"openclarity/openclarity-cr-discovery-server"` | Container Runtime Discovery Server container repository |
 | crDiscoveryServer.image.tag | string | `"latest"` | Container Runtime Discovery Server container tag |
+| crDiscoveryServer.nodeSelector | object | `{}` |  |
 | crDiscoveryServer.podSecurityContext.enabled | bool | `false` | Pod security context enabled |
 | crDiscoveryServer.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
 | crDiscoveryServer.resources.limits | object | `{}` | The resources limits for the container runtime discovery server containers |
@@ -81,6 +83,7 @@ secrets.
 | crDiscoveryServer.serviceAccount.automountServiceAccountToken | bool | `false` | Allows auto mount of ServiceAccountToken on the serviceAccount created. Can be set to false if pods using this serviceAccount do not need to use K8s API. |
 | crDiscoveryServer.serviceAccount.create | bool | `true` | Enable creation of ServiceAccount |
 | crDiscoveryServer.serviceAccount.name | string | `""` | The name of the ServiceAccount to use. If not set and create is true, it will use the component's calculated name. |
+| crDiscoveryServer.tolerations | list | `[]` |  |
 | exploitDBServer.containerSecurityContext.allowPrivilegeEscalation | bool | `false` | Force the child process to run as non-privileged |
 | exploitDBServer.containerSecurityContext.capabilities.drop | list | `["ALL"]` | List of capabilities to be dropped |
 | exploitDBServer.containerSecurityContext.enabled | bool | `false` | Container security context enabled |
