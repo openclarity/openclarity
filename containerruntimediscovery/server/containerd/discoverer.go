@@ -49,10 +49,11 @@ const (
 	DefaultClientTimeout         = 30 * time.Second
 	DefaultNamespace             = criConstants.K8sContainerdNamespace
 	DefaultSkipUnpackImage       = false
+	DefaultSocketAddressEnv = "CONTAINERD_SOCK_ADDRESS"
 )
 
 var ContainerdSockAddress = func() string {
-	if addr := os.Getenv("CONTAINERD_SOCK_ADDRESS"); addr != "" {
+	if addr := os.Getenv(DefaultSocketAddressEnv); addr != "" {
 		return addr
 	}
 	return DefaultContainerdSockAddress
