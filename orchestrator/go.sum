@@ -328,8 +328,8 @@ github.com/alicebob/miniredis/v2 v2.32.1 h1:Bz7CciDnYSaa0mX5xODh6GUITRSx+cVhjNoO
 github.com/alicebob/miniredis/v2 v2.32.1/go.mod h1:AqkLNAfUm0K07J28hnAyyQKf/x0YkCY/g5DCtuL01Mw=
 github.com/anchore/archiver/v3 v3.5.2 h1:Bjemm2NzuRhmHy3m0lRe5tNoClB9A4zYyDV58PaB6aA=
 github.com/anchore/archiver/v3 v3.5.2/go.mod h1:e3dqJ7H78uzsRSEACH1joayhuSyhnonssnDhppzS1L4=
-github.com/anchore/clio v0.0.0-20241213203637-f05af46ce7e1 h1:kKj/pTIZrAwHMi9RAswbp21YAsgMMF0Oz6fk23id9iU=
-github.com/anchore/clio v0.0.0-20241213203637-f05af46ce7e1/go.mod h1:PYRHNdkjs+vrKODN8BOx/j/1N673EogQg2agLnbPJak=
+github.com/anchore/clio v0.0.0-20241223144606-e6e2fcccce54 h1:m/5j3dXSBQwMU/VpxiKgnwZO984UDPadjgJ7/gAg48M=
+github.com/anchore/clio v0.0.0-20241223144606-e6e2fcccce54/go.mod h1:PYRHNdkjs+vrKODN8BOx/j/1N673EogQg2agLnbPJak=
 github.com/anchore/fangs v0.0.0-20241014201141-b6e4b3469f10 h1:w+HibE+e/heP6ysADh7sWxg5LhYdVqrpB1A4Hmgjyx8=
 github.com/anchore/fangs v0.0.0-20241014201141-b6e4b3469f10/go.mod h1:s0L1//Sxn6Rq0Dcxx+dmT/RRmD9HhsaJjJkPUJHLJLM=
 github.com/anchore/go-collections v0.0.0-20240216171411-9321230ce537 h1:GjNGuwK5jWjJMyVppBjYS54eOiiSNv4Ba869k4wh72Q=
