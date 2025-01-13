@@ -15,10 +15,10 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/cloudformation v1.56.0
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.198.1
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.72.0
-	github.com/compose-spec/compose-go/v2 v2.1.2
+	github.com/compose-spec/compose-go/v2 v2.4.7
 	github.com/distribution/reference v0.6.0
 	github.com/docker/cli v26.1.4+incompatible
-	github.com/docker/compose/v2 v2.27.1
+	github.com/docker/compose/v2 v2.32.2
 	github.com/docker/docker v26.1.5+incompatible
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-viper/mapstructure/v2 v2.1.0
