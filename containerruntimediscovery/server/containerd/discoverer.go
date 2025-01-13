@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 	"time"
 
@@ -43,12 +44,20 @@ import (
 )
 
 const (
-	ContainerdSockAddress  = "/var/run/containerd/containerd.sock"
-	DefaultSnapshotterName = "overlayfs"
-	DefaultClientTimeout   = 30 * time.Second
-	DefaultNamespace       = criConstants.K8sContainerdNamespace
-	DefaultSkipUnpackImage = false
+	DefaultContainerdSockAddress = "/var/run/containerd/containerd.sock"
+	DefaultSnapshotterName       = "overlayfs"
+	DefaultClientTimeout         = 30 * time.Second
+	DefaultNamespace             = criConstants.K8sContainerdNamespace
+	DefaultSkipUnpackImage       = false
+	DefaultSocketAddressEnv      = "CONTAINERD_SOCK_ADDRESS"
 )
+
+var ContainerdSockAddress = func() string {
+	if addr := os.Getenv(DefaultSocketAddressEnv); addr != "" {
+		return addr
+	}
+	return DefaultContainerdSockAddress
+}()
 
 type discoverer struct {
 	client          *containerd.Client
