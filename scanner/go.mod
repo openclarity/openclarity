@@ -9,7 +9,7 @@ require (
 	github.com/anchore/clio v0.0.0-20241223144606-e6e2fcccce54
 	github.com/anchore/grype v0.78.0
 	github.com/anchore/stereoscope v0.0.3-0.20240624202600-753b5576fe42
-	github.com/anchore/syft v1.5.0
+	github.com/anchore/syft v1.18.1
 	github.com/aquasecurity/trivy v0.51.4
 	github.com/aquasecurity/trivy-db v0.0.0-20240602051612-79d0fbd1e246
 	github.com/cenkalti/backoff v2.2.1+incompatible

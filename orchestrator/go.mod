@@ -4,7 +4,7 @@ go 1.23.2
 
 require (
 	github.com/Portshift/go-utils v0.0.0-20220421083203-89265d8a6487
-	github.com/anchore/syft v1.5.0
+	github.com/anchore/syft v1.18.1
 	github.com/aptible/supercronic v0.2.30
 	github.com/go-viper/mapstructure/v2 v2.1.0
 	github.com/google/go-cmp v0.6.0
