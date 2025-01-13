@@ -5,7 +5,7 @@ go 1.23.2
 require (
 	github.com/CiscoM31/godata v1.0.10
 	github.com/Portshift/go-utils v0.0.0-20220421083203-89265d8a6487
-	github.com/aptible/supercronic v0.2.30
+	github.com/aptible/supercronic v0.2.33
 	github.com/evanphx/json-patch v5.9.0+incompatible
 	github.com/getkin/kin-openapi v0.127.0
 	github.com/go-viper/mapstructure/v2 v2.1.0
@@ -22,10 +22,10 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
-	gorm.io/datatypes v1.2.1
-	gorm.io/driver/postgres v1.5.7
-	gorm.io/driver/sqlite v1.5.5
-	gorm.io/gorm v1.25.10
+	gorm.io/datatypes v1.2.5
+	gorm.io/driver/postgres v1.5.11
+	gorm.io/driver/sqlite v1.5.7
+	gorm.io/gorm v1.25.12
 )
 
 require (

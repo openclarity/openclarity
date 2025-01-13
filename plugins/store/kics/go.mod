@@ -3,7 +3,7 @@ module github.com/openclarity/openclarity/plugins/store/kics
 go 1.23.2
 
 require (
-	github.com/Checkmarx/kics/v2 v2.1.2
+	github.com/Checkmarx/kics/v2 v2.1.3
 	github.com/openclarity/openclarity/plugins/sdk-go v1.1.1
 )
 

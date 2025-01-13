@@ -8,7 +8,7 @@ require (
 	github.com/Portshift/dockle v0.3.2-0.20240611055957-53ff8586f9c7
 	github.com/anchore/clio v0.0.0-20241223144606-e6e2fcccce54
 	github.com/anchore/grype v0.78.0
-	github.com/anchore/stereoscope v0.0.3-0.20240624202600-753b5576fe42
+	github.com/anchore/stereoscope v0.0.12
 	github.com/anchore/syft v1.5.0
 	github.com/aquasecurity/trivy v0.51.4
 	github.com/aquasecurity/trivy-db v0.0.0-20240602051612-79d0fbd1e246
@@ -17,7 +17,7 @@ require (
 	github.com/go-openapi/runtime v0.28.0
 	github.com/go-openapi/strfmt v0.23.0
 	github.com/google/go-cmp v0.6.0
-	github.com/google/go-containerregistry v0.20.1
+	github.com/google/go-containerregistry v0.20.2
 	github.com/google/uuid v1.6.0
 	github.com/jinzhu/copier v0.4.0
 	github.com/onsi/gomega v1.35.1
@@ -31,10 +31,10 @@ require (
 	github.com/openclarity/yara-rule-server v0.3.0
 	github.com/package-url/packageurl-go v0.1.3
 	github.com/rs/zerolog v1.33.0
-	github.com/samber/slog-logrus/v2 v2.5.0
+	github.com/samber/slog-logrus/v2 v2.5.2
 	github.com/sirupsen/logrus v1.9.3
 	github.com/sourcegraph/conc v0.3.0
-	github.com/tdewolff/parse/v2 v2.7.15
+	github.com/tdewolff/parse/v2 v2.7.19
 	github.com/vulsio/go-exploitdb v0.4.6
 	golang.org/x/crypto v0.31.0
 	golang.org/x/sync v0.10.0
@@ -491,7 +491,7 @@ require (
 
 // NOTE(chrisgacsal): remove this when the following PR is merged and new helm version is released:
 // https://github.com/helm/helm/pull/12310
-replace helm.sh/helm/v3 => github.com/zregvart/helm/v3 v3.0.0-20240708093153-6040e8a3074b
+replace helm.sh/helm/v3 => github.com/zregvart/helm/v3 v3.0.0-20241115095849-e061593d16b6
 
 // NOTE(paralta): https://github.com/advisories/GHSA-rhh4-rh7c-7r5v
 replace github.com/mholt/archiver/v3 v3.5.1 => github.com/anchore/archiver/v3 v3.5.2
