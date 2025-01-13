@@ -11,7 +11,7 @@ require (
 	github.com/containerd/containerd v1.7.19
 	github.com/containerd/nerdctl v1.7.6
 	github.com/containerd/platforms v0.2.1
-	github.com/containers/image/v5 v5.31.1
+	github.com/containers/image/v5 v5.33.0
 	github.com/containers/storage v1.55.0
 	github.com/docker/docker v26.1.5+incompatible
 	github.com/google/uuid v1.6.0
