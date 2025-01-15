@@ -1,6 +1,6 @@
 module-sets:
   openclarity:
-    version: v1.1.1
+    version: v1.1.2
     modules:
       - github.com/openclarity/openclarity/uibackend/types
       - github.com/openclarity/openclarity/uibackend/server
