@@ -2,7 +2,7 @@ module github.com/openclarity/openclarity/plugins/sdk-go/example
 
 go 1.23.2
 
-require github.com/openclarity/openclarity/plugins/sdk-go v1.1.1
+require github.com/openclarity/openclarity/plugins/sdk-go v1.1.2
 
 require (
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
