@@ -23,8 +23,8 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-viper/mapstructure/v2 v2.1.0
 	github.com/onsi/gomega v1.35.1
-	github.com/openclarity/openclarity/core v1.1.1
-	github.com/openclarity/openclarity/installation v1.1.1
+	github.com/openclarity/openclarity/core v1.1.2
+	github.com/openclarity/openclarity/installation v1.1.2
 	github.com/opencontainers/go-digest v1.0.0
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
@@ -186,7 +186,7 @@ require (
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f // indirect
-	github.com/openclarity/openclarity/utils v1.1.1 // indirect
+	github.com/openclarity/openclarity/utils v1.1.2 // indirect
 	github.com/opencontainers/image-spec v1.1.0 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
