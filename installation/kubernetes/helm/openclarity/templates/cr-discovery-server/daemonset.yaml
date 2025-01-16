@@ -34,7 +34,7 @@ spec:
           resources: {{- toYaml .Values.crDiscoveryServer.resources | nindent 12 }}
           {{- end }}
           {{- if .Values.crDiscoveryServer.env }}
-          resources: {{- toYaml .Values.crDiscoveryServer.env | nindent 12 }}
+          env: {{- toYaml .Values.crDiscoveryServer.env | nindent 12 }}
           {{- end }}
           volumeMounts:
             - mountPath: /var/run/containerd
