@@ -40,6 +40,9 @@ spec:
             - mountPath: /var/run/containerd
               name: containerd
               readOnly: true
+            - mountPath: /run/k3s/containerd
+              name: k3s-containerd
+              readOnly: true
             - mountPath: /var/lib/docker
               name: docker
               readOnly: true
@@ -60,6 +63,9 @@ spec:
         - name: containerd
           hostPath:
             path: /var/run/containerd
+        - name: k3s-containerd
+          hostPath:
+            path: /run/k3s/containerd
         - name: crio
           hostPath:
             path: /var/run/crio
