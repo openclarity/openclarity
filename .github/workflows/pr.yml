@@ -45,7 +45,7 @@ jobs:
             .*
 
       # Leave a comment if linter reports an error
-      - uses: marocchino/sticky-pull-request-comment@331f8f5b4215f0445d3c07b4967662a32a2d3e31 # v2.9.0
+      - uses: marocchino/sticky-pull-request-comment@52423e01640425a022ef5fd42c6fb5f633a02728 # v2.9.1
         if: always() && (steps.lint_pr_title.outputs.error_message != null)
         with:
           header: pr-title-lint-error
@@ -62,7 +62,7 @@ jobs:
 
       # Hide error message if the PR title has been fixed
       - if: ${{ steps.lint_pr_title.outputs.error_message == null }}
-        uses: marocchino/sticky-pull-request-comment@331f8f5b4215f0445d3c07b4967662a32a2d3e31 # v2.9.0
+        uses: marocchino/sticky-pull-request-comment@52423e01640425a022ef5fd42c6fb5f633a02728 # v2.9.1
         with:
           header: pr-title-lint-error
           delete: true

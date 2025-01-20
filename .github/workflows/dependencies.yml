@@ -19,7 +19,7 @@ jobs:
           private-key: ${{ secrets.OPENCLARITY_BOT_PRIVATE_KEY }}
 
       - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@v1.3.1
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
         with:
           # removes all pre-cached tools (Node, Go, Python, Ruby, ...)
           tool-cache: true
