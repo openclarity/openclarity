@@ -4,7 +4,7 @@ ARG VMCLARITY_TOOLS_BASE=ghcr.io/openclarity/vmclarity-tools-base:v0.6.0@sha256:
 # xx is a helper for cross-compilation
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:1.4.0@sha256:0cd3f05c72d6c9b038eb135f91376ee1169ef3a330d34e418e65e2a5c2e9c0d4 AS xx
 
-FROM --platform=$BUILDPLATFORM golang:1.23.4-bullseye@sha256:6d4cbf0b3900afa3e4460ca995b6c351370ce8d2d44b7a964dc521ab640e1a88 AS builder
+FROM --platform=$BUILDPLATFORM golang:1.23.5-bullseye@sha256:462521f1b7cbf410002a8cc4d91bc897f35cd430854d7240596282f9441fe4a7 AS builder
 
 COPY --link --from=xx / /
 
