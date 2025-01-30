@@ -916,9 +916,11 @@ crDiscoveryServer:
     digest: ""
     # -- Container Runtime Discovery Server image pull policy
     pullPolicy: IfNotPresent
-  env:
-    name: CONTAINERD_SOCK_ADDRESS
-    value: /run/k3s/containerd/containerd.sock
+
+  # -- Environment variables to set in the Container Runtime Discovery Server container
+  env: []
+  # - name: CONTAINERD_SOCK_ADDRESS
+  #   value: /var/run/containerd/containerd.sock
 
   resources:
     # -- The resources limits for the container runtime discovery server containers
