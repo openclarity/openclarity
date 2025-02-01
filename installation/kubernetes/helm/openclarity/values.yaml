@@ -921,7 +921,26 @@ crDiscoveryServer:
   env: []
   # - name: CONTAINERD_SOCK_ADDRESS
   #   value: /var/run/containerd/containerd.sock
-
+  containerRuntimePaths:
+    - name: containerd
+      path: /var/run/containerd
+      readOnly: true
+    - name: k3s-containerd
+      path: /run/k3s/containerd
+      readOnly: true
+    - name: docker
+      path: /var/lib/docker
+      readOnly: true
+    - name: crio
+      path: /var/run/crio
+      readOnly: true
+    - name: crio-lib
+      path: /var/lib/containers
+    - name: crio-run
+      path: /var/run/containers
+    - name: crio-containers
+      path: /etc/containers
+      readOnly: true
   resources:
     # -- The resources limits for the container runtime discovery server containers
     limits: {}
