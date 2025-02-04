@@ -60,6 +60,25 @@ secrets.
 | apiserver.serviceAccount.create | bool | `true` | Enable creation of ServiceAccount |
 | apiserver.serviceAccount.name | string | `""` | The name of the ServiceAccount to use. If not set and create is true, it will use the component's calculated name. |
 | crDiscoveryServer.affinity | object | `{}` |  |
+| crDiscoveryServer.containerRuntimePaths[0].name | string | `"containerd"` |  |
+| crDiscoveryServer.containerRuntimePaths[0].path | string | `"/var/run/containerd"` |  |
+| crDiscoveryServer.containerRuntimePaths[0].readOnly | bool | `true` |  |
+| crDiscoveryServer.containerRuntimePaths[1].name | string | `"k3s-containerd"` |  |
+| crDiscoveryServer.containerRuntimePaths[1].path | string | `"/run/k3s/containerd"` |  |
+| crDiscoveryServer.containerRuntimePaths[1].readOnly | bool | `true` |  |
+| crDiscoveryServer.containerRuntimePaths[2].name | string | `"docker"` |  |
+| crDiscoveryServer.containerRuntimePaths[2].path | string | `"/var/lib/docker"` |  |
+| crDiscoveryServer.containerRuntimePaths[2].readOnly | bool | `true` |  |
+| crDiscoveryServer.containerRuntimePaths[3].name | string | `"crio"` |  |
+| crDiscoveryServer.containerRuntimePaths[3].path | string | `"/var/run/crio"` |  |
+| crDiscoveryServer.containerRuntimePaths[3].readOnly | bool | `true` |  |
+| crDiscoveryServer.containerRuntimePaths[4].name | string | `"crio-lib"` |  |
+| crDiscoveryServer.containerRuntimePaths[4].path | string | `"/var/lib/containers"` |  |
+| crDiscoveryServer.containerRuntimePaths[5].name | string | `"crio-run"` |  |
+| crDiscoveryServer.containerRuntimePaths[5].path | string | `"/var/run/containers"` |  |
+| crDiscoveryServer.containerRuntimePaths[6].name | string | `"crio-containers"` |  |
+| crDiscoveryServer.containerRuntimePaths[6].path | string | `"/etc/containers"` |  |
+| crDiscoveryServer.containerRuntimePaths[6].readOnly | bool | `true` |  |
 | crDiscoveryServer.containerSecurityContext.allowPrivilegeEscalation | bool | `false` | Force the child process to run as non-privileged |
 | crDiscoveryServer.containerSecurityContext.capabilities.drop | list | `["ALL"]` | List of capabilities to be dropped |
 | crDiscoveryServer.containerSecurityContext.enabled | bool | `false` | Container security context enabled |

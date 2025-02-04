@@ -37,40 +37,18 @@ spec:
           env: {{- toYaml .Values.crDiscoveryServer.env | nindent 12 }}
           {{- end }}
           volumeMounts:
-            - mountPath: /var/run/containerd
-              name: containerd
+            {{- range .Values.crDiscoveryServer.containerRuntimePaths }}
+            - name: {{ .name }}
+              mountPath: {{ .path }}
+              {{- if .readOnly }}
               readOnly: true
-            - mountPath: /var/lib/docker
-              name: docker
-              readOnly: true
-            - mountPath: /var/run/crio
-              name: crio
-              readOnly: true
-            - mountPath: /var/lib/containers
-              name: varlibcontainers
-            - mountPath: /var/run/containers
-              name: varruncontainers
-            - mountPath: /etc/containers
-              name: etccontainers
-              readOnly: true
+              {{- end }}
+            {{- end }}
       volumes:
-        - name: docker
+        {{- range .Values.crDiscoveryServer.containerRuntimePaths }}
+        - name: {{ .name }}
           hostPath:
-            path: /var/lib/docker
-        - name: containerd
-          hostPath:
-            path: /var/run/containerd
-        - name: crio
-          hostPath:
-            path: /var/run/crio
-        - name: varlibcontainers
-          hostPath:
-            path: /var/lib/containers
-        - name: varruncontainers
-          hostPath:
-            path: /var/run/containers
-        - name: etccontainers
-          hostPath:
-            path: /etc/containers
+            path: {{ .path }}
+        {{- end }}
       serviceAccountName: {{ include "openclarity.crDiscoveryServer.serviceAccountName" . }}
 {{- end -}}
