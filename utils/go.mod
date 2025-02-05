@@ -7,7 +7,7 @@ require (
 	github.com/go-viper/mapstructure/v2 v2.1.0
 	github.com/moby/sys/mountinfo v0.7.1
 	github.com/onsi/gomega v1.33.1
-	github.com/openclarity/openclarity/core v1.1.2
+	github.com/openclarity/openclarity/core v1.1.3
 )
 
 require (
