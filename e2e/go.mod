@@ -167,7 +167,7 @@ require (
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/distribution/reference v0.6.0 // indirect
 	github.com/dlclark/regexp2 v1.4.0 // indirect
-	github.com/docker/buildx v0.14.1 // indirect
+	github.com/docker/buildx v0.21.3 // indirect
 	github.com/docker/cli v26.1.4+incompatible // indirect
 	github.com/docker/compose/v2 v2.27.1 // indirect
 	github.com/docker/distribution v2.8.3+incompatible // indirect
