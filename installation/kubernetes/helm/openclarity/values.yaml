@@ -618,7 +618,7 @@ trivyServer:
     # -- Trivy Server container repository
     repository: aquasec/trivy
     # -- Trivy Server container tag
-    tag: 0.58.2
+    tag: 0.61.1
     # -- Trivy Server image digest. If set will override the tag.
     digest: ""
     # -- Trivy Server image pull policy
@@ -795,7 +795,7 @@ swaggerUI:
     # -- Swagger UI container repository
     repository: swaggerapi/swagger-ui
     # -- Swagger UI container tag
-    tag: v5.18.2
+    tag: v5.21.0
     # -- Swagger UI image digest. If set will override the tag.
     digest: ""
     # -- Swagger UI image pull policy

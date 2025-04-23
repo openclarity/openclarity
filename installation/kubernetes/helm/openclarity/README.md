@@ -303,7 +303,7 @@ secrets.
 | swaggerUI.image.pullPolicy | string | `"IfNotPresent"` | Swagger UI image pull policy |
 | swaggerUI.image.registry | string | `"docker.io"` | Swagger UI container registry |
 | swaggerUI.image.repository | string | `"swaggerapi/swagger-ui"` | Swagger UI container repository |
-| swaggerUI.image.tag | string | `"v5.18.2"` | Swagger UI container tag |
+| swaggerUI.image.tag | string | `"v5.21.0"` | Swagger UI container tag |
 | swaggerUI.podSecurityContext.enabled | bool | `false` | Pod security context enabled |
 | swaggerUI.podSecurityContext.fsGroup | int | `101` | Pod security context fsGroup |
 | swaggerUI.replicas | int | `1` | Number of replicas for the swagger-ui service |
@@ -324,7 +324,7 @@ secrets.
 | trivyServer.image.pullPolicy | string | `"IfNotPresent"` | Trivy Server image pull policy |
 | trivyServer.image.registry | string | `"docker.io"` | Trivy Server container registry |
 | trivyServer.image.repository | string | `"aquasec/trivy"` | Trivy Server container repository |
-| trivyServer.image.tag | string | `"0.58.2"` | Trivy Server container tag |
+| trivyServer.image.tag | string | `"0.61.1"` | Trivy Server container tag |
 | trivyServer.podSecurityContext.enabled | bool | `true` | Pod security context enabled |
 | trivyServer.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
 | trivyServer.replicas | int | `1` | Number of replicas for the trivy server service |
