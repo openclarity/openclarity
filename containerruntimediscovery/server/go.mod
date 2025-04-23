@@ -9,7 +9,7 @@ require (
 
 require (
 	github.com/containerd/containerd v1.7.23
-	github.com/containerd/nerdctl v1.7.6
+	github.com/containerd/nerdctl v1.7.7
 	github.com/containerd/platforms v0.2.1
 	github.com/containers/image/v5 v5.31.1
 	github.com/containers/storage v1.58.0
@@ -17,14 +17,14 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/labstack/echo/v4 v4.13.3
 	github.com/openclarity/openclarity/core v1.1.3
-	github.com/opencontainers/image-spec v1.1.0
+	github.com/opencontainers/image-spec v1.1.1
 	github.com/opencontainers/umoci v0.4.7
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
 	go.opentelemetry.io/otel/trace v1.28.0
-	k8s.io/cri-api v0.32.0
-	k8s.io/cri-client v0.32.0
+	k8s.io/cri-api v0.32.4
+	k8s.io/cri-client v0.32.4
 	k8s.io/klog/v2 v2.130.1
 )
 
@@ -214,9 +214,9 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/apimachinery v0.32.0 // indirect
-	k8s.io/client-go v0.32.0 // indirect
-	k8s.io/component-base v0.32.0 // indirect
+	k8s.io/apimachinery v0.32.4 // indirect
+	k8s.io/client-go v0.32.4 // indirect
+	k8s.io/component-base v0.32.4 // indirect
 	k8s.io/utils v0.0.0-20241104100929-3ea5e8cea738 // indirect
 	lukechampine.com/blake3 v1.1.7 // indirect
 	sigs.k8s.io/yaml v1.4.0 // indirect
