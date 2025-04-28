@@ -507,7 +507,7 @@ require (
 	sigs.k8s.io/kustomize/kyaml v0.14.3-0.20230601165947-6ce0bf390ce3 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.4.2 // indirect
 	sigs.k8s.io/yaml v1.4.0 // indirect
-	www.velocidex.com/golang/regparser v0.0.0-20240404115756-2169ac0e3c09 // indirect
+	www.velocidex.com/golang/regparser v0.0.0-20250203141505-31e704a67ef7 // indirect
 )
 
 // NOTE(chrisgacsal): remove this when the following PR is merged and new helm version is released:
