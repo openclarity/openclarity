@@ -156,7 +156,7 @@ secrets.
 | gateway.image.pullPolicy | string | `"IfNotPresent"` | Gateway service container pull policy |
 | gateway.image.registry | string | `"docker.io"` | Gateway service container registry |
 | gateway.image.repository | string | `"nginxinc/nginx-unprivileged"` | Gateway service container repository |
-| gateway.image.tag | string | `"1.27.3"` | Gateway service container tag |
+| gateway.image.tag | string | `"1.28.0"` | Gateway service container tag |
 | gateway.ingress.annotations | object | `{}` |  |
 | gateway.ingress.enabled | bool | `false` | Be careful when using ingress. As there is no authentication on openclarity, your instance may be accessible. Make sure the ingress remains internal if you decide to enable it. |
 | gateway.ingress.hosts[0].host | string | `"chart-example.local"` |  |
