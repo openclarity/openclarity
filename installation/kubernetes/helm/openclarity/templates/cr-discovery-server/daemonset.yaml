@@ -21,7 +21,7 @@ spec:
       securityContext: {{- omit .Values.crDiscoveryServer.podSecurityContext "enabled" | toYaml | nindent 8 }}
       {{- end }}
       {{- if .Values.crDiscoveryServer.tolerations }}
-      tolerations: {{- .Values.crDiscoveryServer.tolerations | nindent 8 }}
+      tolerations: {{- .Values.crDiscoveryServer.tolerations | toYaml | nindent 8 }}
       {{- end }}
       containers:
         - name: cr-discovery-server
