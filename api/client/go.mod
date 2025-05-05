@@ -3,7 +3,7 @@ module github.com/openclarity/openclarity/api/client
 go 1.23.2
 
 require (
-	github.com/oapi-codegen/oapi-codegen/v2 v2.3.1-0.20240915195924-0502e95d86bb
+	github.com/oapi-codegen/oapi-codegen/v2 v2.4.1
 	github.com/oapi-codegen/runtime v1.1.1
 	github.com/openclarity/openclarity/api/types v1.1.3
 	github.com/openclarity/openclarity/core v1.1.3
