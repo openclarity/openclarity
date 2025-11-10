@@ -30,7 +30,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	golang.org/x/crypto v0.37.0
 	google.golang.org/api v0.229.0
-	helm.sh/helm/v3 v3.17.3
+	helm.sh/helm/v3 v3.18.5
 	k8s.io/api v0.32.0
 	k8s.io/apimachinery v0.32.0
 	k8s.io/cli-runtime v0.32.0
