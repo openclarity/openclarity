@@ -45,7 +45,7 @@ type Config struct {
 	DBPassword       string `json:"-" mapstructure:"db_pass"`
 	DBHost           string `json:"db-host,omitempty" mapstructure:"db_host"`
 	DBPort           string `json:"db-port,omitempty" mapstructure:"db_port"`
-	DBSSLMode 		 string `json:"db-sslmode,omitempty" mapstructure:"db_sslmode"`
+	DBSSLMode        string `json:"db-sslmode,omitempty" mapstructure:"db_sslmode"`
 	EnableDBInfoLogs bool   `json:"enable-db-info-logs" mapstructure:"enable_db_info_logs"`
 
 	LocalDBPath string `json:"local-db-path,omitempty" mapstructure:"local_db_path"`
@@ -81,7 +81,7 @@ func NewConfig() (*Config, error) {
 	_ = v.BindEnv("db_port")
 
 	_ = v.BindEnv("db_sslmode")
-    v.SetDefault("db_sslmode", DefaultDBSSLMode)
+	v.SetDefault("db_sslmode", DefaultDBSSLMode)
 
 	_ = v.BindEnv("enable_db_info_logs")
 
