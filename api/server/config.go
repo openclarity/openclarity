@@ -31,6 +31,7 @@ const (
 	DefaultListenAddress      = "0.0.0.0:8888"
 	DefaultHealthCheckAddress = "0.0.0.0:8081"
 	DefaultDatabaseDriver     = dbtypes.DBDriverTypeLocal
+	DefaultDBSSLMode          = dbtypes.SSLModeDisable
 )
 
 type Config struct {
@@ -80,7 +81,7 @@ func NewConfig() (*Config, error) {
 	_ = v.BindEnv("db_port")
 
 	_ = v.BindEnv("db_sslmode")
-    v.SetDefault("db_sslmode", "disable")
+    v.SetDefault("db_sslmode", DefaultDBSSLMode)
 
 	_ = v.BindEnv("enable_db_info_logs")
 

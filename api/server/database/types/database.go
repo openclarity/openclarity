@@ -24,6 +24,7 @@ import (
 const (
 	DBDriverTypeLocal    = "LOCAL"
 	DBDriverTypePostgres = "POSTGRES"
+	SSLModeDisable    	 = "disable"
 )
 
 var ErrNotFound = errors.New("not found")
