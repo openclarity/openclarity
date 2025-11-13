@@ -59,6 +59,8 @@ spec:
                 secretKeyRef:
                   name: {{ include "postgresql.v1.secretName" .Subcharts.postgresql }}
                   key: password
+            - name: OPENCLARITY_APISERVER_DB_SSLMODE
+              value: {{ .Values.apiserver.database.postgresql.sslMode | quote }}
           {{- else if .Values.apiserver.database.externalPostgresql.enabled }}
             - name: OPENCLARITY_APISERVER_DATABASE_DRIVER
               value: POSTGRES
@@ -81,6 +83,8 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.apiserver.database.externalPostgresql.auth.existingSecret }}
                   key: password
+            - name: OPENCLARITY_APISERVER_DB_SSLMODE
+              value: {{ .Values.apiserver.database.externalPostgresql.sslMode | quote }}
           {{- else if .Values.apiserver.database.sqlite.enabled }}
             - name: OPENCLARITY_APISERVER_DATABASE_DRIVER
               value: LOCAL

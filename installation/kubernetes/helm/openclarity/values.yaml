@@ -9,6 +9,7 @@ apiserver:
     postgresql:
       # -- Enable/disable Postgresql database
       enabled: true
+      sslMode: disable
     externalPostgresql:
       # -- Enable/disable external Postgresql database
       enabled: false
@@ -22,6 +23,7 @@ apiserver:
         # password
         # database
         existingSecret: ""
+      sslMode: disable
     sqlite:
       # -- Enable/disable SQLite database
       enabled: false

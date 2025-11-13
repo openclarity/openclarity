@@ -41,7 +41,9 @@ secrets.
 | apiserver.database.externalPostgresql.enabled | bool | `false` | Enable/disable external Postgresql database |
 | apiserver.database.externalPostgresql.host | string | `""` | External Postgreqsl database host |
 | apiserver.database.externalPostgresql.port | int | `5432` | External Postgresql database port |
+| apiserver.database.externalPostgresql.sslMode | string | `"disable"` |  |
 | apiserver.database.postgresql.enabled | bool | `true` | Enable/disable Postgresql database |
+| apiserver.database.postgresql.sslMode | string | `"disable"` |  |
 | apiserver.database.sqlite.enabled | bool | `false` | Enable/disable SQLite database |
 | apiserver.database.sqlite.persistence.accessMode | string | `"ReadWriteOnce"` | Access mode for PersistentVolumeClaim |
 | apiserver.database.sqlite.persistence.size | string | `"1Gi"` | Size for PersistentVolumeClaim |

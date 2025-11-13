@@ -37,6 +37,7 @@ func createDatabaseConfig(config *Config) dbtypes.DBConfig {
 		DBHost:         config.DBHost,
 		DBPort:         config.DBPort,
 		DBName:         config.DBName,
+		DBSSLMode:      config.DBSSLMode,
 		LocalDBPath:    config.LocalDBPath,
 	}
 }

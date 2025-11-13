@@ -170,8 +170,8 @@ func initSqlite(config types.DBConfig, dbLogger logger.Interface) (*gorm.DB, err
 }
 
 func initPostgres(config types.DBConfig, dbLogger logger.Interface) (*gorm.DB, error) {
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=UTC",
-		config.DBHost, config.DBUser, config.DBPassword, config.DBName, config.DBPort)
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=UTC",
+		config.DBHost, config.DBUser, config.DBPassword, config.DBName, config.DBPort, config.DBSSLMode)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: dbLogger,

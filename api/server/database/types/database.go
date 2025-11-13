@@ -24,6 +24,7 @@ import (
 const (
 	DBDriverTypeLocal    = "LOCAL"
 	DBDriverTypePostgres = "POSTGRES"
+	SSLModeDisable       = "disable"
 )
 
 var ErrNotFound = errors.New("not found")
@@ -44,6 +45,7 @@ type DBConfig struct {
 	DBHost         string `json:"db-host,omitempty"`
 	DBPort         string `json:"db-port,omitempty"`
 	DBName         string `json:"db-name,omitempty"`
+	DBSSLMode      string `json:"db-ssl-mode,omitempty"`
 
 	LocalDBPath string `json:"local-db-path,omitempty"`
 }
