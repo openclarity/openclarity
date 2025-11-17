@@ -1,6 +1,8 @@
 module github.com/openclarity/openclarity/plugins/sdk-go/example
 
-go 1.23.2
+go 1.24.0
+
+toolchain go1.24.10
 
 require github.com/openclarity/openclarity/plugins/sdk-go v1.1.3
 
@@ -24,10 +26,10 @@ require (
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
-	golang.org/x/crypto v0.31.0 // indirect
-	golang.org/x/net v0.33.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/crypto v0.43.0 // indirect
+	golang.org/x/net v0.45.0 // indirect
+	golang.org/x/sys v0.37.0 // indirect
+	golang.org/x/text v0.30.0 // indirect
 	golang.org/x/time v0.8.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
