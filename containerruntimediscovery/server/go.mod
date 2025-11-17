@@ -29,6 +29,7 @@ require (
 )
 
 require (
+	cyphar.com/go-pathrs v0.2.1 // indirect
 	dario.cat/mergo v1.0.0 // indirect
 	github.com/AdaLogics/go-fuzz-headers v0.0.0-20230811130428-ced1acdcaa24 // indirect
 	github.com/AdamKorcz/go-118-fuzz-build v0.0.0-20230306123547-8075edf89bb0 // indirect
@@ -64,7 +65,7 @@ require (
 	github.com/containers/ocicrypt v1.1.10 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.5 // indirect
 	github.com/cyberphone/json-canonicalization v0.0.0-20231217050601-ba74d44ecf5f // indirect
-	github.com/cyphar/filepath-securejoin v0.4.1 // indirect
+	github.com/cyphar/filepath-securejoin v0.6.0 // indirect
 	github.com/distribution/reference v0.6.0 // indirect
 	github.com/docker/cli v26.1.3+incompatible // indirect
 	github.com/docker/distribution v2.8.3+incompatible // indirect
@@ -143,7 +144,7 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/runc v1.1.14 // indirect
 	github.com/opencontainers/runtime-spec v1.2.1 // indirect
-	github.com/opencontainers/selinux v1.12.0 // indirect
+	github.com/opencontainers/selinux v1.13.0 // indirect
 	github.com/ostreedev/ostree-go v0.0.0-20210805093236-719684c64e4f // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
