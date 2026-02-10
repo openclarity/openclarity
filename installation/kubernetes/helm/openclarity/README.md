@@ -282,7 +282,7 @@ secrets.
 | postgresql.image.digest | string | `""` | Postgresql image digest. If set will override the tag. |
 | postgresql.image.pullPolicy | string | `"IfNotPresent"` | Postgresql container image pull policy |
 | postgresql.image.registry | string | `"docker.io"` | Postgresql container registry |
-| postgresql.image.repository | string | `"bitnami/postgresql"` | Postgresql container repository |
+| postgresql.image.repository | string | `"bitnamilegacy/postgresql"` | Postgresql container repository |
 | postgresql.image.tag | string | `"16.6.0-debian-12-r2"` | Postgresql container tag |
 | postgresql.podSecurityContext.enabled | bool | `true` | Pod security context enabled |
 | postgresql.podSecurityContext.fsGroup | int | `1001` | Pod security context fsGroup |
