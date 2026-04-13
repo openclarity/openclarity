@@ -1,6 +1,6 @@
 module github.com/openclarity/openclarity/provider
 
-go 1.23.2
+go 1.24
 
 require (
 	cloud.google.com/go/compute v1.36.1
@@ -14,7 +14,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.29.2
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.211.3
 	github.com/aws/aws-sdk-go-v2/service/pricing v1.34.3
-	github.com/aws/smithy-go v1.22.2
+	github.com/aws/smithy-go v1.24.2
 	github.com/docker/docker v26.1.5+incompatible
 	github.com/go-viper/mapstructure/v2 v2.1.0
 	github.com/google/go-cmp v0.7.0
@@ -113,7 +113,7 @@ require (
 	github.com/aquasecurity/trivy-java-db v0.0.0-20240109071736-184bd7481d48 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/aws/aws-sdk-go v1.53.0 // indirect
-	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.6.2 // indirect
+	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.8 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.55 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.25 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.16.20 // indirect
