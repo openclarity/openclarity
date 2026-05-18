@@ -31,11 +31,11 @@ require (
 	golang.org/x/crypto v0.37.0
 	google.golang.org/api v0.229.0
 	helm.sh/helm/v3 v3.17.3
-	k8s.io/api v0.32.0
-	k8s.io/apimachinery v0.32.0
-	k8s.io/cli-runtime v0.32.0
-	k8s.io/client-go v0.32.0
-	sigs.k8s.io/kind v0.25.0
+	k8s.io/api v0.36.1
+	k8s.io/apimachinery v0.36.1
+	k8s.io/cli-runtime v0.36.1
+	k8s.io/client-go v0.36.1
+	sigs.k8s.io/kind v0.31.0
 )
 
 require (
