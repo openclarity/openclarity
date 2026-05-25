@@ -1,6 +1,6 @@
 module github.com/openclarity/openclarity/scanner
 
-go 1.23.2
+go 1.25.0
 
 require (
 	github.com/CycloneDX/cyclonedx-go v0.8.0
@@ -445,7 +445,7 @@ require (
 	golang.org/x/mod v0.22.0 // indirect
 	golang.org/x/net v0.34.0 // indirect
 	golang.org/x/oauth2 v0.23.0 // indirect
-	golang.org/x/sys v0.29.0 // indirect
+	golang.org/x/sys v0.44.0 // indirect
 	golang.org/x/term v0.28.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	golang.org/x/time v0.8.0 // indirect
