@@ -1,6 +1,6 @@
 module github.com/openclarity/openclarity/plugins/store/kics
 
-go 1.23.2
+go 1.25.0
 
 require (
 	github.com/Checkmarx/kics/v2 v2.1.2
@@ -209,7 +209,7 @@ require (
 	golang.org/x/net v0.37.0 // indirect
 	golang.org/x/oauth2 v0.23.0 // indirect
 	golang.org/x/sync v0.12.0 // indirect
-	golang.org/x/sys v0.31.0 // indirect
+	golang.org/x/sys v0.44.0 // indirect
 	golang.org/x/term v0.30.0 // indirect
 	golang.org/x/text v0.23.0 // indirect
 	golang.org/x/time v0.8.0 // indirect
